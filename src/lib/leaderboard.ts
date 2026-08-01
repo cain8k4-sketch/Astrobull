@@ -1,5 +1,7 @@
 /** Creator activity leaderboard — demo until live stats land in Supabase */
 
+import { getSupabaseConfig, supabaseHeaders } from "./supabase";
+
 export type LeaderboardEntry = {
   id: string;
   rank?: number;
@@ -108,7 +110,6 @@ export const DEMO_LEADERS: LeaderboardEntry[] = [
 ];
 
 export function scoreEntry(e: Omit<LeaderboardEntry, "points" | "id"> & { id?: string }): number {
-  // Weighted activity score — views dominate, posts + feature boost
   return Math.round(
     e.views * 0.04 + e.posts * 80 + e.earnedUsd * 25 + (e.featured ? 400 : 0),
   );
@@ -155,27 +156,21 @@ export function formatUsd(n: number) {
   return `$${n.toFixed(n >= 10 ? 0 : 2)}`;
 }
 
-/** Optional live fetch from Supabase table `leaderboard` or `creator_stats` */
+/** Live fetch from Supabase table `leaderboard` */
 export async function fetchLiveLeaderboard(): Promise<{
   rows: LeaderboardEntry[];
   source: "live" | "demo";
   message?: string;
 }> {
-  const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim();
-  const key = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim();
-  if (!url || !key) {
+  const cfg = getSupabaseConfig();
+  if (!cfg) {
     return { rows: loadLeaderboard(), source: "demo" };
   }
 
   try {
     const res = await fetch(
-      `${url.replace(/\/$/, "")}/rest/v1/leaderboard?select=*&order=points.desc&limit=50`,
-      {
-        headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`,
-        },
-      },
+      `${cfg.url}/rest/v1/leaderboard?select=*&order=points.desc&limit=50`,
+      { headers: supabaseHeaders(cfg.key) },
     );
     if (!res.ok) {
       return {
@@ -214,20 +209,3 @@ export async function fetchLiveLeaderboard(): Promise<{
     };
   }
 }
-
-/** SQL helper text for Supabase Table Editor */
-export const LEADERBOARD_SQL_HINT = `
-create table if not exists leaderboard (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  handle text,
-  platform text default 'Multi',
-  posts int default 0,
-  views bigint default 0,
-  points int default 0,
-  earned_usd numeric default 0,
-  featured boolean default false,
-  updated_at timestamptz default now()
-);
--- RLS: allow public SELECT for leaderboard; INSERT/UPDATE only via service role / admin
-`.trim();

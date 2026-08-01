@@ -1,3 +1,5 @@
+import { getSupabaseConfig, isSupabaseConfigured, supabaseHeaders } from "./supabase";
+
 const STORAGE = "astrobull.signup.v1";
 const ADMIN_STORAGE = "astrobull.admin.inbox.v1";
 
@@ -22,9 +24,25 @@ function uid() {
   return `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function rowToSignup(r: Record<string, unknown>): CreatorSignup {
+  return {
+    id: String(r.id ?? uid()),
+    name: String(r.name ?? ""),
+    email: String(r.email ?? ""),
+    wallet: String(r.wallet ?? ""),
+    handle_tiktok: String(r.handle_tiktok ?? ""),
+    handle_youtube: String(r.handle_youtube ?? ""),
+    handle_snapchat: String(r.handle_snapchat ?? ""),
+    handle_x: String(r.handle_x ?? ""),
+    handle_instagram: String(r.handle_instagram ?? ""),
+    status: (String(r.status ?? "pending") as CreatorStatus) || "pending",
+    total_earned: Number(r.total_earned ?? 0),
+    at: String(r.created_at ?? r.at ?? new Date().toISOString()),
+  };
+}
+
 export function loadAllSignups(): CreatorSignup[] {
   try {
-    // Prefer admin inbox (shared view); fall back to device signup list
     const admin = localStorage.getItem(ADMIN_STORAGE);
     if (admin) return JSON.parse(admin) as CreatorSignup[];
     const list = JSON.parse(localStorage.getItem(STORAGE) || "[]") as CreatorSignup[];
@@ -83,13 +101,18 @@ export function isValidEmail(e: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
 }
 
-/** Optional Supabase REST insert — set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY */
+/** Insert signup into Supabase `creators` table */
 export async function pushSignupToSupabase(
   entry: CreatorSignup,
-): Promise<{ ok: boolean; offline?: boolean; status?: number; message?: string }> {
-  const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim();
-  const key = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim();
-  if (!url || !key) return { ok: false, offline: true };
+): Promise<{
+  ok: boolean;
+  offline?: boolean;
+  status?: number;
+  message?: string;
+  id?: string;
+}> {
+  const cfg = getSupabaseConfig();
+  if (!cfg) return { ok: false, offline: true };
 
   const payload = {
     name: entry.name,
@@ -105,24 +128,120 @@ export async function pushSignupToSupabase(
   };
 
   try {
-    const res = await fetch(`${url.replace(/\/$/, "")}/rest/v1/creators`, {
+    const res = await fetch(`${cfg.url}/rest/v1/creators`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        Prefer: "return=minimal",
-      },
+      headers: supabaseHeaders(cfg.key, {
+        Prefer: "return=representation",
+      }),
       body: JSON.stringify(payload),
     });
     if (!res.ok) {
       const t = await res.text().catch(() => "");
-      return { ok: false, status: res.status, message: t.slice(0, 200) };
+      return { ok: false, status: res.status, message: t.slice(0, 280) };
     }
-    return { ok: true };
+    const rows = (await res.json().catch(() => [])) as Array<Record<string, unknown>>;
+    const id = rows?.[0]?.id ? String(rows[0].id) : undefined;
+    if (id) {
+      // Keep local copy in sync with cloud id so admin can update later
+      const local = loadAllSignups().map((c) =>
+        c.id === entry.id || (c.email === entry.email && c.at === entry.at)
+          ? { ...c, id }
+          : c,
+      );
+      if (!local.some((c) => c.id === id)) {
+        local.unshift({ ...entry, id });
+      }
+      persistAdmin(local);
+    }
+    return { ok: true, id };
   } catch (e) {
     return {
       ok: false,
+      message: e instanceof Error ? e.message : "Network error",
+    };
+  }
+}
+
+/** Load creators for admin — prefers Supabase, falls back to device */
+export async function fetchCreatorsFromSupabase(): Promise<{
+  rows: CreatorSignup[];
+  source: "live" | "local";
+  message?: string;
+}> {
+  const cfg = getSupabaseConfig();
+  if (!cfg) {
+    return { rows: loadAllSignups(), source: "local", message: "Supabase not configured" };
+  }
+
+  try {
+    const res = await fetch(
+      `${cfg.url}/rest/v1/creators?select=*&order=created_at.desc&limit=200`,
+      { headers: supabaseHeaders(cfg.key) },
+    );
+    if (!res.ok) {
+      const t = await res.text().catch(() => "");
+      return {
+        rows: loadAllSignups(),
+        source: "local",
+        message: `Cloud fetch failed (${res.status}): ${t.slice(0, 120)}`,
+      };
+    }
+    const data = (await res.json()) as Array<Record<string, unknown>>;
+    if (!Array.isArray(data) || data.length === 0) {
+      const local = loadAllSignups();
+      return {
+        rows: local,
+        source: local.length ? "local" : "live",
+        message: local.length
+          ? "Cloud empty — showing this device only"
+          : "No sign-ups yet",
+      };
+    }
+    const rows = data.map(rowToSignup);
+    persistAdmin(rows);
+    return { rows, source: "live" };
+  } catch (e) {
+    return {
+      rows: loadAllSignups(),
+      source: "local",
+      message: e instanceof Error ? e.message : "Network error",
+    };
+  }
+}
+
+/** Update status in Supabase + local */
+export async function updateSignupStatusCloud(
+  id: string,
+  status: CreatorStatus,
+): Promise<{ rows: CreatorSignup[]; cloudOk: boolean; message?: string }> {
+  const local = updateSignupStatus(id, status);
+  const cfg = getSupabaseConfig();
+  if (!cfg) return { rows: local, cloudOk: false, message: "Local only (no Supabase)" };
+
+  // Local-only ids (c_…) can't patch cloud
+  if (id.startsWith("c_")) {
+    return { rows: local, cloudOk: false, message: "Local entry — not in cloud" };
+  }
+
+  try {
+    const res = await fetch(`${cfg.url}/rest/v1/creators?id=eq.${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: supabaseHeaders(cfg.key, { Prefer: "return=minimal" }),
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) {
+      const t = await res.text().catch(() => "");
+      return {
+        rows: local,
+        cloudOk: false,
+        message: `Cloud update failed (${res.status}): ${t.slice(0, 120)}`,
+      };
+    }
+    return { rows: local, cloudOk: true };
+  } catch (e) {
+    return {
+      rows: local,
+      cloudOk: false,
       message: e instanceof Error ? e.message : "Network error",
     };
   }
@@ -148,9 +267,66 @@ export function notifyOwnerMailto(entry: CreatorSignup, ownerEmail?: string) {
       `Status: ${entry.status}`,
       `Time: ${entry.at}`,
       "",
-      "Open Admin inbox on the site to approve / reject.",
+      "Open Admin inbox: https://www.astrobull.xyz/admin",
     ].join("\n"),
   );
   window.open(`mailto:${to}?subject=${subject}&body=${body}`, "_blank");
   return true;
 }
+
+/**
+ * Optional Discord / Slack / Make / Zapier webhook.
+ * Set VITE_NOTIFY_WEBHOOK_URL in Vercel.
+ */
+export async function notifyOwnerWebhook(entry: CreatorSignup): Promise<boolean> {
+  const hook = (import.meta.env.VITE_NOTIFY_WEBHOOK_URL as string | undefined)?.trim();
+  if (!hook) return false;
+
+  const text = [
+    `**Astro Bull · new creator**`,
+    `**${entry.name}** · ${entry.email}`,
+    `Wallet: \`${entry.wallet}\``,
+    [
+      entry.handle_tiktok && `TikTok: ${entry.handle_tiktok}`,
+      entry.handle_youtube && `YouTube: ${entry.handle_youtube}`,
+      entry.handle_snapchat && `Snap: ${entry.handle_snapchat}`,
+      entry.handle_x && `X: ${entry.handle_x}`,
+      entry.handle_instagram && `IG: ${entry.handle_instagram}`,
+    ]
+      .filter(Boolean)
+      .join(" · ") || "No handles",
+    `Admin: https://www.astrobull.xyz/admin`,
+  ].join("\n");
+
+  try {
+    // Discord-style
+    const res = await fetch(hook, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: text,
+        // Also generic fields for Zapier/Make
+        text,
+        name: entry.name,
+        email: entry.email,
+        wallet: entry.wallet,
+        status: entry.status,
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/** Fire all notification channels */
+export async function notifyOwnerAll(entry: CreatorSignup): Promise<{
+  mailto: boolean;
+  webhook: boolean;
+}> {
+  const mailto = notifyOwnerMailto(entry);
+  const webhook = await notifyOwnerWebhook(entry);
+  return { mailto, webhook };
+}
+
+export { isSupabaseConfigured };

@@ -14,7 +14,7 @@ import {
 import {
   isValidEmail,
   loadLastSignup,
-  notifyOwnerMailto,
+  notifyOwnerAll,
   pushSignupToSupabase,
   saveSignup,
 } from "@/lib/signup";
@@ -136,18 +136,27 @@ function SignupPage() {
       });
 
       const cloud = await pushSignupToSupabase(entry);
-      notifyOwnerMailto(entry);
+      const notes = await notifyOwnerAll(entry);
 
       setAlready(n);
+      const notifyBit =
+        notes.webhook || notes.mailto
+          ? notes.webhook
+            ? " Notification sent."
+            : " Email draft opened."
+          : "";
+
       if (cloud.ok) {
-        setOk("You're signed up as a creator. Status: pending. Saved to the cloud. We are all Astro.");
+        setOk(
+          `You're signed up as a creator. Status: pending. Saved to the cloud.${notifyBit} We are all Astro.`,
+        );
       } else if (cloud.offline) {
         setOk(
-          "You're signed up as a creator. Status: pending. Saved on this device (add Supabase keys for live cloud).",
+          `You're signed up as a creator. Status: pending. Saved on this device (add Supabase keys for live cloud).${notifyBit}`,
         );
       } else {
         setOk(
-          `You're signed up as a creator. Status: pending. Device save OK — cloud note: ${cloud.status || cloud.message || "check RLS"}.`,
+          `You're signed up as a creator. Status: pending. Device save OK — cloud note: ${cloud.status || cloud.message || "check RLS"}.${notifyBit}`,
         );
       }
     } finally {
@@ -254,13 +263,13 @@ function SignupPage() {
           />
         </Field>
 
-        {/* Wallet at the bottom, then submit */}
         <div className="space-y-2 border-t border-white/10 pt-4">
           <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-green">
             Connect wallet
           </p>
           <p className="font-mono text-[11px] text-muted">
-            Robinhood Chain 0x address for USDC / USDT payouts ($50 threshold). Last step before sign-up.
+            Robinhood Chain 0x address for USDC / USDT payouts ($50 threshold). Last step
+            before sign-up.
           </p>
           <button
             type="button"
@@ -269,11 +278,7 @@ function SignupPage() {
             className="flex w-full items-center justify-center gap-2 rounded-sm bg-red px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_0_16px_rgba(255,0,51,0.3)] disabled:opacity-55"
           >
             <Wallet size={14} />
-            {busy
-              ? "Connecting…"
-              : phantom
-                ? "Connect Phantom"
-                : "Connect wallet"}
+            {busy ? "Connecting…" : phantom ? "Connect Phantom" : "Connect wallet"}
           </button>
           <a
             href={PHANTOM_DOWNLOAD}
@@ -287,8 +292,8 @@ function SignupPage() {
           {!hasInjected ? (
             <p className="font-mono text-[11px] leading-relaxed text-muted">
               No wallet detected. Tap{" "}
-              <strong className="text-green">Create wallet (Phantom)</strong> — free.
-              Come back and hit Connect, or paste below.
+              <strong className="text-green">Create wallet (Phantom)</strong> — free. Come
+              back and hit Connect, or paste below.
             </p>
           ) : null}
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted">

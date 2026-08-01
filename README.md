@@ -3,44 +3,52 @@
 Community-powered meme movement site on Robinhood Chain.  
 Create free → get featured → get paid.
 
-## Live preview (local)
+**Live domain:** [https://www.astrobull.xyz](https://www.astrobull.xyz)  
+**Repo:** [cain8k4-sketch/Astrobull](https://github.com/cain8k4-sketch/Astrobull)
+
+## Local
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Deploy to Vercel (recommended)
+## Deploy (GitHub → Vercel)
 
-1. Push this repo to GitHub (already set up as `cain8k4-sketch/Astrobull`).
-2. Go to [vercel.com/new](https://vercel.com/new) → **Import** this repository.
-3. Framework preset: **Other** (Nitro / TanStack Start handles output).
-4. Build settings (usually auto-detected):
-   - **Install command:** `npm install`
-   - **Build command:** `npm run build`
-   - **Output:** leave default (Nitro writes `.vercel/output`)
-5. Optional env vars (Project → Settings → Environment Variables):
+1. Code is on `main` of this repo.
+2. Vercel project connected to this repo (build: `npm run build`).
+3. Domain `astrobull.xyz` / `www` stays on that project — redeploy after env changes.
+
+## Supabase + admin + notifications
+
+Full walkthrough: **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)**  
+SQL to run once: **[supabase/setup.sql](./supabase/setup.sql)**
+
+### Vercel env vars (minimum)
 
 | Variable | Purpose |
 |---|---|
-| `VITE_ADMIN_PASSWORD` | Admin inbox password (change from default) |
-| `VITE_OWNER_EMAIL` | Mailto alerts on new creator signups |
-| `VITE_SUPABASE_URL` | Live creators / leaderboard |
+| `VITE_SUPABASE_URL` | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon key |
-| `DATABASE_URL` | Neon Postgres for auth + migrations |
+| `VITE_ADMIN_PASSWORD` | `/admin` unlock password |
+| `VITE_OWNER_EMAIL` | Mailto alert on signup |
+| `VITE_NOTIFY_WEBHOOK_URL` | Discord/Zapier webhook (optional) |
 
-6. Deploy. Your site gets a `*.vercel.app` URL; add a custom domain under Project → Domains.
+After adding vars → **Redeploy**.
 
-## Important
+### Routes
 
-- Upload **package.json at the repo root** (this folder structure). Do not nest the app inside another folder.
-- Videos live in `/public` and ship with the build.
-- Admin path: `/admin` — set `VITE_ADMIN_PASSWORD` before going public.
+| Path | What |
+|---|---|
+| `/` | Home |
+| `/studio` | Creator Studio |
+| `/signup` | Creator sign-up → Supabase |
+| `/admin` | Password-protected inbox |
 
 ## Scripts
 
-| Command | What it does |
+| Command | What |
 |---|---|
-| `npm run dev` | Local dev server |
-| `npm run build` | Production build + migrations |
-| `npm run typecheck` | TypeScript check |
+| `npm run dev` | Local dev |
+| `npm run build` | Production (Vercel/Nitro) |
+| `npm run typecheck` | TypeScript |
