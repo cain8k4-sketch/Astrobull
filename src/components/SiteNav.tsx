@@ -42,7 +42,7 @@ export default function SiteNav() {
                 Board
               </a>
               <a
-                href="#quick"
+                href="#buy"
                 className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
               >
                 Buy

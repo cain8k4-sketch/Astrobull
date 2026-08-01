@@ -2,10 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Check, ExternalLink, UserPlus, Wallet } from "lucide-react";
 import {
-  PHANTOM_DOWNLOAD,
+  METAMASK_DOWNLOAD,
   connectWallet,
   hasInjectedWallet,
-  isPhantomInstalled,
   isValidEthAddress,
   loadWallet,
   saveWallet,
@@ -48,13 +47,11 @@ function SignupPage() {
   const [err, setErr] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
   const [hasInjected, setHasInjected] = useState(false);
-  const [phantom, setPhantom] = useState(false);
   const [already, setAlready] = useState<string | null>(null);
 
   useEffect(() => {
     setWallet(loadWallet());
     setHasInjected(hasInjectedWallet());
-    setPhantom(isPhantomInstalled());
     const last = loadLastSignup();
     if (last) {
       setAlready(last.name);
@@ -77,11 +74,10 @@ function SignupPage() {
       const addr = await connectWallet();
       setWallet(addr);
       setHasInjected(true);
-      setPhantom(isPhantomInstalled());
     } catch (e) {
       const m = e instanceof Error ? e.message : "Connect failed";
       if (m === "NO_WALLET") {
-        setErr("No wallet found. Create one with Phantom below, then come back.");
+        setErr("No wallet found. Install MetaMask below, then come back.");
       } else {
         setErr(m);
       }
@@ -273,21 +269,21 @@ function SignupPage() {
             className="flex w-full items-center justify-center gap-2 rounded-sm bg-red px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_0_16px_rgba(255,0,51,0.3)] disabled:opacity-55"
           >
             <Wallet size={14} />
-            {busy ? "Connecting…" : phantom ? "Connect Phantom" : "Connect wallet"}
+            {busy ? "Connecting…" : "Connect wallet"}
           </button>
           <a
-            href={PHANTOM_DOWNLOAD}
+            href={METAMASK_DOWNLOAD}
             target="_blank"
             rel="noopener noreferrer"
             className="flex w-full items-center justify-center gap-2 rounded-sm border border-green/50 px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-green no-underline hover:bg-green/10"
           >
             <ExternalLink size={14} />
-            Create wallet (Phantom)
+            Create wallet (MetaMask)
           </a>
           {!hasInjected ? (
             <p className="font-mono text-[11px] leading-relaxed text-muted">
               No wallet detected. Tap{" "}
-              <strong className="text-green">Create wallet (Phantom)</strong> — free. Come
+              <strong className="text-green">Create wallet (MetaMask)</strong> — free. Come
               back and hit Connect, or paste below.
             </p>
           ) : null}

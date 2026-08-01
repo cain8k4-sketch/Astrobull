@@ -24,16 +24,8 @@ const BUYS = [
     className: "border-red/50 bg-red/15 text-red hover:bg-red/25 hover:border-red",
   },
   {
-    label: "Buy on Phantom",
-    sub: "Swap on Phantom",
-    href: `https://phantom.app/`,
-    emoji: "👻",
-    className:
-      "border-purple/50 bg-purple/10 text-purple hover:bg-purple/20 hover:border-purple",
-  },
-  {
     label: "Buy on Uniswap",
-    sub: "Swap now",
+    sub: "Robinhood Chain · MetaMask",
     href: `https://app.uniswap.org/swap?outputCurrency=${CONTRACT}`,
     emoji: "🦄",
     className: "border-pink/50 bg-pink/10 text-pink hover:bg-pink/20 hover:border-pink",
@@ -129,9 +121,9 @@ export default function QuickLinks() {
                 <span className="text-xl" aria-hidden>
                   {b.emoji}
                 </span>
-              ) : (
+              ) : "Icon" in b && b.Icon ? (
                 <b.Icon size={20} className="shrink-0" />
-              )}
+              ) : null}
               <div>
                 <p className="font-mono text-sm font-bold uppercase tracking-widest">{b.label}</p>
                 <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest opacity-60">

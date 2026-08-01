@@ -46,6 +46,19 @@ export default function Hero() {
 
   return (
     <section className="bg-black">
+      {/* Top banner — above title video */}
+      <div
+        className="border-b border-white/20 bg-red px-3 py-3 text-center sm:py-3.5"
+        role="banner"
+      >
+        <p className="font-display text-[0.95rem] uppercase leading-tight tracking-[0.12em] text-fg sm:text-lg sm:tracking-[0.16em] [text-shadow:0_0_14px_rgba(245,245,245,0.35)]">
+          Get paid to create
+        </p>
+        <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.22em] text-fg/85 sm:text-[10px] sm:tracking-[0.28em]">
+          Featured · amplified across our socials · holding optional
+        </p>
+      </div>
+
       {/* Title image → YouTube */}
       <div className="w-full bg-black">
         <div className="mx-auto w-full max-w-lg">

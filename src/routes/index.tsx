@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import ChapterStory from "@/components/ChapterStory";
 import CreatorStudio from "@/components/CreatorStudio";
 import CreatorLeaderboard from "@/components/CreatorLeaderboard";
+import HowToBuy from "@/components/HowToBuy";
 import QuickLinks from "@/components/QuickLinks";
 import ChapterRoadmap from "@/components/ChapterRoadmap";
 import ChapterTokenomics from "@/components/ChapterTokenomics";
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-/** Order: title → story → studio → leaderboard → buy → roadmap → tokenomics */
+/** Order: title → story → studio → leaderboard → how to buy → quick links → roadmap → tokenomics */
 function HomePage() {
   return (
     <main>
@@ -22,6 +23,7 @@ function HomePage() {
         <CreatorStudio />
       </section>
       <CreatorLeaderboard />
+      <HowToBuy />
       <QuickLinks />
       <ChapterRoadmap />
       <ChapterTokenomics />

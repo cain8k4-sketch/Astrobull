@@ -79,7 +79,7 @@ const PAY_STEPS = [
   {
     n: "04",
     title: "Get paid",
-    body: "Verified views & engagement → paid in USDC / USDT (and Robinhood-chain assets). Payouts release when your balance hits the $50 threshold. Connect Phantom (or any 0x wallet). Holding $ASTROBULL is optional.",
+    body: "Verified views & engagement → paid in USDC / USDT (and Robinhood-chain assets). Payouts release when your balance hits the $50 threshold. Connect MetaMask (or any EVM 0x wallet). Holding $ASTROBULL is optional.",
   },
 ] as const;
 
@@ -90,7 +90,7 @@ const SELLING_POINTS = [
   "Locked Astro Bull look so the brand stays consistent across every creator",
   "Auto hashtags + platform push so posting is faster",
   "Paid in real stable value (USDC/USDT) — $50 minimum payout threshold",
-  "Wallet connect (Phantom) — create one in a minute if you do not have one",
+  "Wallet connect (MetaMask) — create one in a minute if you do not have one",
   "Transparent rules: verified views, not empty promises",
   "Story + culture + culture: building a saga, not farming a dead meme",
   "Dev burns, does not sell — culture and content first",
@@ -551,7 +551,7 @@ export default function CreatorStudio() {
                 released — keeps the pool clean and creators serious
               </p>
               <p>
-                <span className="text-fg">Wallet:</span> Connect Phantom (or create one) so
+                <span className="text-fg">Wallet:</span> Connect MetaMask (or create one) so
                 payouts can route to you automatically
               </p>
               <p>

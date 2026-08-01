@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Check, Copy, ExternalLink, Unplug, Wallet } from "lucide-react";
 import {
-  PHANTOM_DOWNLOAD,
+  METAMASK_DOWNLOAD,
   connectWallet,
   hasInjectedWallet,
-  isPhantomInstalled,
   isValidEthAddress,
   loadWallet,
   saveWallet,
@@ -20,12 +19,10 @@ export default function WalletConnect() {
   const [msg, setMsg] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [hasInjected, setHasInjected] = useState(false);
-  const [phantom, setPhantom] = useState(false);
 
   useEffect(() => {
     setAddress(loadWallet());
     setHasInjected(hasInjectedWallet());
-    setPhantom(isPhantomInstalled());
   }, []);
 
   async function onConnect() {
@@ -37,11 +34,10 @@ export default function WalletConnect() {
       setAddress(addr);
       setMsg("Wallet connected. Payouts can route here when the pool is live.");
       setHasInjected(true);
-      setPhantom(isPhantomInstalled());
     } catch (e) {
       const m = e instanceof Error ? e.message : "Connect failed";
       if (m === "NO_WALLET") {
-        setErr("No wallet found in this browser. Create one with Phantom below.");
+        setErr("No wallet found in this browser. Install MetaMask below.");
       } else {
         setErr(m);
       }
@@ -93,10 +89,11 @@ export default function WalletConnect() {
         Connect or create a wallet
       </h2>
       <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
-        Link a wallet so you can get paid in{" "}
+        Link a MetaMask (or any EVM) wallet so you can get paid in{" "}
         <span className="text-fg">USDC / USDT</span> (and Robinhood-chain assets)
         when verified performance hits the <span className="text-green">$50 threshold</span>.{" "}
-        <span className="text-green">Holding $ASTROBULL is optional.</span>
+        <span className="text-green">Holding $ASTROBULL is optional.</span> Buy the token on{" "}
+        <span className="text-fg">Uniswap</span> — not Phantom.
       </p>
 
       {address ? (
@@ -144,35 +141,28 @@ export default function WalletConnect() {
               )}
             >
               <Wallet size={14} />
-              {busy
-                ? "Connecting…"
-                : hasInjected
-                  ? phantom
-                    ? "Connect Phantom"
-                    : "Connect wallet"
-                  : "Connect wallet"}
+              {busy ? "Connecting…" : "Connect wallet"}
             </button>
             <a
-              href={PHANTOM_DOWNLOAD}
+              href={METAMASK_DOWNLOAD}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-sm border border-green/50 px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-green no-underline hover:bg-green/10"
             >
               <ExternalLink size={14} />
-              {hasInjected ? "Get Phantom app" : "Create wallet (Phantom)"}
+              {hasInjected ? "Get MetaMask" : "Create wallet (MetaMask)"}
             </a>
           </div>
 
           {!hasInjected ? (
             <p className="font-mono text-[11px] leading-relaxed text-muted">
               No wallet detected. Tap{" "}
-              <strong className="text-green">Create wallet (Phantom)</strong> —
-              free, takes about a minute. Come back here and hit Connect.
+              <strong className="text-green">Create wallet (MetaMask)</strong> —
+              free, takes about a minute. Come back here and hit Connect. Then buy on Uniswap.
             </p>
           ) : (
             <p className="font-mono text-[11px] text-muted">
-              Wallet extension detected
-              {phantom ? " (Phantom)" : ""}. Connect to save your payout address.
+              Wallet extension detected. Connect to save your payout address.
             </p>
           )}
 

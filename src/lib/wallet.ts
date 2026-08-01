@@ -1,7 +1,9 @@
 const STORAGE = "astrobull.wallet.v1";
 
-export const PHANTOM_DOWNLOAD = "https://phantom.app/download";
-export const PHANTOM_HOME = "https://phantom.app/";
+export const METAMASK_DOWNLOAD = "https://metamask.io/download/";
+export const UNISWAP_SWAP = `https://app.uniswap.org/swap?outputCurrency=0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03`;
+export const BOW_BUY =
+  "https://bow.fun/?token=0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
 
 /** Robinhood Chain — for add-network prompts */
 export const RH_CHAIN = {
@@ -39,7 +41,7 @@ export function isValidEthAddress(a: string) {
 }
 
 type EthProvider = {
-  isPhantom?: boolean;
+  isMetaMask?: boolean;
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
   on?: (event: string, handler: (...args: unknown[]) => void) => void;
 };
@@ -47,28 +49,19 @@ type EthProvider = {
 function getProvider(): EthProvider | null {
   if (typeof window === "undefined") return null;
   const w = window as Window & {
-    phantom?: { ethereum?: EthProvider };
     ethereum?: EthProvider & { providers?: EthProvider[] };
   };
-  if (w.phantom?.ethereum) return w.phantom.ethereum;
-  if (w.ethereum?.isPhantom) return w.ethereum;
   if (w.ethereum?.providers?.length) {
-    const p = w.ethereum.providers.find((x) => x.isPhantom);
-    if (p) return p;
+    const mm = w.ethereum.providers.find((x) => x.isMetaMask);
+    if (mm) return mm;
+    return w.ethereum.providers[0] ?? null;
   }
-  // Fallback: any injected EVM wallet
   if (w.ethereum) return w.ethereum;
   return null;
 }
 
 export function hasInjectedWallet() {
   return !!getProvider();
-}
-
-export function isPhantomInstalled() {
-  if (typeof window === "undefined") return false;
-  const w = window as Window & { phantom?: { ethereum?: EthProvider } };
-  return !!w.phantom?.ethereum || !!(getProvider()?.isPhantom);
 }
 
 export async function connectWallet(): Promise<string> {
