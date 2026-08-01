@@ -1,88 +1,108 @@
-# Supabase + admin + notifications (Astro Bull)
+# Supabase + admin password + email alerts
 
-Finish this after the site is on Vercel / GitHub.
+## Two different things (easy to mix up)
 
-## 1. Create Supabase project
-
-1. Go to [supabase.com](https://supabase.com) → **New project**
-2. Name it e.g. `astrobull`, set a DB password, pick a region
-3. Wait until the project is ready
-
-## 2. Run the SQL schema
-
-1. Supabase → **SQL Editor** → **New query**
-2. Paste **all** of [`supabase/setup.sql`](./supabase/setup.sql)
-3. Click **Run** (should succeed with no errors)
-4. Confirm tables under **Table Editor**: `creators`, `leaderboard`
-
-## 3. Copy API keys
-
-Supabase → **Project Settings** → **API**:
-
-| Copy this | Paste into Vercel as |
-|---|---|
-| Project URL | `VITE_SUPABASE_URL` |
-| `anon` `public` key | `VITE_SUPABASE_ANON_KEY` |
-
-Never put the `service_role` key in Vercel `VITE_*` vars (it is exposed to browsers).
-
-## 4. Vercel environment variables
-
-Vercel → your project → **Settings** → **Environment Variables**  
-Add for **Production** (and Preview if you want):
-
-| Name | Example | Required |
+| What | Env var | Purpose |
 |---|---|---|
-| `VITE_SUPABASE_URL` | `https://abcd.supabase.co` | Yes (for cloud signups) |
-| `VITE_SUPABASE_ANON_KEY` | `eyJ...` | Yes |
-| `VITE_ADMIN_PASSWORD` | long random string | **Yes — change default** |
-| `VITE_OWNER_EMAIL` | `you@gmail.com` | For mailto alerts |
-| `VITE_NOTIFY_WEBHOOK_URL` | Discord webhook URL | Optional, better alerts |
+| **Admin login password** | `VITE_ADMIN_PASSWORD` | Unlocks `/admin` inbox |
+| **Email alerts to you** | `VITE_WEB3FORMS_ACCESS_KEY` | Real email in **your** inbox on each signup |
+| Database | `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` | Saves creators in cloud |
 
-Then **Redeploy** (env vars only apply after a new deploy).
+`VITE_OWNER_EMAIL` alone does **not** auto-email you — it only opens a mail draft on the visitor’s device. Prefer **Web3Forms**.
 
-## 5. Admin password
+---
 
-- Page: `https://www.astrobull.xyz/admin`
-- Password = value of `VITE_ADMIN_PASSWORD`
-- Default in code if unset: `astro-herd` — **do not leave this live**
+## A. Supabase tables (you said these are done)
 
-## 6. Notifications
+If not: run [`supabase/setup.sql`](./supabase/setup.sql) in Supabase SQL Editor.
 
-On each successful signup the site:
+---
 
-1. Saves to Supabase `creators` (if keys set)
-2. Fires **Discord/Zapier webhook** if `VITE_NOTIFY_WEBHOOK_URL` is set
-3. Opens a **mailto** draft if `VITE_OWNER_EMAIL` is set (uses the visitor’s email app)
+## B. Admin password (login)
 
-### Discord webhook (recommended)
+1. Vercel → Project → **Settings → Environment Variables**
+2. Add:
 
-1. Discord server → channel → **Edit channel** → **Integrations** → **Webhooks** → New
-2. Copy URL → `VITE_NOTIFY_WEBHOOK_URL` in Vercel
+```
+VITE_ADMIN_PASSWORD =  (a long random password you will remember)
+```
+
+3. **Redeploy**
+4. Open `https://www.astrobull.xyz/admin` → enter that password
+
+This is **not** an email field. It’s only the unlock code for the inbox.
+
+---
+
+## C. Admin email alerts (the part that usually gets stuck)
+
+### Recommended: Web3Forms (free, real email to your inbox)
+
+1. Open **[https://web3forms.com](https://web3forms.com)**
+2. Type **your** email (the inbox you want alerts in) → create access key
+3. Check that inbox → **confirm / activate** the key (required)
+4. Copy the **Access Key**
+5. In Vercel env vars add:
+
+```
+VITE_WEB3FORMS_ACCESS_KEY =  (paste access key)
+```
+
+6. **Redeploy** (env vars only apply after redeploy)
+7. Test: submit `/signup` with a fake creator → you should get an email within a minute  
+   (check spam once)
+
+### Optional: Discord instead of / as well as email
+
+1. Discord channel → Edit → Integrations → Webhooks → New → Copy URL  
+2. Vercel:
+
+```
+VITE_NOTIFY_WEBHOOK_URL =  (Discord webhook URL)
+```
+
 3. Redeploy
 
-### Supabase Database Webhook (optional, no browser needed)
+---
 
-1. Supabase → **Database** → **Webhooks**
-2. Table `creators`, event **Insert**
-3. HTTP POST to the same Discord URL or a Zapier “Catch Hook”
+## D. Full Vercel env checklist
 
-## 7. Test checklist
+| Name | Required | Example |
+|---|---|---|
+| `VITE_SUPABASE_URL` | Yes | `https://xxxx.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | Yes | `eyJ...` |
+| `VITE_ADMIN_PASSWORD` | Yes | strong password |
+| `VITE_WEB3FORMS_ACCESS_KEY` | For real email | from web3forms.com |
+| `VITE_NOTIFY_WEBHOOK_URL` | Optional | Discord webhook |
+| `VITE_OWNER_EMAIL` | Optional / weak | only mailto fallback |
 
-1. Redeploy Vercel with env vars  
-2. Open `/signup` → submit a test creator  
-3. Supabase **Table Editor** → `creators` → new row appears  
-4. Open `/admin` → unlock with your password → see the row (source: **cloud**)  
-5. Approve / Reject → status updates in Supabase  
-6. Discord/email notification arrives  
+After any change → **Deployments → Redeploy**.
 
-## 8. Leaderboard (optional)
+---
 
-Insert rows manually in Table Editor → `leaderboard`, or later wire stats automation.  
-Public site reads with the anon key (select-only).
+## E. Test
+
+1. Redeploy with all env vars  
+2. `/signup` → submit test creator  
+3. Supabase Table Editor → `creators` has the row  
+4. Your email inbox has “Astro Bull · new creator …”  
+5. `/admin` + password → see row (source: **cloud**) → Approve  
+
+Admin page also shows a status panel: Supabase / password / email / webhook.
+
+---
+
+## Troubleshooting email
+
+| Symptom | Fix |
+|---|---|
+| No email | Key not confirmed on Web3Forms, or forgot redeploy |
+| Still opens visitor’s mail app | You only set `VITE_OWNER_EMAIL` — switch to Web3Forms |
+| Wrong inbox | Create a new Web3Forms key with the correct email |
+| Spam | Mark as not spam once; add filter for “Astro Bull” |
+
+---
 
 ## Security note
 
-This MVP uses the **anon** key from the browser + an admin **UI password**.  
-Anyone with the anon key can still hit the REST API if they reverse-engineer the site (normal for public Supabase).  
-For higher security later: move approve/reject to a Supabase Edge Function or Vercel server function with the **service role** key (never `VITE_`).
+Anon key + UI password is fine for early launch. For stricter admin later, move approve/reject to a server function with the Supabase **service role** (never put service role in `VITE_*`).

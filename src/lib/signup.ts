@@ -20,6 +20,16 @@ export type CreatorSignup = {
   at: string;
 };
 
+export type NotifyResult = {
+  /** Real email delivered via Web3Forms → your inbox */
+  email: boolean;
+  /** Discord / Slack / Zapier webhook */
+  webhook: boolean;
+  /** Only used as last-resort fallback (opens visitor’s mail app) */
+  mailto: boolean;
+  detail: string;
+};
+
 function uid() {
   return `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -39,6 +49,23 @@ function rowToSignup(r: Record<string, unknown>): CreatorSignup {
     total_earned: Number(r.total_earned ?? 0),
     at: String(r.created_at ?? r.at ?? new Date().toISOString()),
   };
+}
+
+function signupSummary(entry: CreatorSignup): string {
+  return [
+    `Name: ${entry.name}`,
+    `Email: ${entry.email}`,
+    `Wallet: ${entry.wallet}`,
+    `TikTok: ${entry.handle_tiktok || "—"}`,
+    `YouTube: ${entry.handle_youtube || "—"}`,
+    `Snapchat: ${entry.handle_snapchat || "—"}`,
+    `X: ${entry.handle_x || "—"}`,
+    `Instagram: ${entry.handle_instagram || "—"}`,
+    `Status: ${entry.status}`,
+    `Time: ${entry.at}`,
+    "",
+    "Admin: https://www.astrobull.xyz/admin",
+  ].join("\n");
 }
 
 export function loadAllSignups(): CreatorSignup[] {
@@ -142,7 +169,6 @@ export async function pushSignupToSupabase(
     const rows = (await res.json().catch(() => [])) as Array<Record<string, unknown>>;
     const id = rows?.[0]?.id ? String(rows[0].id) : undefined;
     if (id) {
-      // Keep local copy in sync with cloud id so admin can update later
       const local = loadAllSignups().map((c) =>
         c.id === entry.id || (c.email === entry.email && c.at === entry.at)
           ? { ...c, id }
@@ -218,7 +244,6 @@ export async function updateSignupStatusCloud(
   const cfg = getSupabaseConfig();
   if (!cfg) return { rows: local, cloudOk: false, message: "Local only (no Supabase)" };
 
-  // Local-only ids (c_…) can't patch cloud
   if (id.startsWith("c_")) {
     return { rows: local, cloudOk: false, message: "Local entry — not in cloud" };
   }
@@ -247,37 +272,55 @@ export async function updateSignupStatusCloud(
   }
 }
 
-/** Opens a mailto draft to notify you of a new signup */
+/**
+ * Real email to YOU via Web3Forms (free).
+ * 1. Sign up at https://web3forms.com with your admin email
+ * 2. Copy Access Key → VITE_WEB3FORMS_ACCESS_KEY in Vercel
+ * 3. Redeploy
+ */
+export async function notifyOwnerEmail(entry: CreatorSignup): Promise<boolean> {
+  const accessKey = (import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined)?.trim();
+  if (!accessKey) return false;
+
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: accessKey,
+        subject: `Astro Bull · new creator: ${entry.name}`,
+        from_name: "Astro Bull Signups",
+        name: entry.name,
+        email: entry.email,
+        message: signupSummary(entry),
+        wallet: entry.wallet,
+        handle_tiktok: entry.handle_tiktok || "",
+        handle_youtube: entry.handle_youtube || "",
+        handle_snapchat: entry.handle_snapchat || "",
+        handle_x: entry.handle_x || "",
+        handle_instagram: entry.handle_instagram || "",
+        botcheck: "",
+      }),
+    });
+    if (!res.ok) return false;
+    const data = (await res.json().catch(() => null)) as { success?: boolean } | null;
+    return data?.success !== false;
+  } catch {
+    return false;
+  }
+}
+
+/** Last resort: opens the *visitor’s* mail app (not automatic to you). */
 export function notifyOwnerMailto(entry: CreatorSignup, ownerEmail?: string) {
   const to = (ownerEmail || import.meta.env.VITE_OWNER_EMAIL || "").trim();
   if (!to || typeof window === "undefined") return false;
   const subject = encodeURIComponent(`Astro Bull · new creator: ${entry.name}`);
-  const body = encodeURIComponent(
-    [
-      "New creator signup",
-      "",
-      `Name: ${entry.name}`,
-      `Email: ${entry.email}`,
-      `Wallet: ${entry.wallet}`,
-      `TikTok: ${entry.handle_tiktok || "—"}`,
-      `YouTube: ${entry.handle_youtube || "—"}`,
-      `Snapchat: ${entry.handle_snapchat || "—"}`,
-      `X: ${entry.handle_x || "—"}`,
-      `Instagram: ${entry.handle_instagram || "—"}`,
-      `Status: ${entry.status}`,
-      `Time: ${entry.at}`,
-      "",
-      "Open Admin inbox: https://www.astrobull.xyz/admin",
-    ].join("\n"),
-  );
+  const body = encodeURIComponent(signupSummary(entry));
   window.open(`mailto:${to}?subject=${subject}&body=${body}`, "_blank");
   return true;
 }
 
-/**
- * Optional Discord / Slack / Make / Zapier webhook.
- * Set VITE_NOTIFY_WEBHOOK_URL in Vercel.
- */
+/** Discord / Slack / Zapier / Make webhook */
 export async function notifyOwnerWebhook(entry: CreatorSignup): Promise<boolean> {
   const hook = (import.meta.env.VITE_NOTIFY_WEBHOOK_URL as string | undefined)?.trim();
   if (!hook) return false;
@@ -299,13 +342,11 @@ export async function notifyOwnerWebhook(entry: CreatorSignup): Promise<boolean>
   ].join("\n");
 
   try {
-    // Discord-style
     const res = await fetch(hook, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         content: text,
-        // Also generic fields for Zapier/Make
         text,
         name: entry.name,
         email: entry.email,
@@ -319,14 +360,56 @@ export async function notifyOwnerWebhook(entry: CreatorSignup): Promise<boolean>
   }
 }
 
-/** Fire all notification channels */
-export async function notifyOwnerAll(entry: CreatorSignup): Promise<{
-  mailto: boolean;
-  webhook: boolean;
-}> {
-  const mailto = notifyOwnerMailto(entry);
+/**
+ * Prefer real channels first.
+ * - Web3Forms → your inbox (automatic)
+ * - Discord webhook (automatic)
+ * - mailto only if nothing else is configured (visitor must click send)
+ */
+export async function notifyOwnerAll(entry: CreatorSignup): Promise<NotifyResult> {
+  const email = await notifyOwnerEmail(entry);
   const webhook = await notifyOwnerWebhook(entry);
-  return { mailto, webhook };
+
+  // Only fall back to mailto when no automatic channel is configured
+  const autoConfigured =
+    !!(import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined)?.trim() ||
+    !!(import.meta.env.VITE_NOTIFY_WEBHOOK_URL as string | undefined)?.trim();
+
+  let mailto = false;
+  if (!email && !webhook && !autoConfigured) {
+    mailto = notifyOwnerMailto(entry);
+  }
+
+  const parts: string[] = [];
+  if (email) parts.push("email sent to your inbox");
+  if (webhook) parts.push("webhook notified");
+  if (mailto) parts.push("email draft opened (visitor must send)");
+  if (!parts.length) {
+    parts.push(
+      autoConfigured
+        ? "notify configured but failed — check Web3Forms key / webhook"
+        : "no notify env set (add VITE_WEB3FORMS_ACCESS_KEY)",
+    );
+  }
+
+  return {
+    email,
+    webhook,
+    mailto,
+    detail: parts.join("; "),
+  };
+}
+
+/** What notification env vars are present (for admin UI) */
+export function getNotifyConfigStatus() {
+  return {
+    web3forms: !!(import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined)?.trim(),
+    webhook: !!(import.meta.env.VITE_NOTIFY_WEBHOOK_URL as string | undefined)?.trim(),
+    ownerEmail: !!(import.meta.env.VITE_OWNER_EMAIL as string | undefined)?.trim(),
+    adminPasswordSet:
+      !!(import.meta.env.VITE_ADMIN_PASSWORD as string | undefined)?.trim() &&
+      (import.meta.env.VITE_ADMIN_PASSWORD as string).trim() !== "astro-herd",
+  };
 }
 
 export { isSupabaseConfigured };

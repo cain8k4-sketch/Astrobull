@@ -139,12 +139,7 @@ function SignupPage() {
       const notes = await notifyOwnerAll(entry);
 
       setAlready(n);
-      const notifyBit =
-        notes.webhook || notes.mailto
-          ? notes.webhook
-            ? " Notification sent."
-            : " Email draft opened."
-          : "";
+      const notifyBit = notes.email || notes.webhook || notes.mailto ? ` ${notes.detail}.` : "";
 
       if (cloud.ok) {
         setOk(

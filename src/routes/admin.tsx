@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 import { Check, Inbox, LogOut, RefreshCw, X } from "lucide-react";
 import {
   fetchCreatorsFromSupabase,
+  getNotifyConfigStatus,
   isSupabaseConfigured,
   updateSignupStatusCloud,
   type CreatorSignup,
@@ -38,6 +39,7 @@ function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const cloudOn = isSupabaseConfigured();
+  const notify = getNotifyConfigStatus();
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -134,10 +136,11 @@ function AdminPage() {
           {err ? <p className="font-mono text-xs text-red-hot">{err}</p> : null}
         </form>
         <p className="mt-4 font-mono text-[10px] text-dim">
-          Password from <code className="text-muted">VITE_ADMIN_PASSWORD</code> in Vercel.
+          This is the <strong className="text-muted">login password</strong> (
+          <code className="text-muted">VITE_ADMIN_PASSWORD</code>), not an email address.
           {DEFAULT_ADMIN_PASSWORD === "astro-herd" ? (
             <span className="mt-1 block text-gold">
-              Still on default — change it before going public.
+              Still on default — set a strong password in Vercel.
             </span>
           ) : null}
         </p>
@@ -165,9 +168,7 @@ function AdminPage() {
             <span className={source === "live" ? "text-green" : "text-gold"}>
               {source === "live" ? "cloud" : "this device"}
             </span>
-            {cloudOn ? null : (
-              <span className="text-dim"> · Supabase not set</span>
-            )}
+            {cloudOn ? null : <span className="text-dim"> · Supabase not set</span>}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -177,8 +178,7 @@ function AdminPage() {
             disabled={loading}
             className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-muted hover:text-green disabled:opacity-50"
           >
-            <RefreshCw size={12} className={loading ? "animate-spin" : undefined} />{" "}
-            Refresh
+            <RefreshCw size={12} className={loading ? "animate-spin" : undefined} /> Refresh
           </button>
           <button
             type="button"
@@ -292,23 +292,43 @@ function AdminPage() {
       </div>
 
       <div className="mt-8 space-y-2 border border-white/10 bg-surface px-4 py-4 font-mono text-[10px] leading-relaxed text-dim">
-        <p className="text-muted uppercase tracking-widest">Setup checklist</p>
+        <p className="text-muted uppercase tracking-widest">Status</p>
         <p>
-          1. Supabase SQL: run <code className="text-muted">supabase/setup.sql</code> in the
-          SQL Editor.
-        </p>
-        <p>
-          2. Vercel env: <code className="text-muted">VITE_SUPABASE_URL</code>,{" "}
-          <code className="text-muted">VITE_SUPABASE_ANON_KEY</code>,{" "}
-          <code className="text-muted">VITE_ADMIN_PASSWORD</code>,{" "}
-          <code className="text-muted">VITE_OWNER_EMAIL</code> (mailto), optional{" "}
-          <code className="text-muted">VITE_NOTIFY_WEBHOOK_URL</code> (Discord/Zapier).
-        </p>
-        <p>3. Redeploy Vercel after adding env vars.</p>
-        <p>
-          Cloud: {cloudOn ? <span className="text-green">configured</span> : (
-            <span className="text-gold">not configured</span>
+          Database:{" "}
+          {cloudOn ? <span className="text-green">Supabase on</span> : (
+            <span className="text-gold">Supabase off</span>
           )}
+        </p>
+        <p>
+          Admin password:{" "}
+          {notify.adminPasswordSet ? (
+            <span className="text-green">custom set</span>
+          ) : (
+            <span className="text-gold">still default — change VITE_ADMIN_PASSWORD</span>
+          )}
+        </p>
+        <p>
+          Email alerts:{" "}
+          {notify.web3forms ? (
+            <span className="text-green">Web3Forms on (real inbox email)</span>
+          ) : (
+            <span className="text-gold">
+              not set — add VITE_WEB3FORMS_ACCESS_KEY (see SUPABASE_SETUP.md)
+            </span>
+          )}
+        </p>
+        <p>
+          Webhook:{" "}
+          {notify.webhook ? (
+            <span className="text-green">on</span>
+          ) : (
+            <span className="text-dim">optional Discord URL</span>
+          )}
+        </p>
+        <p className="pt-2 text-muted">
+          Note: <code className="text-dim">VITE_OWNER_EMAIL</code> alone does{" "}
+          <strong className="text-muted">not</strong> auto-email you. Use Web3Forms for real
+          emails.
         </p>
       </div>
       <Link
