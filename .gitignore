@@ -1,0 +1,42 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build / deploy
+dist/
+.output/
+.vercel/
+.nitro/
+node_modules/.nitro/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# logs & caches
+*.log
+.npm
+.cache
+.turbo
+tmp/
+/tmp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# agent / local only
+.grok/
+screenshots/
+attachments/
+.node_modules*
+*.tmp
+AGENTS.project.md
+startup.sh
+
+# lockfile kept
+# package-lock.json is committed

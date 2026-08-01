@@ -1,0 +1,21 @@
+ASTRO BULL — package.json IS AT THE TOP
+========================================
+
+After unzip you should see IMMEDIATELY:
+
+  package.json
+  src/
+  public/
+  vite.config.ts
+  READ-ME-FIRST.txt
+
+If your phone creates a folder named after the zip, OPEN that folder —
+package.json must be the first thing you see inside.
+
+UPLOAD:
+- Open the folder that CONTAINS package.json
+- Upload EVERYTHING inside that folder to GitHub root
+- OR drag that whole folder onto vercel.com/new
+
+WRONG: uploading only this zip file into the repo
+WRONG: package.json buried in AstroBull-Site/astrobull/package.json

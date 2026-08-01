@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Astro Bull — Official Whitepaper</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #111;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    background: #fff;
+  }
+  .page { page-break-after: always; min-height: 250mm; position: relative; }
+  .page:last-child { page-break-after: auto; }
+  .red { color: #ff0033; }
+  .rule { border: 0; border-top: 2.5px solid #ff0033; margin: 0 0 18px; }
+  .rule-thin { border: 0; border-top: 1px solid #ff0033; margin: 14px 0; }
+  h1 { font-size: 28pt; letter-spacing: 0.04em; margin: 0 0 8px; color: #ff0033; font-weight: 800; }
+  h2 { font-size: 14pt; color: #ff0033; margin: 0 0 10px; border-bottom: 2px solid #ff0033; padding-bottom: 6px; letter-spacing: 0.02em; }
+  h3 { font-size: 11pt; margin: 14px 0 6px; color: #111; }
+  p { margin: 0 0 9px; }
+  ul, ol { margin: 0 0 10px; padding-left: 18px; }
+  li { margin-bottom: 4px; }
+  .muted { color: #555; }
+  .small { font-size: 9pt; color: #666; }
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 250mm;
+    padding: 20mm 10mm;
+  }
+  .cover .sub { font-size: 16pt; margin: 6px 0 4px; }
+  .cover .tag { font-size: 11pt; color: #444; margin: 4px 0; }
+  .cover .quote { margin-top: 36px; font-style: italic; font-size: 12pt; color: #333; }
+  .cover .links { margin-top: 28px; font-size: 9.5pt; color: #333; line-height: 1.7; }
+  .footer-line {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    font-size: 8pt; color: #777; border-top: 1px solid #ff0033;
+    padding-top: 6px; display: flex; justify-content: space-between;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 14px; font-size: 9.5pt; }
+  th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #ff0033; color: #fff; font-weight: 700; }
+  tr:nth-child(even) td { background: #fafafa; }
+  .box {
+    border: 1.5px solid #ff0033;
+    padding: 12px 14px;
+    margin: 12px 0;
+    background: #fff5f7;
+  }
+  .box strong { color: #ff0033; }
+  .pill {
+    display: inline-block;
+    border: 1px solid #ff0033;
+    color: #ff0033;
+    padding: 2px 8px;
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+  code, .mono { font-family: "Courier New", monospace; font-size: 9pt; word-break: break-all; }
+  .toc li { margin-bottom: 6px; }
+  .toc a { color: #111; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="page cover">
+  <hr class="rule" style="width:100%;margin-bottom:40px" />
+  <h1 style="font-size:36pt;margin-bottom:12px">ASTRO BULL</h1>
+  <div class="sub">Breaking the Chains</div>
+  <p class="tag">Official Project Overview & Whitepaper</p>
+  <p class="tag" style="margin-top:18px"><strong>Slaughterhouse Productions</strong></p>
+  <p class="tag">A community-powered meme movement on the Robinhood Chain</p>
+  <div class="links">
+    www.astrobull.xyz · @AstroBull_RH<br />
+    TikTok @astrobull.robinho · YouTube @ASTROBULL.ROBINHOOD<br />
+    Telegram · Official_Astrobull_Robinhood
+  </div>
+  <p class="quote">“We are all Astro.”</p>
+  <p class="small" style="margin-top:40px">Revised Edition · July 2026</p>
+  <hr class="rule" style="width:100%;margin-top:40px" />
+  <div class="footer-line" style="position:static;margin-top:20px;width:100%">
+    <span>Astro Bull | Slaughterhouse Productions | Breaking the Chains</span>
+    <span>1</span>
+  </div>
+</section>
+
+<!-- PAGE 2: Intro / Vision / Origin -->
+<section class="page">
+  <h2>1. Introduction</h2>
+  <p>
+    Astro Bull is a community-powered meme token born on the <strong>Robinhood Chain</strong>.
+    Created from scratch with original artwork and a compelling horror-themed narrative under
+    <strong>Slaughterhouse Productions</strong>, the project represents resilience, creative freedom,
+    and the power of collective storytelling.
+  </p>
+  <p>
+    We are building more than a token. We are building a living character, a movement, and an
+    <strong>eternal content ecosystem</strong> where anyone with a phone can participate, create,
+    get featured, and get paid.
+  </p>
+  <p>
+    The developer has committed to <strong>never selling</strong> and to permanently burning the
+    entire developer allocation. The focus is pure buy pressure, continuous content, automated
+    creator rewards, and long-term cultural impact.
+  </p>
+  <div class="box">
+    <strong>Core promise:</strong> Create free. Get featured. Get paid. Holding is optional.
+    We are all Astro. Over time, token value is supported by buybacks and revenue inflow from the
+    platform economy — not by empty promises.
+  </div>
+
+  <h2>2. Vision & Mission</h2>
+  <h3>Vision</h3>
+  <p>
+    Astro Bull lives forever — across the blockchain, every major social platform, and eventually
+    on the big screen. Through continuous community-generated content, he becomes an unstoppable
+    cultural force that elevates everyone involved.
+  </p>
+  <h3>Mission</h3>
+  <p>Break the chains. Burn the past. Elevate everyone who joins the movement.</p>
+
+  <h3>The Origin Story</h3>
+  <p>
+    Astro Bull was born and raised inside a slaughterhouse. Day after day he stares through the
+    bars of his cell at a sign that reads <strong>“99 cent beef patty”</strong> — a constant reminder
+    of the fate that awaits him if nothing changes.
+  </p>
+  <p>
+    One solitary night a mysterious feather drifts into his cell. When held toward the moonlight it
+    begins to glow, revealing his true mission: to break the chains that bind him, burn the
+    slaughterhouse to the ground, and begin a new life.
+  </p>
+  <p>
+    He still has feelings. The story is designed for emotional investment. The full narrative is
+    told chapter by chapter through community content, with deliberate cliffhangers. More animals
+    from the slaughterhouse will receive their own stories. A proper horror movie is part of the
+    long-term vision.
+  </p>
+  <p class="muted">This is the beginning of a horror-themed saga under Slaughterhouse Productions.</p>
+
+  <div class="footer-line">
+    <span>Astro Bull | Slaughterhouse Productions | Breaking the Chains</span>
+    <span>2</span>
+  </div>
+</section>
+
+<!-- PAGE 3: Tokenomics -->
+<section class="page">
+  <h2>3. Tokenomics</h2>
+  <table>
+    <thead>
+      <tr><th style="width:34%">Parameter</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Total Supply</td><td>1,000,000,000 (1 Billion) tokens</td></tr>
+      <tr><td>Chain</td><td>Robinhood Chain</td></tr>
+      <tr><td>Contract Address</td><td class="mono">0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03</td></tr>
+      <tr><td>Developer Allocation</td><td>6% — fully committed to permanent burns (dev does not sell)</td></tr>
+      <tr><td>Already Burned</td><td><strong>~12,000,000 tokens burned in July 2026</strong> (manual; public on-chain)</td></tr>
+      <tr><td>Public / Traders</td><td>94% — freely tradable</td></tr>
+      <tr><td>Airdrops</td><td>None — maximum organic buy pressure</td></tr>
+      <tr><td>Liquidity</td><td>Locked</td></tr>
+      <tr><td>Burn Policy</td><td>Ongoing manual burns now; auto-burn coming soon. All burns are permanent and verifiable.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box">
+    <strong>Burn transparency:</strong> ~12 million tokens were burned in July 2026.
+    Burns are public and verifiable on the Robinhood Chain explorer against the project contract
+    and published burn destinations. Auto-burn mechanics will be announced when live.
+    Contract: <span class="mono">0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03</span>
+  </div>
+
+  <h3>Buy pressure design</h3>
+  <ul>
+    <li>No airdrops that create immediate sell pressure.</li>
+    <li>Dev allocation is burned, not sold.</li>
+    <li>Platform revenues fund creator payouts and support buyback / reinvestment loops over time.</li>
+    <li>Content growth drives organic demand and brand recognition.</li>
+  </ul>
+
+  <h3>Where to trade</h3>
+  <ul>
+    <li>bow.fun (Robinhood Chain) — primary</li>
+    <li>Phantom swap</li>
+    <li>Uniswap (where available for the pair)</li>
+  </ul>
+  <p class="small">Always verify the contract address before swapping.</p>
+
+  <div class="footer-line">
+    <span>Astro Bull | Slaughterhouse Productions | Breaking the Chains</span>
+    <span>3</span>
+  </div>
+</section>
+
+<!-- PAGE 4: Content Economy (MAJOR) -->
+<section class="page">
+  <h2>4. Content Economy — The Creator Model</h2>
+  <p>
+    We do not need traditional billboards. <strong>We are the billboards.</strong>
+    Astro Bull runs a content economy designed for real creators — not empty token farming.
+  </p>
+
+  <div class="box">
+    <span class="pill">Create free</span>
+    <span class="pill">Get featured</span>
+    <span class="pill">Get paid</span>
+    <span class="pill">Holding optional</span>
+    <p style="margin:10px 0 0">
+      You do <strong>not</strong> need to buy or hold the token to earn.
+      Two streams exist: <strong>token economy</strong> and <strong>platform economy</strong>.
+    </p>
+  </div>
+
+  <h3>4.1 Create free</h3>
+  <p>Creators can participate two ways inside <strong>Creator Studio</strong> (astrobull.xyz):</p>
+  <ul>
+    <li><strong>AI path</strong> — connect your own API keys (Grok / xAI, Claude, ChatGPT). Keys stay on your device only. A locked system prompt keeps Astro Bull’s character consistent across every model.</li>
+    <li><strong>Upload path</strong> — submit original work (images, video, writing, other) with no AI required.</li>
+  </ul>
+  <p>
+    After creation, creators select push destinations: <strong>TikTok, YouTube, Snapchat</strong> (X optional)
+    (Facebook coming soon), then post and tag the project.
+  </p>
+
+  <h3>4.2 Get featured — amplification (major advantage)</h3>
+  <p>
+    Standout content is selected and pushed to <strong>official Astro Bull channels</strong>
+    across X, TikTok, YouTube, Telegram, and more.
+  </p>
+  <p>
+    <strong>This is a major selling point:</strong> creators are amplified through a shared audience.
+    Instead of shouting alone into a void, featured work reaches the combined following of the project —
+    more spotlight, more views, more momentum than a solo creator account typically achieves alone.
+  </p>
+
+  <h3>4.3 Get paid — solid, not empty promises</h3>
+  <p>Payouts are performance-based and designed to be <strong>as automated as possible</strong>.</p>
+  <ul>
+    <li><strong>Currency:</strong> Creators are paid in <strong>USDC / USDT</strong> and/or <strong>Robinhood Chain ETH-compatible assets</strong> (as supported by the chain and pool).</li>
+    <li><strong>Wallet:</strong> Connect Phantom (or create a wallet if you don’t have one). Your address is linked to submissions for payout routing.</li>
+    <li><strong>Verified views only:</strong> Claims are not enough. Performance is verified via platform APIs and/or official evidence. Bot and duplicate abuse is filtered.</li>
+    <li><strong>$50 payout threshold:</strong> Accrued earnings build in the creator’s balance. A payout is released when the balance reaches <strong>$50 USD</strong> (or equivalent). This keeps the pool clean, reduces micro-payout fees, and filters empty spam while remaining reachable for real creators.</li>
+    <li><strong>View / engagement floors:</strong> Additional verification floors (views, watch-time, engagement) apply so payouts track real platform economics — not before revenue exists. No “get rich at 10 views.”</li>
+    <li><strong>YouTube alignment:</strong> Where YouTube monetisation is involved, verification is aligned with real partner economics so promises match reality.</li>
+  </ul>
+
+  <div class="box">
+    <strong>Payout rule (site + whitepaper aligned):</strong> Earn from verified performance → balance accrues →
+    automatic release at <strong>$50</strong> to your connected wallet in USDC / USDT (or RH-chain assets when the pool is live).
+    Holding $ASTROBULL is optional.
+  </div>
+
+  <div class="footer-line">
+    <span>Astro Bull | Slaughterhouse Productions | Breaking the Chains</span>
+    <span>4</span>
+  </div>
+</section>
+
+<!-- PAGE 5: Content economy cont + automation -->
+<section class="page">
+  <h2>4. Content Economy (continued)</h2>
+
+  <h3>4.4 Revenue sources (Creator Pool)</h3>
+  <p>The Creator Pool is funded by real platform activity, including:</p>
+  <ul>
+    <li>Ad revenue and platform monetisation from official channels</li>
+    <li>Sponsorships and brand partnerships</li>
+    <li>Merch and related product revenue (when live)</li>
+    <li>A share of trading-related revenue / fees recycled into the ecosystem</li>
+  </ul>
+  <p>
+    Over time, buybacks and revenue inflow support both the creator economy and long-term token
+    health. The token is not required to earn — but sustained platform success is designed to
+    strengthen the entire ecosystem.
+  </p>
+
+  <h3>4.5 Performance scoring (automation target)</h3>
+  <p>Distribution aims to be algorithmic and transparent, weighted primarily by:</p>
+  <ol>
+    <li><strong>Verified views</strong> (largest weight)</li>
+    <li><strong>Engagement</strong> (likes, shares, comments, watch-time where available)</li>
+    <li><strong>Quality / feature status</strong> (editorial selection and brand-safe standards)</li>
+  </ol>
+  <p>
+    Exact weights will be published on the site as the automation stack goes live.
+    The cash threshold is fixed in principle: <strong>$50 minimum payout</strong>.
+    The principle is fixed: <em>pay for proven performance, funded by real revenue.</em>
+  </p>
+
+  <h3>4.6 Automation stack</h3>
+  <ul>
+    <li>Content create / upload → stored submission with creator wallet</li>
+    <li>Platform push helpers (TikTok, YouTube, Snapchat; X optional)</li>
+    <li>Feature pipeline for official channel amplification</li>
+    <li>View / engagement verification</li>
+    <li>Balance accrual → <strong>$50 threshold</strong> → automated USDC / RH-chain payouts to connected wallets</li>
+  </ul>
+  <p class="small">
+    Some stages launch progressively. The product direction is full automation — not manual spreadsheets forever.
+  </p>
+
+  <h3>4.7 Holding is optional</h3>
+  <p>
+    Creators can earn without buying the token. Holders participate in the cultural and market
+    upside of the project. These are complementary paths, not paywalls.
+  </p>
+
+  <div class="box">
+    <strong>Summary for creators:</strong> Make content free → push to platforms → get amplified on
+    official channels → verified performance → balance accrues → paid at the <strong>$50 threshold</strong>
+    in stablecoin / RH-chain assets to your wallet.
+    Holding optional. We are all Astro.
+  </div>
+
+  <div class="footer-line">
+    <span>Astro Bull | Slaughterhouse Productions | Breaking the Chains</span>
+    <span>5</span>
+  </div>
+</section>
+
+<!-- PAGE 6: Utility / NFTs -->
+<section class="page">
+  <h2>5. Utility</h2>
+  <h3>Token utility</h3>
+  <ul>
+    <li>Cultural ownership of the Astro Bull movement</li>
+    <li>Participation in the broader ecosystem as buybacks and revenue loops mature</li>
+    <li>Access and alignment with future NFT seasons and saga drops</li>
+    <li>Community status — diamond hands of the slaughterhouse</li>
+  </ul>
+  <h3>Platform utility (does not require holding)</h3>
+  <ul>
+    <li>Creator Studio (AI + upload)</li>
+    <li>Locked character bible for consistent Astro Bull design</li>
+    <li>Feature path onto official multi-platform channels</li>
+    <li>Automated payout path (USDC / RH-chain assets)</li>
+  </ul>
+
+  <h2>6. NFTs & Saga Assets</h2>
+  <p>
+    NFT seasons will expand the slaughterhouse universe — characters, chapters, and collectible
+    moments from the saga. Drops are timed with story beats and community growth, not random spam.
+  </p>
+  <ul>
+    <li>Original art under Slaughterhouse Productions</li>
+    <li>Chapter-aligned drops</li>
+    <li>Utility and cultural value over pure flip culture</li>
+  </ul>
+
+  <h2>7. Roadmap</h2>
+  <table>
+    <thead><tr><th style="width:22%">Phase</th><th>Focus</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong class="red">01 — Launch & Community (Current)</strong></td>
+        <td>Token live. Liquidity locked. Community forming. Content mission begins. ~12M burned (July). Creator Studio live. Platform push tools live.</td>
+      </tr>
+      <tr>
+        <td><strong>02 — Expansion</strong></td>
+        <td>Flood X, TikTok, YouTube and more. Feature top creators. Grow organic reach. First NFT drops. Advance automation (verification + payouts).</td>
+      </tr>
+      <tr>
+        <td><strong>03 — Eternal Saga</strong></td>
+        <td>More chapters and characters. Path toward a full horror film. Ongoing burns. Continuous creator elevation. Mature Creator Pool.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer-line">
+    <span>Astro Bull | Slaughterhouse Productions | Breaking the Chains</span>
+    <span>6</span>
+  </div>
+</section>
+
+<!-- PAGE 7: Risks / Closing -->
+<section class="page">
+  <h2>8. Risks & Disclaimers</h2>
+  <ul>
+    <li>Cryptocurrency is volatile. You can lose money. Never invest more than you can afford to lose.</li>
+    <li>This document is not financial advice, not a prospectus, and not an offer of securities.</li>
+    <li>Creator payouts depend on real platform revenue and verified performance. Early stages may be progressive.</li>
+    <li>Social platforms can change APIs, monetisation rules, and policies at any time.</li>
+    <li>Always verify contract addresses and official links from astrobull.xyz and verified social accounts.</li>
+    <li>Meme tokens carry elevated risk. Do your own research.</li>
+  </ul>
+
+  <h2>9. Official Links</h2>
+  <table>
+    <thead><tr><th style="width:28%">Channel</th><th>Link / Handle</th></tr></thead>
+    <tbody>
+      <tr><td>Website</td><td>www.astrobull.xyz</td></tr>
+      <tr><td>X / Twitter</td><td>@AstroBull_RH</td></tr>
+      <tr><td>TikTok</td><td>@astrobull.robinho</td></tr>
+      <tr><td>YouTube</td><td>@ASTROBULL.ROBINHOOD</td></tr>
+      <tr><td>Telegram</td><td>Official_Astrobull_Robinhood</td></tr>
+      <tr><td>Contract</td><td class="mono">0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03</td></tr>
+      <tr><td>Whitepaper</td><td>astrobull.xyz/astrobull-whitepaper.pdf</td></tr>
+    </tbody>
+  </table>
+
+  <h2>10. Closing</h2>
+  <p>
+    Astro Bull is a long game: story, content, burns, and a creator economy that tries to pay people
+    for real work — automatically, fairly, and without forcing them to buy a bag first.
+  </p>
+  <div class="box">
+    <strong>Dev doesn’t sell. He burns.</strong><br />
+    All revenues go back into the project.<br />
+    Create free. Get featured. Get paid. Holding is optional.<br />
+    <strong class="red">We are all Astro.</strong>
+  </div>
+  <p class="small" style="margin-top:24px">
+    © Slaughterhouse Productions · Revised whitepaper July 2026 · Hot-red brand system aligned to
+    the live site (#FF0033). No animated effects in print.
+  </p>
+
+  <div class="footer-line">
+    <span>Astro Bull | Slaughterhouse Productions | Breaking the Chains</span>
+    <span>7</span>
+  </div>
+</section>
+
+</body>
+</html>

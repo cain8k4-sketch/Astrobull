@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Astro Bull — Automation, Costs & Analytics Playbook</title>
+<style>
+  @page { size: A4; margin: 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: Helvetica, Arial, sans-serif; color: #111; font-size: 10.5pt; line-height: 1.5; margin: 0; }
+  .page { page-break-after: always; min-height: 240mm; position: relative; padding-bottom: 18px; }
+  .page:last-child { page-break-after: auto; }
+  h1 { color: #ff0033; font-size: 26pt; margin: 0 0 8px; letter-spacing: 0.02em; }
+  h2 { color: #ff0033; font-size: 13pt; margin: 0 0 10px; border-bottom: 2px solid #ff0033; padding-bottom: 5px; }
+  h3 { font-size: 11pt; margin: 12px 0 6px; }
+  p { margin: 0 0 8px; }
+  ul, ol { margin: 0 0 10px; padding-left: 18px; }
+  li { margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 9.5pt; }
+  th, td { border: 1px solid #ddd; padding: 7px 8px; text-align: left; vertical-align: top; }
+  th { background: #ff0033; color: #fff; }
+  tr:nth-child(even) td { background: #fafafa; }
+  .box { border: 1.5px solid #ff0033; background: #fff5f7; padding: 10px 12px; margin: 10px 0; }
+  .box.green { border-color: #00aa44; background: #f3fff7; }
+  .box.gold { border-color: #b8860b; background: #fffbf0; }
+  .muted { color: #555; font-size: 9pt; }
+  .tag { display: inline-block; font-size: 8pt; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid #ff0033; color: #ff0033; padding: 1px 6px; margin-right: 4px; }
+  .footer { position: absolute; left: 0; right: 0; bottom: 0; font-size: 8pt; color: #777; border-top: 1px solid #ff0033; padding-top: 5px; display: flex; justify-content: space-between; }
+  .cover { text-align: center; padding-top: 50mm; }
+  .cover .sub { font-size: 14pt; margin: 8px 0; }
+  code { font-family: "Courier New", monospace; font-size: 9pt; }
+</style>
+</head>
+<body>
+
+<section class="page cover">
+  <hr style="border:0;border-top:2.5px solid #ff0033;margin-bottom:28px" />
+  <h1 style="font-size:28pt">ASTRO BULL</h1>
+  <div class="sub">Automation · Costs · Manual Work · Analytics</div>
+  <p class="muted">Operator playbook for Slaughterhouse Productions</p>
+  <p style="margin-top:28px">How to run the platform with <strong>maximum automation</strong>, clear costs,<br/>honest manual work, and live multi-social analytics.</p>
+  <p class="muted" style="margin-top:40px">July 2026 · Internal ops document · Not financial advice</p>
+  <hr style="border:0;border-top:2.5px solid #ff0033;margin-top:40px" />
+  <div class="footer" style="position:static;margin-top:24px">
+    <span>Astro Bull Ops Playbook</span><span>1</span>
+  </div>
+</section>
+
+<section class="page">
+  <h2>1. Goal</h2>
+  <p><strong>As automated as possible.</strong> Creators create/upload → push to platforms → get featured when quality hits → views verified → paid in USDC/USDT (or RH-chain assets) to a connected wallet. You should not be hand-copying spreadsheets forever.</p>
+  <div class="box">
+    <strong>Reality check:</strong> Full “hands-off” is a phased build. Some things stay manual until volume + revenue justify the engineering. This doc shows <em>what automates now</em>, <em>what costs money</em>, <em>what stays manual</em>, and <em>the analytics stack</em> for live eyes on every social.
+  </div>
+
+  <h2>2. Monthly cost map (honest ranges)</h2>
+  <p class="muted">USD ranges. Prices move; treat as planning bands for 2026. Start lean, scale when revenue exists.</p>
+  <table>
+    <thead><tr><th style="width:28%">Layer</th><th style="width:22%">Lean start</th><th style="width:22%">Growth</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Website hosting (Vercel)</td><td>$0–20</td><td>$20–50</td><td>Hobby free; Pro if traffic/team needs it. Domain extra ~$10–15/yr.</td></tr>
+      <tr><td>Domain + DNS</td><td>~$1–2</td><td>~$1–2</td><td>astrobull.xyz (annual amortized).</td></tr>
+      <tr><td>Site analytics (privacy)</td><td>$0–9</td><td>$9–19</td><td>Plausible / Umami / GA free. Prefer Plausible for clean traffic.</td></tr>
+      <tr><td><strong>Social analytics + scheduling</strong></td><td><strong>$0–25</strong></td><td><strong>$25–99</strong></td><td><strong>Metricool recommended</strong> (free → ~$20–25+). Avoid $199+/seat until scale.</td></tr>
+      <tr><td>Premium social suite (optional)</td><td>—</td><td>$99–249/user</td><td>Hootsuite / Sprout — only if team needs inbox CRM.</td></tr>
+      <tr><td>AI API (server-side, optional)</td><td>$0</td><td>$20–200+</td><td>Site already uses <em>creator’s own keys</em> (you pay $0). Server keys only if you host free AI for users.</td></tr>
+      <tr><td>Database / backend automation</td><td>$0–25</td><td>$25–100</td><td>Supabase/Neon free tier → Pro. Needed for submissions, wallets, payouts.</td></tr>
+      <tr><td>Email / transactional</td><td>$0–15</td><td>$15–50</td><td>Resend/Postmark free tiers first.</td></tr>
+      <tr><td>Wallet / chain RPC</td><td>$0–20</td><td>$20–50</td><td>Public RPCs free; paid RPC if volume high.</td></tr>
+      <tr><td>USDC payout gas + float</td><td>variable</td><td>variable</td><td>Not a SaaS bill — treasury float for creator pays.</td></tr>
+      <tr><td>Legal / accounting buffer</td><td>$0–50</td><td>$50–300</td><td>Entity, tax, ToS. Manual/pro advice when revenue hits.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box green">
+    <strong>Recommended lean monthly total (now → 90 days):</strong><br/>
+    <strong>~$0–50/mo</strong> if you stay on free hosting + Metricool free/paid starter + client-side AI keys + native platform analytics.<br/>
+    <strong>Growth band:</strong> ~$75–200/mo once automation backend + solid multi-social analytics are live.<br/>
+    <strong>Enterprise band:</strong> $300–800+/mo only if Sprout/Hootsuite team seats + paid APIs + heavy automation.
+  </div>
+
+  <div class="footer"><span>Astro Bull Ops Playbook</span><span>2</span></div>
+</section>
+
+<section class="page">
+  <h2>3. Automation stack — what runs without you</h2>
+  <table>
+    <thead><tr><th style="width:34%">Workflow</th><th style="width:22%">Automation level</th><th>How</th></tr></thead>
+    <tbody>
+      <tr><td>Site live / deploys</td><td>High</td><td>Vercel auto-deploy from git. Little manual after setup.</td></tr>
+      <tr><td>Creator Studio AI (keys on device)</td><td>High</td><td>User pastes own Grok/Claude/ChatGPT key. You pay $0 API.</td></tr>
+      <tr><td>External prompt packs</td><td>Full</td><td>Already on site — locked Astro DNA, copy-paste to any agent.</td></tr>
+      <tr><td>Upload + local queue</td><td>Partial</td><td>File intake works; “feature queue” needs backend to leave the browser.</td></tr>
+      <tr><td>Platform push (X/TikTok/YouTube)</td><td>Semi</td><td>UI opens share/upload + copies caption. Full API auto-post needs OAuth + apps.</td></tr>
+      <tr><td>Feature on official channels</td><td>Low → Med</td><td>Start: human pick. Later: score + auto-draft to scheduler.</td></tr>
+      <tr><td>View verification</td><td>Med (phase 2)</td><td>YouTube Data API, X API, TikTok metrics export / business APIs + creator proof.</td></tr>
+      <tr><td>Payouts USDC to wallet</td><td>Med (phase 2–3)</td><td>Connect Phantom → address on file → batch pay when thresholds hit.</td></tr>
+      <tr><td>Token burns public</td><td>Manual now / auto later</td><td>July ~12M manual. Auto-burn when coded + funded.</td></tr>
+      <tr><td>Social analytics live</td><td>High (tool)</td><td>Metricool / native dashboards pull live metrics for you.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Phased automation (least manual over time)</h3>
+  <ol>
+    <li><strong>Phase 0 (now — live on site):</strong> Create (AI / upload / external prompt) · platform tick boxes · share helpers · whitepaper · pay explainer · site itself.</li>
+    <li><strong>Phase 1 (cheap backend):</strong> Accounts + wallet connect · submission storage · admin feature board · Metricool wired · email alerts on new uploads.</li>
+    <li><strong>Phase 2:</strong> Score views (API + evidence) · monthly threshold report · batch USDC payouts · scheduler auto-posts featured packs to official accounts.</li>
+    <li><strong>Phase 3:</strong> Near-full loop: submit → auto score → auto feature candidates → auto pay. You only handle disputes, brand risk, partnerships.</li>
+  </ol>
+
+  <div class="footer"><span>Astro Bull Ops Playbook</span><span>3</span></div>
+</section>
+
+<section class="page">
+  <h2>4. What still has to be manual (for real)</h2>
+  <p>Even with great automation, these stay human — at least early, often forever at a light touch:</p>
+  <table>
+    <thead><tr><th style="width:32%">Manual task</th><th style="width:28%">Why it stays manual</th><th>How to minimize</th></tr></thead>
+    <tbody>
+      <tr><td>Brand / quality gate for “featured”</td><td>AI misses tone, legal, spam, stolen art</td><td>Clear rules + score threshold; you only review borderline</td></tr>
+      <tr><td>Official channel voice & crises</td><td>Reputation risk</td><td>Pre-approved templates; scheduled queue</td></tr>
+      <tr><td>Partnerships / sponsors / merch deals</td><td>Negotiation</td><td>One playbook email; don’t automate relationships</td></tr>
+      <tr><td>Treasury: how much to pay creators vs burn/buyback</td><td>Judgment + runway</td><td>Written monthly policy; execute with scripts</td></tr>
+      <tr><td>Dispute / bot / multi-account abuse</td><td>Adversarial</td><td>Rules + manual appeals channel</td></tr>
+      <tr><td>Legal, ToS, tax on payouts</td><td>Jurisdiction</td><td>Lawyer once; templates forever</td></tr>
+      <tr><td>Story chapters & IP direction</td><td>Creative</td><td>Community can draft; you lock canon</td></tr>
+      <tr><td>App store / platform policy breaks</td><td>API changes</td><td>Monitor Metricool + platform emails weekly</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box gold">
+    <strong>Minimum weekly manual time target (after Phase 1):</strong> 2–4 hours — review feature shortlist, skim analytics, approve payout batch, post or schedule 3–7 official pieces. Everything else should be system or community.
+  </div>
+
+  <h2>5. Cost reduction without killing performance</h2>
+  <ul>
+    <li><strong>Keep AI keys on the creator’s device</strong> (already built). Do not subsidize everyone’s ChatGPT bill until revenue is real.</li>
+    <li><strong>Use External Prompt path</strong> so creators run Midjourney/Grok elsewhere — zero API cost to you, high output.</li>
+    <li><strong>Metricool over Sprout/Hootsuite</strong> until you need a 5-person social team. Same live multi-account view for a fraction of the price.</li>
+    <li><strong>Native platform analytics first</strong> (YouTube Studio, TikTok Analytics, X Analytics) + one aggregator. Don’t buy three paid suites.</li>
+    <li><strong>Free tiers hard:</strong> Vercel Hobby, Supabase free, Resend free, Metricool free/starter, GA or Plausible free/cheap.</li>
+    <li><strong>Batch payouts monthly</strong> (not per view) to cut gas + ops time.</li>
+    <li><strong>Thresholds aligned to real monetization</strong> so you never pay before revenue exists.</li>
+    <li><strong>One scheduler for official accounts</strong> — stop hand-posting every clip.</li>
+    <li><strong>Automate reports:</strong> Metricool / Looker Studio weekly PDF to your inbox — no manual spreadsheet rebuild.</li>
+    <li><strong>Don’t build multiplayer servers / custom AI infra</strong> early. Use APIs + no-code where it doesn’t hurt brand lock.</li>
+  </ul>
+
+  <div class="footer"><span>Astro Bull Ops Playbook</span><span>4</span></div>
+</section>
+
+<section class="page">
+  <h2>6. Best analytics for live multi-social data</h2>
+  <p>You need <strong>one pane of glass</strong> across X, TikTok, YouTube, Telegram (where possible), plus site traffic — not five apps you never open.</p>
+
+  <h3>Recommended stack (performance vs cost)</h3>
+  <table>
+    <thead><tr><th style="width:26%">Tool</th><th style="width:18%">Role</th><th style="width:18%">From</th><th>Verdict for Astro Bull</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Metricool</strong></td>
+        <td>Primary hub: analytics + scheduling + multi-brand</td>
+        <td>$0 → ~$20–25+/mo</td>
+        <td><strong>Best default.</strong> X, TikTok, YouTube, Instagram, etc. Live dashboards, competitors, reports. Free plan to start.</td>
+      </tr>
+      <tr>
+        <td><strong>Native dashboards</strong></td>
+        <td>Source of truth per platform</td>
+        <td>$0</td>
+        <td>YouTube Studio, TikTok Analytics, X Analytics — always keep open for deep video/watch-time truth.</td>
+      </tr>
+      <tr>
+        <td><strong>Plausible or Umami</strong></td>
+        <td>Website traffic (astrobull.xyz)</td>
+        <td>$0–9</td>
+        <td>Cleaner than GA for a meme brand; pairs with social numbers.</td>
+      </tr>
+      <tr>
+        <td>Buffer Analyze</td>
+        <td>Lightweight alt</td>
+        <td>Free–paid</td>
+        <td>Fine if you already live in Buffer; Metricool usually stronger for analytics depth/price.</td>
+      </tr>
+      <tr>
+        <td>Hootsuite</td>
+        <td>Team inbox + enterprise</td>
+        <td>~$99+/user</td>
+        <td>Overkill until you have staff managing DMs daily.</td>
+      </tr>
+      <tr>
+        <td>Sprout Social</td>
+        <td>Premium social CRM</td>
+        <td>~$199–249+/user</td>
+        <td>Excellent but expensive. Only when revenue > cost × 10.</td>
+      </tr>
+      <tr>
+        <td>Social Blade / public trackers</td>
+        <td>Public growth snapshots</td>
+        <td>$0–few</td>
+        <td>Handy for vanity/growth; not for creator payout truth.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="box green">
+    <strong>Pick this:</strong> <span class="tag">Metricool</span> as daily cockpit + <span class="tag">Native YT/TikTok/X</span> for deep video + <span class="tag">Plausible</span> for the website.<br/>
+    Total analytics software: often <strong>under $30/mo</strong> at high visibility. Upgrade seats only when the herd needs a team.
+  </div>
+
+  <h3>What to watch live (KPI board)</h3>
+  <ul>
+    <li>Followers + 7-day growth per platform</li>
+    <li>Views / watch time (YouTube + TikTok first — these drive real money)</li>
+    <li>Engagement rate on official posts</li>
+    <li>Which creator pieces got featured and their lift after repost</li>
+    <li>Site: Creator Studio visits, whitepaper downloads, buy-link clicks</li>
+    <li>Payout pool: revenue in vs USDC out vs burn/buyback</li>
+  </ul>
+
+  <div class="footer"><span>Astro Bull Ops Playbook</span><span>5</span></div>
+</section>
+
+<section class="page">
+  <h2>7. Build sequence for “almost fully automated”</h2>
+  <ol>
+    <li><strong>Week 1–2:</strong> Metricool connected to all official accounts. Weekly report auto-email. Plausible on site.</li>
+    <li><strong>Week 2–4:</strong> Backend: submissions DB + admin feature list + Phantom wallet connect on Studio.</li>
+    <li><strong>Month 2:</strong> Scheduler for official X/TikTok/YouTube. Featured content drafts auto-prepared.</li>
+    <li><strong>Month 2–3:</strong> View verification pipeline (API + proof upload). Threshold rules published on site.</li>
+    <li><strong>Month 3+:</strong> Monthly batch USDC payouts from admin panel. You approve one CSV; script sends.</li>
+    <li><strong>Ongoing:</strong> Only manual: edge quality, brand risk, partnerships, treasury policy, story canon.</li>
+  </ol>
+
+  <h2>8. Budget scenarios (all-in rough)</h2>
+  <table>
+    <thead><tr><th>Scenario</th><th>Monthly software</th><th>Your hours / week</th><th>When to use</th></tr></thead>
+    <tbody>
+      <tr><td>Bootstrap</td><td>$0–40</td><td>5–10 hrs</td><td>Now. Free hosting + Metricool free/starter + native analytics + client AI keys.</td></tr>
+      <tr><td>Automated core</td><td>$75–200</td><td>2–4 hrs</td><td>Backend + scheduler + Metricool paid + Plausible + light email.</td></tr>
+      <tr><td>Team scale</td><td>$300–800+</td><td>shared</td><td>Staff + Sprout/Hootsuite + paid APIs. Only after revenue.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9. Bottom line</h2>
+  <div class="box">
+    <p><strong>Keep performance high, cost low:</strong></p>
+    <ul>
+      <li>Creators bring their own AI cost (or use External Prompt).</li>
+      <li>Metricool = live multi-social eyes without enterprise pricing.</li>
+      <li>Automate intake → feature shortlist → verify → batch pay.</li>
+      <li>Stay manual only where brand, law, or money judgment matters.</li>
+      <li>Never pay creators before real revenue + verified performance.</li>
+    </ul>
+    <p style="margin-bottom:0"><strong>We are all Astro.</strong> Build the machine so the herd can create while you steer.</p>
+  </div>
+  <p class="muted" style="margin-top:16px">Document for operators of Astro Bull / Slaughterhouse Productions · July 2026 · Prices are planning ranges, not quotes. Verify current vendor pricing before purchase.</p>
+
+  <div class="footer"><span>Astro Bull Ops Playbook</span><span>6</span></div>
+</section>
+
+</body>
+</html>
