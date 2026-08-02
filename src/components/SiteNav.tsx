@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import TgContentDrop from "@/components/TgContentDrop";
 
 export default function SiteNav() {
   const [open, setOpen] = useState(false);
@@ -20,7 +21,7 @@ export default function SiteNav() {
           <span className="animate-flicker">Bull</span>
         </Link>
 
-        <nav className="hidden items-center gap-5 sm:flex">
+        <nav className="hidden items-center gap-4 sm:flex">
           {onHome ? (
             <>
               <a
@@ -63,6 +64,7 @@ export default function SiteNav() {
           >
             Whitepaper
           </a>
+          <TgContentDrop variant="nav" />
           <Link
             to="/studio"
             className={cn(
@@ -102,27 +104,55 @@ export default function SiteNav() {
           <div className="flex flex-col">
             {onHome ? (
               <>
-                <a href="#story" onClick={() => setOpen(false)} className="py-3 font-mono text-xs uppercase tracking-widest text-muted">
+                <a
+                  href="#story"
+                  onClick={() => setOpen(false)}
+                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+                >
                   Story
                 </a>
-                <a href="#studio" onClick={() => setOpen(false)} className="py-3 font-mono text-xs uppercase tracking-widest text-muted">
+                <a
+                  href="#studio"
+                  onClick={() => setOpen(false)}
+                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+                >
                   Studio
                 </a>
-                <a href="#leaderboard" onClick={() => setOpen(false)} className="py-3 font-mono text-xs uppercase tracking-widest text-muted">
+                <a
+                  href="#leaderboard"
+                  onClick={() => setOpen(false)}
+                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+                >
                   Board
                 </a>
-                <a href="#quick" onClick={() => setOpen(false)} className="py-3 font-mono text-xs uppercase tracking-widest text-muted">
+                <a
+                  href="#quick"
+                  onClick={() => setOpen(false)}
+                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+                >
                   Buy
                 </a>
               </>
             ) : (
-              <Link to="/" onClick={() => setOpen(false)} className="py-3 font-mono text-xs uppercase tracking-widest text-muted no-underline">
+              <Link
+                to="/"
+                onClick={() => setOpen(false)}
+                className="py-3 font-mono text-xs uppercase tracking-widest text-muted no-underline"
+              >
                 Home
               </Link>
             )}
-            <a href="/astrobull-whitepaper.pdf" download onClick={() => setOpen(false)} className="py-3 font-mono text-xs uppercase tracking-widest text-muted">
+            <a
+              href="/astrobull-whitepaper.pdf"
+              download
+              onClick={() => setOpen(false)}
+              className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+            >
               Whitepaper
             </a>
+            <div className="py-2" onClick={() => setOpen(false)}>
+              <TgContentDrop variant="button" />
+            </div>
             <Link
               to="/studio"
               onClick={() => setOpen(false)}

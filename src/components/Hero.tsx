@@ -7,6 +7,7 @@ import {
   Send,
   Youtube,
 } from "lucide-react";
+import { TG_CONTENT_UPLOAD, TG_MAIN } from "@/lib/community";
 
 const CONTRACT = "0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
 const BOW = `https://bow.fun/?token=${CONTRACT}`;
@@ -210,12 +211,20 @@ export default function Hero() {
               <Youtube size={12} /> YouTube
             </a>
             <a
-              href="https://t.me/Official_Astrobull_Robinhood"
+              href={TG_MAIN}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-1.5 border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
             >
               <Send size={12} /> Telegram
+            </a>
+            <a
+              href={TG_CONTENT_UPLOAD}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 border border-[#2AABEE]/50 bg-[#2AABEE]/15 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-[#2AABEE] no-underline hover:bg-[#2AABEE]/25"
+            >
+              <Send size={12} /> TG content
             </a>
             <button
               type="button"

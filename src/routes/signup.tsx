@@ -18,6 +18,7 @@ import {
   saveSignup,
 } from "@/lib/signup";
 import { cn } from "@/lib/utils";
+import TgContentDrop from "@/components/TgContentDrop";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -168,6 +169,10 @@ function SignupPage() {
         <span className="text-green">pending</span>.{" "}
         <span className="text-green">Holding $ASTROBULL is optional.</span>
       </p>
+
+      <div className="mt-5">
+        <TgContentDrop variant="banner" />
+      </div>
 
       {already ? (
         <div className="mt-4 border border-green/40 bg-green/10 px-3 py-3 font-mono text-xs text-green">

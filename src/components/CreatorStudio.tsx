@@ -44,6 +44,7 @@ import PlatformPush, {
   PlatformCheckboxes,
   type PlatformId,
 } from "@/components/PlatformPush";
+import TgContentDrop from "@/components/TgContentDrop";
 import { Link } from "@tanstack/react-router";
 type Path = "ai" | "manual" | "prompt" | null;
 
@@ -64,7 +65,7 @@ const PAY_STEPS = [
   {
     n: "01",
     title: "Create free",
-    body: "Use AI here, generate a portable prompt for any outside agent, or upload your own work. No token buy required. Zero paywall to start.",
+    body: "Drop content in the Telegram upload chat (fastest), or use AI / site tools here. No token buy required. Zero paywall to start.",
   },
   {
     n: "02",
@@ -467,6 +468,11 @@ export default function CreatorStudio() {
             Today's vision · Tomorrow's legacy · In the herd we trust
           </p>
         </div>
+      </div>
+
+      {/* Fast path: Telegram content-only drop — no site upload mess */}
+      <div className="mb-6">
+        <TgContentDrop variant="banner" />
       </div>
 
       {/* Quick pay explainer — no whitepaper required */}

@@ -6,6 +6,8 @@ import {
   Youtube,
   Instagram,
 } from "lucide-react";
+import TgContentDrop from "@/components/TgContentDrop";
+import { TG_MAIN } from "@/lib/community";
 
 const CONTRACT = "0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
 
@@ -42,8 +44,8 @@ const SOCIAL = [
   },
   {
     label: "Telegram",
-    sub: "Join the herd",
-    href: "https://t.me/Official_Astrobull_Robinhood",
+    sub: "Main herd",
+    href: TG_MAIN,
     Icon: Send,
     className: "border-blue/30 text-blue hover:border-blue/70 hover:bg-blue/5",
   },
@@ -93,14 +95,20 @@ export default function QuickLinks() {
         Content Creators.
       </p>
 
-      <ul className="mb-10 space-y-2.5 text-center font-mono text-[11px] uppercase tracking-widest sm:text-xs">
+      <ul className="mb-8 space-y-2.5 text-center font-mono text-[11px] uppercase tracking-widest sm:text-xs">
         {STATUS.map((s) => (
           <li key={s.text} className="flex items-center justify-center gap-2.5 text-muted">
-            <span className={`h-2 w-2 shrink-0 rounded-full ${s.color} shadow-[0_0_8px_currentColor]`} />
+            <span
+              className={`h-2 w-2 shrink-0 rounded-full ${s.color} shadow-[0_0_8px_currentColor]`}
+            />
             <span className="text-fg/80">{s.text}</span>
           </li>
         ))}
       </ul>
+
+      <div className="mx-auto mb-10 max-w-2xl">
+        <TgContentDrop variant="banner" />
+      </div>
 
       <p className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
         <span className="h-px w-4 bg-muted/40" />
