@@ -46,7 +46,8 @@ import PlatformPush, {
 } from "@/components/PlatformPush";
 import TgContentDrop from "@/components/TgContentDrop";
 import { Link } from "@tanstack/react-router";
-type Path = "ai" | "manual" | "prompt" | null;
+import { TG_CONTENT_UPLOAD } from "@/lib/community";
+type Path = "ai" | "prompt" | null;
 
 const TONES = [
   "cinematic horror-meme",
@@ -65,7 +66,7 @@ const PAY_STEPS = [
   {
     n: "01",
     title: "Create free",
-    body: "Drop content in the Telegram upload chat (fastest), or use AI / site tools here. No token buy required. Zero paywall to start.",
+    body: "Drop content in the Telegram upload chat (videos / images / clips). Or use AI / external prompts here. No token buy required.",
   },
   {
     n: "02",
@@ -594,8 +595,9 @@ export default function CreatorStudio() {
           How do you want to create?
         </h2>
         <p className="mt-2 font-body text-sm text-muted">
-          Three paths. Pick the one that fits you — including a portable Astro Bull
-          prompt for any external AI.
+          Use AI or external prompts here.{" "}
+          <strong className="text-green">Finished files go to Telegram only</strong> —
+          no website upload.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <button
@@ -615,25 +617,20 @@ export default function CreatorStudio() {
               Grok, Claude, or ChatGPT — your keys, locked character
             </p>
           </button>
-          <button
-            type="button"
-            onClick={() => pickPath("manual")}
-            className={cn(
-              "rounded-md border px-4 py-5 text-left transition-colors",
-              path === "manual"
-                ? "border-green bg-green/15"
-                : "border-white/15 bg-bg hover:border-green/50",
-              path === "manual" && pathFlash && "animate-green-flash",
-            )}
+          <a
+            href={TG_CONTENT_UPLOAD}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md border border-[#2AABEE]/45 bg-[#2AABEE]/10 px-4 py-5 text-left no-underline transition-colors hover:border-[#2AABEE]/80 hover:bg-[#2AABEE]/20"
           >
-            <Upload size={20} className="mb-2 text-green" />
+            <Upload size={20} className="mb-2 text-[#2AABEE]" />
             <div className="font-display text-xl uppercase text-fg">
-              Upload my own
+              Upload on Telegram
             </div>
             <p className="mt-1 font-mono text-[11px] leading-relaxed text-muted">
-              Freehand, phone, laptop — no AI needed
+              Content only · private group · files stay on TG
             </p>
-          </button>
+          </a>
           <button
             type="button"
             onClick={() => pickPath("prompt")}
@@ -915,144 +912,13 @@ export default function CreatorStudio() {
         </div>
       )}
 
-      {path === "manual" && (
-        <section
-          id="studio-create-form"
-          className="mt-4 scroll-mt-24 rounded-md border-2 border-green/70 bg-gradient-to-b from-red/20 to-surface p-5 shadow-[0_0_24px_rgba(255,0,51,0.2)] md:p-6"
-        >
-          <span className="mb-3 inline-block rounded-sm bg-red px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest text-white">
-            Upload path
-          </span>
-          <h2 className="font-display text-2xl uppercase text-fg">
-            Upload your own file
-          </h2>
-          <p className="mt-2 font-body text-sm text-fg/80">
-            Made it freehand, in another app, or on your phone? Upload it here. No
-            AI key needed.
-          </p>
-
-          <label
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDrag(true);
-            }}
-            onDragLeave={() => setDrag(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDrag(false);
-              const f = e.dataTransfer.files?.[0];
-              if (f) handleFile(f);
-            }}
-            className={cn(
-              "mt-5 flex cursor-pointer flex-col items-center rounded-md border-2 border-dashed px-4 py-10 text-center transition-colors",
-              drag
-                ? "border-green bg-green/10"
-                : "border-green/45 bg-bg/40 hover:border-green/70",
-            )}
-          >
-            <FileUp size={28} className="mb-3 text-green" />
-            <strong className="font-display text-lg uppercase text-fg">
-              Drop a file here
-            </strong>
-            <span className="mt-1 text-sm text-muted">
-              or click to choose · images, video, audio, text, PDF
-            </span>
-            <input
-              type="file"
-              accept="image/*,video/*,audio/*,.txt,.md,.pdf,.doc,.docx"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleFile(f);
-              }}
-            />
-          </label>
-
-          {file ? (
-            <p className="mt-3 font-mono text-sm text-green">
-              Selected: {file.name} ({Math.round(file.size / 1024)} KB)
-            </p>
-          ) : null}
-          {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="Upload preview"
-              className="mt-3 max-h-56 max-w-full rounded-sm"
-            />
-          ) : null}
-
-          <div className="mt-4 space-y-3">
-            <div>
-              <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-green">
-                Title
-              </label>
-              <input
-                value={upTitle}
-                onChange={(e) => setUpTitle(e.target.value)}
-                placeholder="Name your piece"
-                className="w-full rounded-sm border border-white/15 bg-bg px-3 py-3 font-body text-fg outline-none focus:border-green"
-              />
-            </div>
-            <div>
-              <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-green">
-                Short description
-              </label>
-              <textarea
-                value={upDesc}
-                onChange={(e) => setUpDesc(e.target.value)}
-                placeholder="What should people know about this?"
-                rows={3}
-                className="w-full resize-y rounded-sm border border-white/15 bg-bg px-3 py-3 font-body text-fg outline-none focus:border-green"
-              />
-            </div>
-            <div>
-              <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-green">
-                This is a…
-              </label>
-              <select
-                value={upType}
-                onChange={(e) => setUpType(e.target.value)}
-                className="w-full rounded-sm border border-white/15 bg-bg px-3 py-3 font-body text-fg outline-none focus:border-green"
-              >
-                <option value="image">Image / art</option>
-                <option value="video">Video</option>
-                <option value="writing">Writing</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={onSubmitUpload}
-                className="rounded-sm bg-red px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-white"
-              >
-                Submit for review
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setFile(null);
-                  setPreviewUrl(null);
-                  setUpTitle("");
-                  setUpDesc("");
-                  setUpOk(null);
-                  setUpErr(null);
-                  setResult(null);
-                }}
-                className="rounded-sm border border-white/15 px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-fg"
-              >
-                Clear
-              </button>
-            </div>
-            {upOk ? (
-              <p className="font-mono text-sm text-green">{upOk}</p>
-            ) : null}
-            {upErr ? (
-              <p className="font-mono text-sm text-red-hot">{upErr}</p>
-            ) : null}
-          </div>
-        </section>
-      )}
+      {/* Files never upload to the website — Telegram private group only */}
+      <div className="mt-4 scroll-mt-24">
+        <TgContentDrop variant="banner" className="rounded-md" />
+        <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-widest text-dim">
+          Site does not store creator files · private TG group only
+        </p>
+      </div>
 
       {path === "prompt" && (
         <section

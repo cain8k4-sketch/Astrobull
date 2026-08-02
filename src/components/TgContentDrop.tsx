@@ -65,7 +65,7 @@ export default function TgContentDrop({ variant = "banner", className }: Props) 
         Upload content on Telegram
       </h3>
       <p className="mt-2 max-w-xl font-mono text-xs leading-relaxed text-muted">
-        {TG_CONTENT_SUB}. No website forms, no API keys, no fiddling — open the chat,
+        {TG_CONTENT_SUB}. This site never stores your files. Open the private chat,
         drop your file, done. We review there and feature winners.
       </p>
       <ul className="mt-3 space-y-1 font-mono text-[11px] text-muted">
