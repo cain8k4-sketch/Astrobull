@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-/** Top bar: Buy · Story · Creator Studio · NEW Shill HQ · Socials · Sign up */
+/** Top bar: Buy · Story · Creator Studio · NEW Shill HQ · Chat · Socials · Sign up */
 export default function SiteNav() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -24,7 +24,7 @@ export default function SiteNav() {
           <span className="animate-flicker">Bull</span>
         </Link>
 
-        <nav className="hidden items-center gap-3 sm:flex lg:gap-5">
+        <nav className="hidden items-center gap-3 sm:flex lg:gap-4">
           {!onHome ? (
             <Link to="/" className={linkMuted}>
               Home
@@ -84,6 +84,16 @@ export default function SiteNav() {
             </span>
             Shill HQ
           </Link>
+
+          {onHome ? (
+            <a href="#herd-chat" className={linkMuted}>
+              Chat
+            </a>
+          ) : (
+            <Link to="/" hash="herd-chat" className={linkMuted}>
+              Chat
+            </Link>
+          )}
 
           {onHome ? (
             <a href="#socials" className={linkMuted}>
@@ -161,6 +171,13 @@ export default function SiteNav() {
               </span>
               Shill HQ
             </Link>
+            <a
+              href={onHome ? "#herd-chat" : "/#herd-chat"}
+              onClick={() => setOpen(false)}
+              className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+            >
+              Chat
+            </a>
             <a
               href={onHome ? "#socials" : "/#socials"}
               onClick={() => setOpen(false)}
