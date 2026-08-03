@@ -27,17 +27,19 @@ export default function ShillPromo() {
         </h2>
 
         <p className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-muted sm:text-sm">
-          Generate on-brand hype posts in one tap. Copy, post, climb the{" "}
-          <span className="text-gold">shill leaderboard</span> — separate from
-          creator activity. Less noise. More signal. Break the chains.
+          Generate on-brand hype in one tap —{" "}
+          <span className="text-fg">get paid to create</span>, passive income
+          lines, $50 threshold, Uniswap CTAs. Copy, post, climb the{" "}
+          <span className="text-gold">shill leaderboard</span> (separate from
+          creator ranks).
         </p>
 
         <ul className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
             {
               Icon: Sparkles,
-              t: "Auto copy",
-              d: "Hooks, CTAs, hashtags locked to Astro DNA",
+              t: "Latest lines",
+              d: "GM packs · 10s forever · $50 payout · herd amplify",
             },
             {
               Icon: Megaphone,
@@ -72,12 +74,13 @@ export default function ShillPromo() {
           >
             Open shill tool
           </Link>
-          <a
-            href="#shill-board"
+          <Link
+            to="/shill"
+            hash="shill-board"
             className="inline-flex items-center gap-2 rounded-sm border border-gold/40 px-5 py-3 font-mono text-[11px] font-bold uppercase tracking-widest text-gold no-underline hover:bg-gold/10"
           >
             View shill board
-          </a>
+          </Link>
         </div>
       </div>
     </section>

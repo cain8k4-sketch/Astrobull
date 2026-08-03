@@ -73,7 +73,7 @@ export default function ShillTool() {
       <div className="mb-3 flex items-center gap-3">
         <Megaphone size={14} className="text-red" />
         <span className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-red">
-          Shill engine
+          Shill engine · latest update
         </span>
       </div>
 
@@ -85,9 +85,10 @@ export default function ShillTool() {
         <span className="animate-flicker"> herd</span>
       </h1>
       <p className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-muted sm:text-sm">
-        Build a clean AstroBull post, copy it, ship it. Every copy scores on the{" "}
-        <span className="text-gold">shill leaderboard</span> — not the creator
-        activity board.
+        Latest pack lines:{" "}
+        <span className="text-fg">get paid to create</span> · 10s forever · $50
+        threshold · Uniswap only · herd amplify. Copy scores on the{" "}
+        <span className="text-gold">shill board</span> — not the creator board.
       </p>
 
       <div className="mt-10 space-y-5 rounded-md border border-white/10 bg-surface p-4 sm:p-6">
@@ -133,7 +134,7 @@ export default function ShillTool() {
           <input
             value={vibe}
             onChange={(e) => setVibe(e.target.value)}
-            placeholder="e.g. burn update, creator open, chapter 1"
+            placeholder="e.g. burn update, creator open, 10s passive, chapter 1"
             className="w-full rounded-sm border border-white/15 bg-bg px-3 py-3 font-mono text-sm text-fg outline-none placeholder:text-dim focus:border-red"
           />
         </div>

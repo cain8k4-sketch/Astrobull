@@ -23,34 +23,45 @@ export type ShillPack = {
 
 const STORAGE = "astrobull.shill.leaderboard.v1";
 
+/** Latest brand hooks — Aug 2026 messaging */
 const HOOKS = [
   "GM GM ASTROBULLS",
   "BREAK THE CHAINS.",
   "We are all Astro.",
+  "Get paid to create.",
   "Create free. Get featured. Get paid.",
-  "10 seconds on the platform. Passive income forever.",
+  "A 10-second video stays on our platform forever.",
+  "This is passive income.",
   "Holding is optional. Creating is power.",
   "Today's vision · Tomorrow's legacy · In the herd we trust.",
+  "Get paid to create · elevated across our socials.",
   "Only on Robinhood Chain.",
+  "Platform open. Sign ups live.",
 ];
 
 const ANGLES = [
-  "Creator economy is live — sign up free, get amplified across the herd socials.",
-  "Your clip doesn't die in the algorithm alone. The herd pushes it.",
+  "Creator Studio is open — sign up free, get amplified across the herd socials.",
+  "Your clip doesn't die alone in the algorithm. The herd pushes it.",
   "Views get verified. Payouts in USDC / USDT toward the $50 threshold.",
-  "Astro Bull content stays on-brand — same bull, same fire, every post.",
-  "Slaughterhouse Productions is stacking creators. Don't miss the open window.",
+  "One 10-second loop on the platform = forever passive potential.",
+  "Astro Bull DNA locked — same bull, same fire, every post.",
+  "Slaughterhouse Productions is stacking creators. Window is open.",
   "Token burns + creator revenue flywheel. Build with us.",
-  "Shill smart. Post clean. Climb the shill board.",
-  "From one 10-second loop to forever passive — that's the model.",
+  "Shill smart. Post clean. Climb the shill board — separate from creator ranks.",
+  "Holding optional. Creating is how you get featured and paid.",
+  "Combined herd accounts = more spotlight than posting alone.",
+  "12M+ tokens burned. Dev doesn't sell. Chains keep breaking.",
+  "Battle-tested. Ready for the herd. Don't sleep on the open window.",
 ];
 
 const CTAS = [
-  "Sign up free → astrobull.xyz",
-  "Studio open → astrobull.xyz/studio",
+  "Sign up free → astrobull.xyz/signup",
+  "Creator Studio → astrobull.xyz/studio",
+  "Shill tool → astrobull.xyz/shill",
   "Join Telegram → t.me/Official_Astrobull_Robinhood",
-  "Buy only on Uniswap / bow.fun (Robinhood Chain)",
+  "Buy on Uniswap / bow.fun · Robinhood Chain · MetaMask",
   "Contract: 0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03",
+  "Whitepaper → astrobull.xyz",
 ];
 
 function pick<T>(arr: T[], seed: number): T {
@@ -98,7 +109,7 @@ export function buildShillPack(opts: {
     "",
     angle,
     vibeLine,
-    mention ? `Big up ${mention}` : null,
+    mention ? `Big up ${mention} — this energy belongs on the herd socials.` : null,
     "",
     cta,
   ].filter((x): x is string => Boolean(x));
@@ -106,11 +117,17 @@ export function buildShillPack(opts: {
   const body = lines.join("\n");
 
   const hashtags = generateHashtags({
-    topic: `${hook} ${angle} ${vibeLine}`,
+    topic: `${hook} ${angle} ${vibeLine} get paid to create passive income`,
     kind: "caption",
     platforms: [opts.platform === "telegram" ? "x" : opts.platform],
     max: opts.platform === "x" ? 8 : 12,
-    extra: ["AstroBull", "GetPaidToCreate", "BreakingTheChains"],
+    extra: [
+      "AstroBull",
+      "GetPaidToCreate",
+      "BreakingTheChains",
+      "WeAreAllAstro",
+      "RobinhoodChain",
+    ],
   });
 
   const fullPost =
@@ -175,7 +192,6 @@ export function recordShill(opts: {
   const displayName = (opts.displayName || handle).trim() || handle;
   const pts = shillPointsFor(opts.platform);
 
-  // Drop demo placeholders once a real shill is recorded
   const current = loadShillBoard();
   const base = current.some((e) => !e.id.startsWith("demo-"))
     ? current.filter((e) => !e.id.startsWith("demo-"))
