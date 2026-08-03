@@ -37,6 +37,8 @@ export type ShillEntry = {
   lastAt: string;
   /** Robinhood Chain / EVM payout wallet (0x…) */
   wallet?: string;
+  /** X Premium / blue check — non-verified get 50% prize cut */
+  xBlueTick?: boolean;
 };
 
 export type ShillPack = {
@@ -48,7 +50,7 @@ export type ShillPack = {
   campaign: ShillCampaign;
 };
 
-const STORAGE = "astrobull.shill.leaderboard.v2";
+const STORAGE = "astrobull.shill.leaderboard.v3";
 
 export const CONTRACT = "0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
 export const SITE = "https://astrobull.xyz";
@@ -58,10 +60,21 @@ export const PAYOUT_USD = 50;
 export const TOP3_PRIZES_USD = [30, 15, 5] as const;
 export const PRIZE_POOL_USD = TOP3_PRIZES_USD.reduce((a, b) => a + b, 0);
 
-export function prizeForRank(rank: number): number {
+/** Full prize for blue-tick X; 50% if no blue tick (or unclaimed). */
+export function prizeForRank(
+  rank: number,
+  opts?: { xBlueTick?: boolean },
+): number {
   if (rank < 1 || rank > TOP3_PRIZES_USD.length) return 0;
-  return TOP3_PRIZES_USD[rank - 1] ?? 0;
+  const full = TOP3_PRIZES_USD[rank - 1] ?? 0;
+  if (opts?.xBlueTick === true) return full;
+  // 50% less — keep cents clean for USDC display
+  return Math.round(full * 0.5 * 100) / 100;
 }
+
+export const BLUE_TICK_RULE =
+  "X blue tick / Premium verified accounts earn full top-3 prizes. No blue tick = 50% less.";
+
 
 export const CAMPAIGN_META: {
   id: ShillCampaign;
@@ -456,11 +469,13 @@ export function recordShill(opts: {
   displayName?: string;
   platform: ShillPlatform;
   wallet?: string;
+  xBlueTick?: boolean;
 }): ShillEntry[] {
   const handle = (opts.handle || "anon").trim().replace(/^@/, "") || "anon";
   const displayName = (opts.displayName || handle).trim() || handle;
   const pts = shillPointsFor(opts.platform);
   const wallet = (opts.wallet || "").trim() || undefined;
+  const xBlueTick = opts.xBlueTick;
 
   const current = loadShillBoard();
   const base = current.some((e) => !e.id.startsWith("demo-"))
@@ -483,6 +498,8 @@ export function recordShill(opts: {
             lastAt: new Date().toISOString(),
             displayName: displayName || e.displayName,
             wallet: wallet || e.wallet,
+            xBlueTick:
+              typeof xBlueTick === "boolean" ? xBlueTick : e.xBlueTick,
           }
         : e,
     );
@@ -497,6 +514,7 @@ export function recordShill(opts: {
         points: pts,
         lastAt: new Date().toISOString(),
         wallet,
+        xBlueTick: xBlueTick === true,
       },
     ];
   }
@@ -541,17 +559,60 @@ export function top3Eligible(list: ShillEntry[]): {
   rank: number;
   entry: ShillEntry;
   prizeUsd: number;
+  fullPrizeUsd: number;
+  blueTick: boolean;
   ready: boolean;
 }[] {
   return rankShillers(list)
     .slice(0, 3)
-    .map((entry, i) => ({
-      rank: i + 1,
-      entry,
-      prizeUsd: prizeForRank(i + 1),
-      ready: !!entry.wallet && /^0x[a-fA-F0-9]{40}$/.test(entry.wallet),
-    }));
+    .map((entry, i) => {
+      const blueTick = entry.xBlueTick === true;
+      const fullPrizeUsd = prizeForRank(i + 1, { xBlueTick: true });
+      return {
+        rank: i + 1,
+        entry,
+        fullPrizeUsd,
+        prizeUsd: prizeForRank(i + 1, { xBlueTick: blueTick }),
+        blueTick,
+        ready: !!entry.wallet && /^0x[a-fA-F0-9]{40}$/.test(entry.wallet),
+      };
+    });
 }
+
+/** Set / clear X blue-tick flag for a shill handle. */
+export function setShillerBlueTick(
+  handle: string,
+  xBlueTick: boolean,
+): ShillEntry[] {
+  const key = handle.trim().replace(/^@/, "").toLowerCase() || "anon";
+  const current = loadShillBoard();
+  const base = current.some((e) => !e.id.startsWith("demo-"))
+    ? current.filter((e) => !e.id.startsWith("demo-"))
+    : current.map((e) => ({ ...e }));
+  let found = false;
+  const next = base.map((e) => {
+    if (e.handle.replace(/^@/, "").toLowerCase() === key) {
+      found = true;
+      return { ...e, xBlueTick };
+    }
+    return e;
+  });
+  if (!found) {
+    next.push({
+      id: `shill-${Date.now()}`,
+      handle: `@${key}`,
+      displayName: key,
+      posts: 0,
+      points: 0,
+      lastAt: new Date().toISOString(),
+      xBlueTick,
+    });
+  }
+  const ranked = rankShillers(next);
+  saveShillBoard(ranked);
+  return ranked;
+}
+
 
 export const DEMO_SHILLERS: ShillEntry[] = [
   {
@@ -561,6 +622,7 @@ export const DEMO_SHILLERS: ShillEntry[] = [
     posts: 42,
     points: 680,
     lastAt: new Date().toISOString(),
+    xBlueTick: true,
   },
   {
     id: "demo-s2",
@@ -569,6 +631,7 @@ export const DEMO_SHILLERS: ShillEntry[] = [
     posts: 31,
     points: 520,
     lastAt: new Date().toISOString(),
+    xBlueTick: false,
   },
   {
     id: "demo-s3",

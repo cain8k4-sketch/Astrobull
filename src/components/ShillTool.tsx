@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  BadgeCheck,
   Check,
   Copy,
   ExternalLink,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import {
   buildShillPack,
+  BLUE_TICK_RULE,
   CAMPAIGN_META,
   campaignLabel,
   CONTRACT,
@@ -18,7 +20,9 @@ import {
   PAYOUT_USD,
   PRIZE_POOL_USD,
   PLATFORM_LABEL,
+  prizeForRank,
   recordShill,
+  setShillerBlueTick,
   TOP3_PRIZES_USD,
   top3Eligible,
   type ShillCampaign,
@@ -50,7 +54,7 @@ const PLATFORMS: ShillPlatform[] = [
 const PILLARS = [
   "Create free · get featured · get paid · holding optional",
   `$${PAYOUT_USD} verified-view threshold · USDC / USDT`,
-  `Shill top 3 weekly: $${TOP3_PRIZES_USD.join(" / $")} (pool $${PRIZE_POOL_USD})`,
+  `Shill top 3: $${TOP3_PRIZES_USD.join(" / $")} full · 50% if no X blue tick`,
   "Herd amplify on shared TT / YT / Snap / TG accounts",
   "10-second clip can stay on the platform forever",
   "Buy only Uniswap / bow.fun · MetaMask · Robinhood Chain",
@@ -73,6 +77,7 @@ export default function ShillTool() {
   const [walletErr, setWalletErr] = useState<string | null>(null);
   const [manualWallet, setManualWallet] = useState("");
   const [hasInjected, setHasInjected] = useState(false);
+  const [xBlueTick, setXBlueTick] = useState(false);
 
   useEffect(() => {
     setBoard(loadShillBoard());
@@ -139,6 +144,13 @@ export default function ShillTool() {
     setStatus(`Wallet ${shortAddr(wallet)} linked to @${handle.replace(/^@/, "")}`);
   }
 
+  function onBlueTickToggle(next: boolean) {
+    setXBlueTick(next);
+    if (handle.trim()) {
+      setBoard(setShillerBlueTick(handle, next));
+    }
+  }
+
   async function copyPack() {
     if (!pack) return;
     try {
@@ -149,10 +161,14 @@ export default function ShillTool() {
         displayName: handle || "Anon",
         platform,
         wallet: wallet || undefined,
+        xBlueTick,
       });
       setBoard(next);
+      const halfNote = xBlueTick
+        ? "full prize if top 3 (blue tick)"
+        : "50% prize if top 3 (no blue tick)";
       setStatus(
-        `Copied · +points as @${(handle || "anon").replace(/^@/, "")} · ${wallet ? "wallet attached for top-3 USD" : "connect wallet to qualify for prizes"}`,
+        `Copied · +points as @${(handle || "anon").replace(/^@/, "")} · ${halfNote}`,
       );
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -179,9 +195,10 @@ export default function ShillTool() {
       <p className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-muted sm:text-sm">
         Generate packs, climb the board, connect a{" "}
         <span className="text-fg">Robinhood Chain</span> wallet.{" "}
-        <span className="text-gold">Top 3</span> shillers share a{" "}
-        <span className="text-green">${PRIZE_POOL_USD} USD</span> prize pool
-        (USDC) when the contest settles.
+        <span className="text-gold">Top 3</span> share up to{" "}
+        <span className="text-green">${PRIZE_POOL_USD} USD</span> —{" "}
+        <span className="text-fg">full only with X blue tick</span>. No tick =
+        half.
       </p>
 
       <ul className="mt-6 grid gap-2 sm:grid-cols-2">
@@ -196,6 +213,21 @@ export default function ShillTool() {
         ))}
       </ul>
 
+      {/* Blue tick rule banner */}
+      <div className="mt-6 flex gap-3 rounded-md border border-sky-500/40 bg-sky-500/10 px-4 py-3">
+        <BadgeCheck size={18} className="mt-0.5 shrink-0 text-sky-400" />
+        <p className="font-mono text-[11px] leading-relaxed text-muted">
+          <span className="font-bold text-sky-300">Prize rule · </span>
+          {BLUE_TICK_RULE} Example rank #1:{" "}
+          <span className="text-fg">${prizeForRank(1, { xBlueTick: true })}</span>{" "}
+          with tick ·{" "}
+          <span className="text-gold">
+            ${prizeForRank(1, { xBlueTick: false })}
+          </span>{" "}
+          without.
+        </p>
+      </div>
+
       {/* Wallet for RH payouts */}
       <div className="mt-8 rounded-md border border-green/35 bg-green/5 p-4 sm:p-5">
         <div className="mb-1 flex items-center gap-2">
@@ -205,11 +237,11 @@ export default function ShillTool() {
           </p>
         </div>
         <p className="font-mono text-[11px] leading-relaxed text-muted">
-          MetaMask (or any EVM) on chain ID 4663. Top 3 get{" "}
+          MetaMask (or any EVM) on chain ID 4663. Top 3 base:{" "}
           <span className="text-gold">
             ${TOP3_PRIZES_USD[0]} / ${TOP3_PRIZES_USD[1]} / ${TOP3_PRIZES_USD[2]}
           </span>{" "}
-          in USDC when you verify winners. Holding $ASTROBULL is optional.
+          USDC — cut in half without X blue tick. Holding $ASTROBULL is optional.
         </p>
         {wallet ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -278,29 +310,38 @@ export default function ShillTool() {
 
       {/* Top 3 prize strip */}
       <div className="mt-6 overflow-hidden rounded-md border border-gold/30 bg-surface">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-2">
           <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-gold">
-            Top 3 · ${PRIZE_POOL_USD} USD pool
+            Top 3 · up to ${PRIZE_POOL_USD} · −50% no blue tick
           </p>
           <Trophy size={14} className="text-gold" />
         </div>
         <ul className="divide-y divide-white/5">
-          {top3.map(({ rank, entry, prizeUsd, ready }) => (
+          {top3.map(({ rank, entry, prizeUsd, fullPrizeUsd, blueTick, ready }) => (
             <li
               key={entry.id}
               className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
             >
               <div className="min-w-0">
-                <p className="font-display text-lg uppercase text-fg">
+                <p className="flex items-center gap-1.5 font-display text-lg uppercase text-fg">
                   #{rank} {entry.displayName}
+                  {blueTick ? (
+                    <BadgeCheck size={16} className="text-sky-400" aria-label="Blue tick" />
+                  ) : null}
                 </p>
                 <p className="truncate font-mono text-[11px] text-muted">
                   {entry.handle} · {entry.points} pts
                   {entry.wallet ? ` · ${shortAddr(entry.wallet)}` : " · no wallet"}
+                  {blueTick ? " · blue ✓" : " · no tick (−50%)"}
                 </p>
               </div>
               <div className="text-right">
                 <p className="font-mono text-sm font-bold text-gold">${prizeUsd}</p>
+                {!blueTick && fullPrizeUsd !== prizeUsd ? (
+                  <p className="font-mono text-[9px] text-dim line-through">
+                    ${fullPrizeUsd}
+                  </p>
+                ) : null}
                 <p
                   className={cn(
                     "font-mono text-[9px] uppercase tracking-wider",
@@ -351,6 +392,25 @@ export default function ShillTool() {
             className="w-full rounded-sm border border-white/15 bg-bg px-3 py-3 font-mono text-sm text-fg outline-none placeholder:text-dim focus:border-red"
           />
         </div>
+
+        {/* Blue tick checkbox */}
+        <label className="flex cursor-pointer items-start gap-3 rounded-sm border border-sky-500/30 bg-sky-500/5 px-3 py-3">
+          <input
+            type="checkbox"
+            checked={xBlueTick}
+            onChange={(e) => onBlueTickToggle(e.target.checked)}
+            className="mt-1 h-4 w-4 accent-sky-400"
+          />
+          <span className="font-mono text-[11px] leading-relaxed text-muted">
+            <span className="inline-flex items-center gap-1 font-bold text-sky-300">
+              <BadgeCheck size={14} /> My X account has a blue tick
+            </span>
+            <br />
+            Unchecked ={" "}
+            <span className="text-gold">50% less</span> on top-3 USDC prizes.
+            Claim honestly — admin can verify before payout.
+          </span>
+        </label>
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
@@ -448,6 +508,7 @@ export default function ShillTool() {
                       displayName: handle || "Anon",
                       platform: "x",
                       wallet: wallet || undefined,
+                      xBlueTick,
                     }),
                   );
                 }}
@@ -469,9 +530,9 @@ export default function ShillTool() {
           Contract <span className="break-all text-fg/80">{CONTRACT}</span>
         </p>
         <p className="mt-1">
-          Token buy: Uniswap / bow.fun only. Shill prizes: top 3 USDC on
-          Robinhood Chain. Creator content payouts still use the ${PAYOUT_USD}{" "}
-          verified threshold.
+          Token buy: Uniswap / bow.fun only. Shill prizes: top 3 USDC — full with
+          X blue tick, <span className="text-gold">50% without</span>. Creator
+          content payouts still use the ${PAYOUT_USD} verified threshold.
         </p>
       </div>
 
@@ -484,7 +545,7 @@ export default function ShillTool() {
         </div>
         <p className="mb-4 font-mono text-[11px] text-dim">
           Separate from creator leaderboard. Points = packs you ship. Wallet =
-          top-3 USD eligibility.
+          payout path. Blue tick = full top-3 prize.
         </p>
         <div className="overflow-hidden rounded-md border border-white/10 bg-surface">
           <div className="hidden grid-cols-[2.5rem_1fr_4rem_5rem_5.5rem] gap-2 border-b border-white/10 px-3 py-2 font-mono text-[9px] uppercase tracking-widest text-dim sm:grid sm:px-4">
@@ -497,8 +558,14 @@ export default function ShillTool() {
           <ul className="divide-y divide-white/5">
             {board.map((row, i) => {
               const rank = i + 1;
+              const full =
+                rank <= TOP3_PRIZES_USD.length
+                  ? prizeForRank(rank, { xBlueTick: true })
+                  : 0;
               const prize =
-                rank <= TOP3_PRIZES_USD.length ? TOP3_PRIZES_USD[rank - 1] : 0;
+                rank <= TOP3_PRIZES_USD.length
+                  ? prizeForRank(rank, { xBlueTick: row.xBlueTick === true })
+                  : 0;
               return (
                 <li
                   key={row.id}
@@ -512,12 +579,19 @@ export default function ShillTool() {
                     {String(rank).padStart(2, "0")}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate font-display text-lg uppercase text-fg">
+                    <p className="flex items-center gap-1 truncate font-display text-lg uppercase text-fg">
                       {row.displayName}
+                      {row.xBlueTick ? (
+                        <BadgeCheck
+                          size={14}
+                          className="shrink-0 text-sky-400"
+                        />
+                      ) : null}
                     </p>
                     <p className="truncate font-mono text-[11px] text-muted">
                       {row.handle}
                       {row.wallet ? ` · ${shortAddr(row.wallet)}` : ""}
+                      {rank <= 3 && !row.xBlueTick ? " · −50%" : ""}
                     </p>
                   </div>
                   <span className="hidden font-mono text-xs text-muted sm:inline">
@@ -527,7 +601,18 @@ export default function ShillTool() {
                     {row.points}
                   </span>
                   <span className="hidden font-mono text-xs text-gold sm:inline">
-                    {prize ? `$${prize}` : "—"}
+                    {prize ? (
+                      <>
+                        ${prize}
+                        {full !== prize ? (
+                          <span className="ml-1 text-dim line-through">
+                            ${full}
+                          </span>
+                        ) : null}
+                      </>
+                    ) : (
+                      "—"
+                    )}
                   </span>
                 </li>
               );
