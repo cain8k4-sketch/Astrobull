@@ -49,6 +49,12 @@ export default function SiteNav() {
                 Shill
               </a>
               <a
+                href="#herd-chat"
+                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
+              >
+                Chat
+              </a>
+              <a
                 href="#buy"
                 className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
               >
@@ -148,6 +154,20 @@ export default function SiteNav() {
                   className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
                 >
                   Shill
+                </a>
+                <a
+                  href="#x-track"
+                  onClick={() => setOpen(false)}
+                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+                >
+                  X track
+                </a>
+                <a
+                  href="#herd-chat"
+                  onClick={() => setOpen(false)}
+                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+                >
+                  Chat
                 </a>
                 <a
                   href="#quick"

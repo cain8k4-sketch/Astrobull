@@ -4,6 +4,8 @@ import ChapterStory from "@/components/ChapterStory";
 import CreatorStudio from "@/components/CreatorStudio";
 import CreatorLeaderboard from "@/components/CreatorLeaderboard";
 import ShillPromo from "@/components/ShillPromo";
+import XAccountTracker from "@/components/XAccountTracker";
+import HerdChat from "@/components/HerdChat";
 import HowToBuy from "@/components/HowToBuy";
 import QuickLinks from "@/components/QuickLinks";
 import ChapterRoadmap from "@/components/ChapterRoadmap";
@@ -14,7 +16,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-/** Order: title → story → studio → creator board → shill → how to buy → links → roadmap → tokenomics */
+/** title → story → studio → creator board → shill → X track → herd chat → buy → links → roadmap → tokenomics */
 function HomePage() {
   return (
     <main>
@@ -25,6 +27,8 @@ function HomePage() {
       </section>
       <CreatorLeaderboard />
       <ShillPromo />
+      <XAccountTracker />
+      <HerdChat />
       <HowToBuy />
       <QuickLinks />
       <ChapterRoadmap />

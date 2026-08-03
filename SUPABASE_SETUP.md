@@ -106,3 +106,28 @@ Admin page also shows a status panel: Supabase / password / email / webhook.
 ## Security note
 
 Anon key + UI password is fine for early launch. For stricter admin later, move approve/reject to a server function with the Supabase **service role** (never put service role in `VITE_*`).
+
+## Herd chat table (optional)
+
+```sql
+create table if not exists public.herd_chat (
+  id uuid primary key default gen_random_uuid(),
+  handle text not null,
+  body text not null,
+  created_at timestamptz default now()
+);
+
+alter table public.herd_chat enable row level security;
+
+create policy "public read herd_chat"
+  on public.herd_chat for select
+  to anon, authenticated
+  using (true);
+
+create policy "anon insert herd_chat"
+  on public.herd_chat for insert
+  to anon, authenticated
+  with check (char_length(body) > 0 and char_length(body) <= 400);
+```
+
+Local multi-tab chat works without this. Cloud chat needs the table + anon insert/select.

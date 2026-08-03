@@ -6,22 +6,36 @@ import {
   Megaphone,
   RefreshCw,
   Trophy,
+  Wallet,
 } from "lucide-react";
 import {
   buildShillPack,
   CAMPAIGN_META,
   campaignLabel,
   CONTRACT,
+  attachWalletToShiller,
   loadShillBoard,
   PAYOUT_USD,
+  PRIZE_POOL_USD,
   PLATFORM_LABEL,
   recordShill,
+  TOP3_PRIZES_USD,
+  top3Eligible,
   type ShillCampaign,
   type ShillEntry,
   type ShillPack,
   type ShillPlatform,
   xIntentUrl,
 } from "@/lib/shiller-engine";
+import {
+  METAMASK_DOWNLOAD,
+  connectWallet,
+  hasInjectedWallet,
+  isValidEthAddress,
+  loadWallet,
+  saveWallet,
+  shortAddr,
+} from "@/lib/wallet";
 import { cn } from "@/lib/utils";
 
 const PLATFORMS: ShillPlatform[] = [
@@ -36,11 +50,11 @@ const PLATFORMS: ShillPlatform[] = [
 const PILLARS = [
   "Create free · get featured · get paid · holding optional",
   `$${PAYOUT_USD} verified-view threshold · USDC / USDT`,
+  `Shill top 3 weekly: $${TOP3_PRIZES_USD.join(" / $")} (pool $${PRIZE_POOL_USD})`,
   "Herd amplify on shared TT / YT / Snap / TG accounts",
   "10-second clip can stay on the platform forever",
   "Buy only Uniswap / bow.fun · MetaMask · Robinhood Chain",
-  "12M+ burnt · contract locked on site",
-  "Astro DNA locked for AI · original uploads welcome",
+  "Connect RH wallet to claim top-3 USD (USDC) prizes",
   "Shill board ≠ creator leaderboard",
 ];
 
@@ -54,16 +68,75 @@ export default function ShillTool() {
   const [board, setBoard] = useState<ShillEntry[]>([]);
   const [copied, setCopied] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [wallet, setWallet] = useState("");
+  const [walletBusy, setWalletBusy] = useState(false);
+  const [walletErr, setWalletErr] = useState<string | null>(null);
+  const [manualWallet, setManualWallet] = useState("");
+  const [hasInjected, setHasInjected] = useState(false);
 
   useEffect(() => {
     setBoard(loadShillBoard());
+    setWallet(loadWallet());
+    setHasInjected(hasInjectedWallet());
   }, []);
+
+  const top3 = top3Eligible(board);
 
   function generate() {
     const next = buildShillPack({ platform, campaign, vibe, mention });
     setPack(next);
     setCopied(false);
     setStatus(null);
+  }
+
+  async function onConnectWallet() {
+    setWalletErr(null);
+    setWalletBusy(true);
+    try {
+      const addr = await connectWallet();
+      setWallet(addr);
+      setHasInjected(true);
+      if (handle.trim()) {
+        setBoard(attachWalletToShiller(handle, addr));
+      }
+      setStatus(
+        `Robinhood Chain wallet linked: ${shortAddr(addr)}. Top 3 can get USD (USDC) payouts.`,
+      );
+    } catch (e) {
+      const m = e instanceof Error ? e.message : "Connect failed";
+      setWalletErr(
+        m === "NO_WALLET"
+          ? "No wallet in this browser. Install MetaMask (EVM) for Robinhood Chain."
+          : m,
+      );
+    } finally {
+      setWalletBusy(false);
+    }
+  }
+
+  function onSaveManualWallet() {
+    setWalletErr(null);
+    const a = manualWallet.trim();
+    if (!isValidEthAddress(a)) {
+      setWalletErr("Enter a valid 0x… address (42 chars).");
+      return;
+    }
+    saveWallet(a);
+    setWallet(a);
+    setManualWallet("");
+    if (handle.trim()) {
+      setBoard(attachWalletToShiller(handle, a));
+    }
+    setStatus(`Wallet saved: ${shortAddr(a)}`);
+  }
+
+  function linkWalletToHandle() {
+    if (!wallet || !handle.trim()) {
+      setWalletErr("Add your handle and connect a wallet first.");
+      return;
+    }
+    setBoard(attachWalletToShiller(handle, wallet));
+    setStatus(`Wallet ${shortAddr(wallet)} linked to @${handle.replace(/^@/, "")}`);
   }
 
   async function copyPack() {
@@ -75,10 +148,11 @@ export default function ShillTool() {
         handle: handle || "anon",
         displayName: handle || "Anon",
         platform,
+        wallet: wallet || undefined,
       });
       setBoard(next);
       setStatus(
-        `Copied · +points as @${(handle || "anon").replace(/^@/, "")} · campaign: ${campaignLabel(pack.campaign)}`,
+        `Copied · +points as @${(handle || "anon").replace(/^@/, "")} · ${wallet ? "wallet attached for top-3 USD" : "connect wallet to qualify for prizes"}`,
       );
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -103,13 +177,13 @@ export default function ShillTool() {
         <span className="animate-flicker"> herd</span>
       </h1>
       <p className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-muted sm:text-sm">
-        Every pillar we locked in: creator economy, amplify, $
-        {PAYOUT_USD} payouts, 10s forever, burns, Uniswap-only buy, DNA brand,
-        sign-ups. Pick a campaign → generate → copy → score the{" "}
-        <span className="text-gold">shill board</span>.
+        Generate packs, climb the board, connect a{" "}
+        <span className="text-fg">Robinhood Chain</span> wallet.{" "}
+        <span className="text-gold">Top 3</span> shillers share a{" "}
+        <span className="text-green">${PRIZE_POOL_USD} USD</span> prize pool
+        (USDC) when the contest settles.
       </p>
 
-      {/* Quick memory of the full story */}
       <ul className="mt-6 grid gap-2 sm:grid-cols-2">
         {PILLARS.map((p) => (
           <li
@@ -122,10 +196,129 @@ export default function ShillTool() {
         ))}
       </ul>
 
+      {/* Wallet for RH payouts */}
+      <div className="mt-8 rounded-md border border-green/35 bg-green/5 p-4 sm:p-5">
+        <div className="mb-1 flex items-center gap-2">
+          <Wallet size={14} className="text-green" />
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-green">
+            Shill payout wallet · Robinhood Chain
+          </p>
+        </div>
+        <p className="font-mono text-[11px] leading-relaxed text-muted">
+          MetaMask (or any EVM) on chain ID 4663. Top 3 get{" "}
+          <span className="text-gold">
+            ${TOP3_PRIZES_USD[0]} / ${TOP3_PRIZES_USD[1]} / ${TOP3_PRIZES_USD[2]}
+          </span>{" "}
+          in USDC when you verify winners. Holding $ASTROBULL is optional.
+        </p>
+        {wallet ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="rounded-sm border border-green/40 bg-bg px-3 py-2 font-mono text-xs text-green">
+              {shortAddr(wallet)}
+            </span>
+            <button
+              type="button"
+              onClick={linkWalletToHandle}
+              className="rounded-sm border border-white/20 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-fg hover:border-fg"
+            >
+              Link to handle
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                saveWallet("");
+                setWallet("");
+              }}
+              className="font-mono text-[10px] uppercase tracking-widest text-dim hover:text-red"
+            >
+              Disconnect
+            </button>
+          </div>
+        ) : (
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <button
+              type="button"
+              disabled={walletBusy}
+              onClick={onConnectWallet}
+              className="rounded-sm bg-green px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-bg disabled:opacity-50"
+            >
+              {walletBusy ? "Connecting…" : "Connect MetaMask"}
+            </button>
+            {!hasInjected ? (
+              <a
+                href={METAMASK_DOWNLOAD}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-sm border border-white/20 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-fg no-underline"
+              >
+                Get MetaMask
+              </a>
+            ) : null}
+          </div>
+        )}
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <input
+            value={manualWallet}
+            onChange={(e) => setManualWallet(e.target.value)}
+            placeholder="Or paste 0x… payout address"
+            className="min-w-0 flex-1 rounded-sm border border-white/15 bg-bg px-3 py-2 font-mono text-xs text-fg outline-none placeholder:text-dim focus:border-green"
+          />
+          <button
+            type="button"
+            onClick={onSaveManualWallet}
+            className="rounded-sm border border-green/40 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-green"
+          >
+            Save address
+          </button>
+        </div>
+        {walletErr ? (
+          <p className="mt-2 font-mono text-[11px] text-red">{walletErr}</p>
+        ) : null}
+      </div>
+
+      {/* Top 3 prize strip */}
+      <div className="mt-6 overflow-hidden rounded-md border border-gold/30 bg-surface">
+        <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-gold">
+            Top 3 · ${PRIZE_POOL_USD} USD pool
+          </p>
+          <Trophy size={14} className="text-gold" />
+        </div>
+        <ul className="divide-y divide-white/5">
+          {top3.map(({ rank, entry, prizeUsd, ready }) => (
+            <li
+              key={entry.id}
+              className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+            >
+              <div className="min-w-0">
+                <p className="font-display text-lg uppercase text-fg">
+                  #{rank} {entry.displayName}
+                </p>
+                <p className="truncate font-mono text-[11px] text-muted">
+                  {entry.handle} · {entry.points} pts
+                  {entry.wallet ? ` · ${shortAddr(entry.wallet)}` : " · no wallet"}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-mono text-sm font-bold text-gold">${prizeUsd}</p>
+                <p
+                  className={cn(
+                    "font-mono text-[9px] uppercase tracking-wider",
+                    ready ? "text-green" : "text-dim",
+                  )}
+                >
+                  {ready ? "Payout ready" : "Need wallet"}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <div className="mt-10 space-y-5 rounded-md border border-white/10 bg-surface p-4 sm:p-6">
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Campaign (what we talked about)
+            Campaign
           </label>
           <div className="flex flex-wrap gap-2">
             {CAMPAIGN_META.map((c) => (
@@ -145,14 +338,11 @@ export default function ShillTool() {
               </button>
             ))}
           </div>
-          <p className="mt-2 font-mono text-[10px] text-dim">
-            {CAMPAIGN_META.find((c) => c.id === campaign)?.blurb}
-          </p>
         </div>
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Your handle (shill board only)
+            Your handle (shill board + prizes)
           </label>
           <input
             value={handle}
@@ -164,7 +354,7 @@ export default function ShillTool() {
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Platform (primary amplify = TT / YT / Snap / TG)
+            Platform
           </label>
           <div className="flex flex-wrap gap-2">
             {PLATFORMS.map((p) => (
@@ -187,19 +377,19 @@ export default function ShillTool() {
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Extra vibe / news (optional)
+            Extra vibe (optional)
           </label>
           <input
             value={vibe}
             onChange={(e) => setVibe(e.target.value)}
-            placeholder="e.g. new burn, featured creator, studio open, chapter 1"
+            placeholder="e.g. burn update, featured creator"
             className="w-full rounded-sm border border-white/15 bg-bg px-3 py-3 font-mono text-sm text-fg outline-none placeholder:text-dim focus:border-red"
           />
         </div>
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Big-up a creator (optional — use Feature campaign)
+            Big-up a creator (optional)
           </label>
           <input
             value={mention}
@@ -252,12 +442,14 @@ export default function ShillTool() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
-                  const next = recordShill({
-                    handle: handle || "anon",
-                    displayName: handle || "Anon",
-                    platform: "x",
-                  });
-                  setBoard(next);
+                  setBoard(
+                    recordShill({
+                      handle: handle || "anon",
+                      displayName: handle || "Anon",
+                      platform: "x",
+                      wallet: wallet || undefined,
+                    }),
+                  );
                 }}
                 className="inline-flex items-center gap-2 rounded-sm border border-white/20 px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-fg no-underline hover:border-fg"
               >
@@ -274,12 +466,12 @@ export default function ShillTool() {
 
       <div className="mt-8 rounded-md border border-white/10 bg-surface px-4 py-3 font-mono text-[10px] leading-relaxed text-dim">
         <p className="text-muted">
-          Contract{" "}
-          <span className="break-all text-fg/80">{CONTRACT}</span>
+          Contract <span className="break-all text-fg/80">{CONTRACT}</span>
         </p>
         <p className="mt-1">
-          Buy: Uniswap / bow.fun · MetaMask · Robinhood Chain only. Payouts: USDC
-          / USDT after verified views hit ${PAYOUT_USD}.
+          Token buy: Uniswap / bow.fun only. Shill prizes: top 3 USDC on
+          Robinhood Chain. Creator content payouts still use the ${PAYOUT_USD}{" "}
+          verified threshold.
         </p>
       </div>
 
@@ -291,43 +483,55 @@ export default function ShillTool() {
           </h2>
         </div>
         <p className="mb-4 font-mono text-[11px] text-dim">
-          Separate from the creator activity leaderboard. Points = packs you
-          copy/share here.
+          Separate from creator leaderboard. Points = packs you ship. Wallet =
+          top-3 USD eligibility.
         </p>
         <div className="overflow-hidden rounded-md border border-white/10 bg-surface">
-          <div className="grid grid-cols-[2.5rem_1fr_4rem_5rem] gap-2 border-b border-white/10 px-3 py-2 font-mono text-[9px] uppercase tracking-widest text-dim sm:px-4">
+          <div className="hidden grid-cols-[2.5rem_1fr_4rem_5rem_5.5rem] gap-2 border-b border-white/10 px-3 py-2 font-mono text-[9px] uppercase tracking-widest text-dim sm:grid sm:px-4">
             <span>#</span>
             <span>Shiller</span>
             <span>Posts</span>
             <span>Points</span>
+            <span>Prize</span>
           </div>
           <ul className="divide-y divide-white/5">
-            {board.map((row, i) => (
-              <li
-                key={row.id}
-                className={cn(
-                  "grid grid-cols-[2.5rem_1fr_4rem_5rem] items-center gap-2 px-3 py-3 sm:px-4",
-                  i < 3 &&
-                    "bg-gradient-to-r from-red/10 via-transparent to-transparent",
-                )}
-              >
-                <span className="font-mono text-[11px] font-bold text-dim">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate font-display text-lg uppercase text-fg">
-                    {row.displayName}
-                  </p>
-                  <p className="truncate font-mono text-[11px] text-muted">
-                    {row.handle}
-                  </p>
-                </div>
-                <span className="font-mono text-xs text-muted">{row.posts}</span>
-                <span className="font-mono text-xs font-bold text-green">
-                  {row.points}
-                </span>
-              </li>
-            ))}
+            {board.map((row, i) => {
+              const rank = i + 1;
+              const prize =
+                rank <= TOP3_PRIZES_USD.length ? TOP3_PRIZES_USD[rank - 1] : 0;
+              return (
+                <li
+                  key={row.id}
+                  className={cn(
+                    "grid grid-cols-[2.5rem_1fr_auto] items-center gap-2 px-3 py-3 sm:grid-cols-[2.5rem_1fr_4rem_5rem_5.5rem] sm:px-4",
+                    i < 3 &&
+                      "bg-gradient-to-r from-gold/10 via-transparent to-transparent",
+                  )}
+                >
+                  <span className="font-mono text-[11px] font-bold text-dim">
+                    {String(rank).padStart(2, "0")}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-display text-lg uppercase text-fg">
+                      {row.displayName}
+                    </p>
+                    <p className="truncate font-mono text-[11px] text-muted">
+                      {row.handle}
+                      {row.wallet ? ` · ${shortAddr(row.wallet)}` : ""}
+                    </p>
+                  </div>
+                  <span className="hidden font-mono text-xs text-muted sm:inline">
+                    {row.posts}
+                  </span>
+                  <span className="font-mono text-xs font-bold text-green sm:text-left">
+                    {row.points}
+                  </span>
+                  <span className="hidden font-mono text-xs text-gold sm:inline">
+                    {prize ? `$${prize}` : "—"}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>

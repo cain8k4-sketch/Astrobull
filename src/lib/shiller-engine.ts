@@ -35,6 +35,8 @@ export type ShillEntry = {
   posts: number;
   points: number;
   lastAt: string;
+  /** Robinhood Chain / EVM payout wallet (0x…) */
+  wallet?: string;
 };
 
 export type ShillPack = {
@@ -46,11 +48,20 @@ export type ShillPack = {
   campaign: ShillCampaign;
 };
 
-const STORAGE = "astrobull.shill.leaderboard.v1";
+const STORAGE = "astrobull.shill.leaderboard.v2";
 
 export const CONTRACT = "0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
 export const SITE = "https://astrobull.xyz";
 export const PAYOUT_USD = 50;
+
+/** Weekly shill contest — top 3 paid in USD (USDC on Robinhood Chain). */
+export const TOP3_PRIZES_USD = [30, 15, 5] as const;
+export const PRIZE_POOL_USD = TOP3_PRIZES_USD.reduce((a, b) => a + b, 0);
+
+export function prizeForRank(rank: number): number {
+  if (rank < 1 || rank > TOP3_PRIZES_USD.length) return 0;
+  return TOP3_PRIZES_USD[rank - 1] ?? 0;
+}
 
 export const CAMPAIGN_META: {
   id: ShillCampaign;
@@ -444,10 +455,12 @@ export function recordShill(opts: {
   handle: string;
   displayName?: string;
   platform: ShillPlatform;
+  wallet?: string;
 }): ShillEntry[] {
   const handle = (opts.handle || "anon").trim().replace(/^@/, "") || "anon";
   const displayName = (opts.displayName || handle).trim() || handle;
   const pts = shillPointsFor(opts.platform);
+  const wallet = (opts.wallet || "").trim() || undefined;
 
   const current = loadShillBoard();
   const base = current.some((e) => !e.id.startsWith("demo-"))
@@ -469,6 +482,7 @@ export function recordShill(opts: {
             points: e.points + pts,
             lastAt: new Date().toISOString(),
             displayName: displayName || e.displayName,
+            wallet: wallet || e.wallet,
           }
         : e,
     );
@@ -482,12 +496,61 @@ export function recordShill(opts: {
         posts: 1,
         points: pts,
         lastAt: new Date().toISOString(),
+        wallet,
       },
     ];
   }
   const ranked = rankShillers(next);
   saveShillBoard(ranked);
   return ranked;
+}
+
+
+/** Link a Robinhood/EVM wallet to a shill handle for top-3 USD payouts. */
+export function attachWalletToShiller(handle: string, wallet: string): ShillEntry[] {
+  const key = handle.trim().replace(/^@/, "").toLowerCase() || "anon";
+  const current = loadShillBoard();
+  const base = current.some((e) => !e.id.startsWith("demo-"))
+    ? current.filter((e) => !e.id.startsWith("demo-"))
+    : current.map((e) => ({ ...e })); // allow attaching on demos for preview
+  let found = false;
+  const next = base.map((e) => {
+    if (e.handle.replace(/^@/, "").toLowerCase() === key) {
+      found = true;
+      return { ...e, wallet: wallet.trim() };
+    }
+    return e;
+  });
+  if (!found) {
+    next.push({
+      id: `shill-${Date.now()}`,
+      handle: `@${key}`,
+      displayName: key,
+      posts: 0,
+      points: 0,
+      lastAt: new Date().toISOString(),
+      wallet: wallet.trim(),
+    });
+  }
+  const ranked = rankShillers(next);
+  saveShillBoard(ranked);
+  return ranked;
+}
+
+export function top3Eligible(list: ShillEntry[]): {
+  rank: number;
+  entry: ShillEntry;
+  prizeUsd: number;
+  ready: boolean;
+}[] {
+  return rankShillers(list)
+    .slice(0, 3)
+    .map((entry, i) => ({
+      rank: i + 1,
+      entry,
+      prizeUsd: prizeForRank(i + 1),
+      ready: !!entry.wallet && /^0x[a-fA-F0-9]{40}$/.test(entry.wallet),
+    }));
 }
 
 export const DEMO_SHILLERS: ShillEntry[] = [
