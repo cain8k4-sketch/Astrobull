@@ -56,7 +56,11 @@ export const CONTRACT = "0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
 export const SITE = "https://astrobull.xyz";
 export const PAYOUT_USD = 50;
 
-/** Weekly shill contest — top 3 paid in USD (USDC on Robinhood Chain). */
+/**
+ * Weekly shill contest (not daily).
+ * Top 3 paid in USD (USDC on Robinhood Chain) at end of each week.
+ */
+export const PRIZE_PERIOD = "weekly" as const;
 export const TOP3_PRIZES_USD = [30, 15, 5] as const;
 export const PRIZE_POOL_USD = TOP3_PRIZES_USD.reduce((a, b) => a + b, 0);
 
@@ -73,8 +77,7 @@ export function prizeForRank(
 }
 
 export const BLUE_TICK_RULE =
-  "X blue tick / Premium verified accounts earn full top-3 prizes. No blue tick = 50% less.";
-
+  "Weekly top-3 only (not daily). X blue tick / Premium = full prize. No blue tick = 50% less.";
 
 export const CAMPAIGN_META: {
   id: ShillCampaign;
@@ -523,7 +526,6 @@ export function recordShill(opts: {
   return ranked;
 }
 
-
 /** Link a Robinhood/EVM wallet to a shill handle for top-3 USD payouts. */
 export function attachWalletToShiller(handle: string, wallet: string): ShillEntry[] {
   const key = handle.trim().replace(/^@/, "").toLowerCase() || "anon";
@@ -612,7 +614,6 @@ export function setShillerBlueTick(
   saveShillBoard(ranked);
   return ranked;
 }
-
 
 export const DEMO_SHILLERS: ShillEntry[] = [
   {

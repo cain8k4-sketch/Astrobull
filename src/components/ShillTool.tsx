@@ -18,6 +18,7 @@ import {
   attachWalletToShiller,
   loadShillBoard,
   PAYOUT_USD,
+  PRIZE_PERIOD,
   PRIZE_POOL_USD,
   PLATFORM_LABEL,
   prizeForRank,
@@ -54,11 +55,11 @@ const PLATFORMS: ShillPlatform[] = [
 const PILLARS = [
   "Create free · get featured · get paid · holding optional",
   `$${PAYOUT_USD} verified-view threshold · USDC / USDT`,
-  `Shill top 3: $${TOP3_PRIZES_USD.join(" / $")} full · 50% if no X blue tick`,
+  `Weekly (not daily) top 3: $${TOP3_PRIZES_USD.join(" / $")} · 50% if no X blue tick`,
   "Herd amplify on shared TT / YT / Snap / TG accounts",
   "10-second clip can stay on the platform forever",
   "Buy only Uniswap / bow.fun · MetaMask · Robinhood Chain",
-  "Connect RH wallet to claim top-3 USD (USDC) prizes",
+  "Connect RH wallet to claim weekly top-3 USD (USDC) prizes",
   "Shill board ≠ creator leaderboard",
 ];
 
@@ -105,7 +106,7 @@ export default function ShillTool() {
         setBoard(attachWalletToShiller(handle, addr));
       }
       setStatus(
-        `Robinhood Chain wallet linked: ${shortAddr(addr)}. Top 3 can get USD (USDC) payouts.`,
+        `Robinhood Chain wallet linked: ${shortAddr(addr)}. Weekly top 3 can get USDC.`,
       );
     } catch (e) {
       const m = e instanceof Error ? e.message : "Connect failed";
@@ -165,8 +166,8 @@ export default function ShillTool() {
       });
       setBoard(next);
       const halfNote = xBlueTick
-        ? "full prize if top 3 (blue tick)"
-        : "50% prize if top 3 (no blue tick)";
+        ? "full weekly prize if top 3 (blue tick)"
+        : "50% weekly prize if top 3 (no blue tick)";
       setStatus(
         `Copied · +points as @${(handle || "anon").replace(/^@/, "")} · ${halfNote}`,
       );
@@ -181,7 +182,7 @@ export default function ShillTool() {
       <div className="mb-3 flex items-center gap-3">
         <Megaphone size={14} className="text-red" />
         <span className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-red">
-          Shill engine · full brief
+          Shill engine · weekly prizes
         </span>
       </div>
 
@@ -195,7 +196,7 @@ export default function ShillTool() {
       <p className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-muted sm:text-sm">
         Generate packs, climb the board, connect a{" "}
         <span className="text-fg">Robinhood Chain</span> wallet.{" "}
-        <span className="text-gold">Top 3</span> share up to{" "}
+        <span className="text-gold">Weekly top 3</span> (not daily) share up to{" "}
         <span className="text-green">${PRIZE_POOL_USD} USD</span> —{" "}
         <span className="text-fg">full only with X blue tick</span>. No tick =
         half.
@@ -213,22 +214,22 @@ export default function ShillTool() {
         ))}
       </ul>
 
-      {/* Blue tick rule banner */}
       <div className="mt-6 flex gap-3 rounded-md border border-sky-500/40 bg-sky-500/10 px-4 py-3">
         <BadgeCheck size={18} className="mt-0.5 shrink-0 text-sky-400" />
         <p className="font-mono text-[11px] leading-relaxed text-muted">
-          <span className="font-bold text-sky-300">Prize rule · </span>
-          {BLUE_TICK_RULE} Example rank #1:{" "}
+          <span className="font-bold uppercase tracking-wider text-sky-300">
+            {PRIZE_PERIOD} prize ·{" "}
+          </span>
+          {BLUE_TICK_RULE} Example #1:{" "}
           <span className="text-fg">${prizeForRank(1, { xBlueTick: true })}</span>{" "}
           with tick ·{" "}
           <span className="text-gold">
             ${prizeForRank(1, { xBlueTick: false })}
           </span>{" "}
-          without.
+          without. Paid end of each week.
         </p>
       </div>
 
-      {/* Wallet for RH payouts */}
       <div className="mt-8 rounded-md border border-green/35 bg-green/5 p-4 sm:p-5">
         <div className="mb-1 flex items-center gap-2">
           <Wallet size={14} className="text-green" />
@@ -237,11 +238,12 @@ export default function ShillTool() {
           </p>
         </div>
         <p className="font-mono text-[11px] leading-relaxed text-muted">
-          MetaMask (or any EVM) on chain ID 4663. Top 3 base:{" "}
+          MetaMask (or any EVM) on chain ID 4663.{" "}
+          <span className="text-fg">Weekly</span> top 3 base:{" "}
           <span className="text-gold">
             ${TOP3_PRIZES_USD[0]} / ${TOP3_PRIZES_USD[1]} / ${TOP3_PRIZES_USD[2]}
           </span>{" "}
-          USDC — cut in half without X blue tick. Holding $ASTROBULL is optional.
+          USDC — cut in half without X blue tick. Not a daily payout.
         </p>
         {wallet ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -308,11 +310,10 @@ export default function ShillTool() {
         ) : null}
       </div>
 
-      {/* Top 3 prize strip */}
       <div className="mt-6 overflow-hidden rounded-md border border-gold/30 bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-2">
           <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-gold">
-            Top 3 · up to ${PRIZE_POOL_USD} · −50% no blue tick
+            Weekly top 3 · up to ${PRIZE_POOL_USD} · not daily · −50% no blue tick
           </p>
           <Trophy size={14} className="text-gold" />
         </div>
@@ -348,7 +349,7 @@ export default function ShillTool() {
                     ready ? "text-green" : "text-dim",
                   )}
                 >
-                  {ready ? "Payout ready" : "Need wallet"}
+                  {ready ? "Weekly ready" : "Need wallet"}
                 </p>
               </div>
             </li>
@@ -383,7 +384,7 @@ export default function ShillTool() {
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Your handle (shill board + prizes)
+            Your handle (shill board + weekly prizes)
           </label>
           <input
             value={handle}
@@ -393,7 +394,6 @@ export default function ShillTool() {
           />
         </div>
 
-        {/* Blue tick checkbox */}
         <label className="flex cursor-pointer items-start gap-3 rounded-sm border border-sky-500/30 bg-sky-500/5 px-3 py-3">
           <input
             type="checkbox"
@@ -407,8 +407,9 @@ export default function ShillTool() {
             </span>
             <br />
             Unchecked ={" "}
-            <span className="text-gold">50% less</span> on top-3 USDC prizes.
-            Claim honestly — admin can verify before payout.
+            <span className="text-gold">50% less</span> on{" "}
+            <span className="text-fg">weekly</span> top-3 USDC prizes.
+            Claim honestly — admin verifies before payout.
           </span>
         </label>
 
@@ -530,8 +531,9 @@ export default function ShillTool() {
           Contract <span className="break-all text-fg/80">{CONTRACT}</span>
         </p>
         <p className="mt-1">
-          Token buy: Uniswap / bow.fun only. Shill prizes: top 3 USDC — full with
-          X blue tick, <span className="text-gold">50% without</span>. Creator
+          Token buy: Uniswap / bow.fun only. Shill prizes are{" "}
+          <span className="text-fg">weekly</span> (not daily) top 3 USDC — full
+          with X blue tick, <span className="text-gold">50% without</span>. Creator
           content payouts still use the ${PAYOUT_USD} verified threshold.
         </p>
       </div>
@@ -545,7 +547,8 @@ export default function ShillTool() {
         </div>
         <p className="mb-4 font-mono text-[11px] text-dim">
           Separate from creator leaderboard. Points = packs you ship. Wallet =
-          payout path. Blue tick = full top-3 prize.
+          payout path. Blue tick = full <span className="text-fg">weekly</span>{" "}
+          top-3 prize. Settled once per week — not daily.
         </p>
         <div className="overflow-hidden rounded-md border border-white/10 bg-surface">
           <div className="hidden grid-cols-[2.5rem_1fr_4rem_5rem_5.5rem] gap-2 border-b border-white/10 px-3 py-2 font-mono text-[9px] uppercase tracking-widest text-dim sm:grid sm:px-4">
@@ -553,7 +556,7 @@ export default function ShillTool() {
             <span>Shiller</span>
             <span>Posts</span>
             <span>Points</span>
-            <span>Prize</span>
+            <span>Weekly $</span>
           </div>
           <ul className="divide-y divide-white/5">
             {board.map((row, i) => {

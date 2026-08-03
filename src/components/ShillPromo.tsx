@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Megaphone, Sparkles, Trophy } from "lucide-react";
 import { useReveal } from "@/hooks/use-reveal";
+import { PRIZE_POOL_USD } from "@/lib/shiller-engine";
 
 export default function ShillPromo() {
   const ref = useReveal<HTMLDivElement>();
@@ -30,7 +31,9 @@ export default function ShillPromo() {
           Full brief baked in: creator economy, herd amplify, $50 USDC/USDT,
           10s forever, burns, Uniswap-only buy, Astro DNA, sign-ups. Pick a
           campaign → copy → climb the{" "}
-          <span className="text-gold">shill board</span> (not the creator board).
+          <span className="text-gold">shill board</span>.{" "}
+          <span className="text-fg">Weekly</span> top 3 share up to $
+          {PRIZE_POOL_USD} USDC — not daily. Blue tick = full prize.
         </p>
 
         <ul className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -47,8 +50,8 @@ export default function ShillPromo() {
             },
             {
               Icon: Trophy,
-              t: "Shill board",
-              d: "Points for every pack you ship",
+              t: "Weekly top 3",
+              d: `Up to $${PRIZE_POOL_USD} USDC · −50% no blue tick · not daily`,
             },
           ].map(({ Icon, t, d }) => (
             <li
