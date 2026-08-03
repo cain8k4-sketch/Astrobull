@@ -21,7 +21,7 @@ export default function SiteNav() {
           <span className="animate-flicker">Bull</span>
         </Link>
 
-        <nav className="hidden items-center gap-4 sm:flex">
+        <nav className="hidden items-center gap-3 lg:gap-4 sm:flex">
           {onHome ? (
             <>
               <a
@@ -47,6 +47,12 @@ export default function SiteNav() {
                 className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
               >
                 Shill
+              </a>
+              <a
+                href="#x-track"
+                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
+              >
+                X
               </a>
               <a
                 href="#herd-chat"
@@ -170,7 +176,7 @@ export default function SiteNav() {
                   Chat
                 </a>
                 <a
-                  href="#quick"
+                  href="#buy"
                   onClick={() => setOpen(false)}
                   className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
                 >

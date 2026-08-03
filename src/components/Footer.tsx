@@ -56,6 +56,24 @@ export default function Footer() {
             Shill tool
           </Link>
           <a
+            href="/#herd-chat"
+            className="border border-green/40 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-green no-underline hover:bg-green/10"
+          >
+            Herd chat
+          </a>
+          <a
+            href="/#x-track"
+            className="border border-white/20 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-fg no-underline hover:border-fg"
+          >
+            X track
+          </a>
+          <Link
+            to="/signup"
+            className="border border-white/15 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-muted no-underline hover:text-fg"
+          >
+            Sign up
+          </Link>
+          <a
             href="/astrobull-whitepaper.pdf"
             download
             className="border border-green/40 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-green no-underline"
