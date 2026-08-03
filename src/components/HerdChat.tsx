@@ -1,45 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Send } from "lucide-react";
 import {
-  fetchCloudChat,
   loadLocalChat,
   postChat,
   subscribeChat,
   type ChatMessage,
 } from "@/lib/herd-chat";
 import { useReveal } from "@/hooks/use-reveal";
-import { cn } from "@/lib/utils";
 
+/** Frontend-only herd chat (local + multi-tab). Cloud later. */
 export default function HerdChat() {
   const ref = useReveal<HTMLDivElement>();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [handle, setHandle] = useState("");
   const [text, setText] = useState("");
-  const [source, setSource] = useState<"live" | "local">("local");
-  const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     setMessages(loadLocalChat());
-    let cancelled = false;
-    (async () => {
-      const res = await fetchCloudChat();
-      if (cancelled) return;
-      setMessages(res.rows);
-      setSource(res.source);
-      setNote(res.message ?? null);
-    })();
-    const unsub = subscribeChat((msg) => {
+    return subscribeChat((msg) => {
       setMessages((prev) => {
         if (prev.some((m) => m.id === msg.id)) return prev;
         return [...prev, msg].slice(-80);
       });
     });
-    return () => {
-      cancelled = true;
-      unsub();
-    };
   }, []);
 
   useEffect(() => {
@@ -55,8 +40,7 @@ export default function HerdChat() {
     if (res.ok && res.msg) {
       setMessages((prev) => {
         if (prev.some((m) => m.id === res.msg!.id)) return prev;
-        // replace temp local if cloud returned different id
-        return [...prev.filter((m) => m.body !== res.msg!.body || m.handle !== res.msg!.handle), res.msg!].slice(-80);
+        return [...prev, res.msg!].slice(-80);
       });
       setText("");
     }
@@ -74,37 +58,25 @@ export default function HerdChat() {
             Live herd
           </span>
         </div>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2
-            className="font-display uppercase leading-none text-fg"
-            style={{ fontSize: "clamp(2.2rem, 8vw, 3.8rem)" }}
-          >
-            Herd
-            <span className="animate-flicker"> chat</span>
-          </h2>
-          <span
-            className={cn(
-              "rounded-sm border px-2 py-1 font-mono text-[9px] uppercase tracking-widest",
-              source === "live"
-                ? "border-green/40 text-green"
-                : "border-gold/40 text-gold",
-            )}
-          >
-            {source === "live" ? "Cloud" : "Local herd"}
-          </span>
-        </div>
+        <h2
+          className="font-display uppercase leading-none text-fg"
+          style={{ fontSize: "clamp(2.2rem, 8vw, 3.8rem)" }}
+        >
+          Herd
+          <span className="animate-flicker"> chat</span>
+        </h2>
         <p className="mt-3 max-w-xl font-mono text-xs leading-relaxed text-muted sm:text-sm">
-          Talk with the herd on-site. Local multi-tab works now; connect Supabase
-          table <span className="text-fg">herd_chat</span> for everyone online.
+          Drop lines with the herd. Messages stay on this device (and sync across
+          open tabs). Cloud multi-user comes later.
         </p>
-        {note ? (
-          <p className="mt-2 font-mono text-[10px] text-dim">{note}</p>
-        ) : null}
 
         <div className="mt-6 overflow-hidden rounded-md border border-white/10 bg-bg">
           <div className="max-h-[340px] space-y-3 overflow-y-auto px-3 py-4 sm:px-4">
             {messages.map((m) => (
-              <div key={m.id} className="rounded-sm border border-white/5 bg-surface/80 px-3 py-2">
+              <div
+                key={m.id}
+                className="rounded-sm border border-white/5 bg-surface/80 px-3 py-2"
+              >
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-mono text-[11px] font-bold text-red">
                     {m.handle}
