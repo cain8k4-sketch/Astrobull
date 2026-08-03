@@ -2,16 +2,19 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import TgContentDrop from "@/components/TgContentDrop";
 
+/** Home top bar: Buy · Story · Creator Studio · NEW Shill HQ · Sign up only */
 export default function SiteNav() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const onHome = pathname === "/" || pathname === "";
 
+  const linkMuted =
+    "font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green";
+
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-8">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-8">
         <Link
           to="/"
           onClick={() => setOpen(false)}
@@ -21,79 +24,33 @@ export default function SiteNav() {
           <span className="animate-flicker">Bull</span>
         </Link>
 
-        <nav className="hidden items-center gap-3 lg:gap-4 sm:flex">
-          {onHome ? (
-            <>
-              <a
-                href="#story"
-                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
-              >
-                Story
-              </a>
-              <a
-                href="#studio"
-                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
-              >
-                Studio
-              </a>
-              <a
-                href="#leaderboard"
-                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
-              >
-                Board
-              </a>
-              <a
-                href="#shill"
-                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
-              >
-                Shill
-              </a>
-              <a
-                href="#x-track"
-                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
-              >
-                X
-              </a>
-              <a
-                href="#herd-chat"
-                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
-              >
-                Chat
-              </a>
-              <a
-                href="#buy"
-                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
-              >
-                Buy
-              </a>
-            </>
-          ) : (
-            <Link
-              to="/"
-              className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline hover:text-green"
-            >
+        <nav className="hidden items-center gap-3 sm:flex lg:gap-5">
+          {!onHome ? (
+            <Link to="/" className={linkMuted}>
               Home
             </Link>
+          ) : null}
+
+          {onHome ? (
+            <a href="#buy" className={linkMuted}>
+              Buy
+            </a>
+          ) : (
+            <Link to="/" hash="buy" className={linkMuted}>
+              Buy
+            </Link>
           )}
-          <a
-            href="/astrobull-whitepaper.pdf"
-            download
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
-          >
-            Whitepaper
-          </a>
-          <TgContentDrop variant="nav" />
-          <Link
-            to="/shill"
-            className={cn(
-              "font-mono text-[10px] uppercase tracking-[0.15em] no-underline transition-colors",
-              pathname.startsWith("/shill")
-                ? "text-gold"
-                : "text-muted hover:text-gold",
-            )}
-          >
-            Shill tool
-          </Link>
+
+          {onHome ? (
+            <a href="#story" className={linkMuted}>
+              Story
+            </a>
+          ) : (
+            <Link to="/" hash="story" className={linkMuted}>
+              Story
+            </Link>
+          )}
+
           <Link
             to="/studio"
             className={cn(
@@ -103,8 +60,31 @@ export default function SiteNav() {
                 : "bg-red hover:bg-red-hot",
             )}
           >
-            Creator Studio $$$
+            Creator Studio
           </Link>
+
+          <Link
+            to="/shill"
+            className={cn(
+              "inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] no-underline transition-colors",
+              pathname.startsWith("/shill")
+                ? "text-gold"
+                : "text-muted hover:text-gold",
+            )}
+          >
+            <span
+              className={cn(
+                "rounded-sm px-1 py-0.5 text-[8px] font-bold tracking-widest",
+                pathname.startsWith("/shill")
+                  ? "bg-gold text-bg"
+                  : "bg-gold/20 text-gold",
+              )}
+            >
+              NEW
+            </span>
+            Shill HQ
+          </Link>
+
           <Link
             to="/signup"
             className={cn(
@@ -131,59 +111,7 @@ export default function SiteNav() {
       {open && (
         <div className="border-t border-line bg-surface px-4 py-3 sm:hidden">
           <div className="flex flex-col">
-            {onHome ? (
-              <>
-                <a
-                  href="#story"
-                  onClick={() => setOpen(false)}
-                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
-                >
-                  Story
-                </a>
-                <a
-                  href="#studio"
-                  onClick={() => setOpen(false)}
-                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
-                >
-                  Studio
-                </a>
-                <a
-                  href="#leaderboard"
-                  onClick={() => setOpen(false)}
-                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
-                >
-                  Board
-                </a>
-                <a
-                  href="#shill"
-                  onClick={() => setOpen(false)}
-                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
-                >
-                  Shill
-                </a>
-                <a
-                  href="#x-track"
-                  onClick={() => setOpen(false)}
-                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
-                >
-                  X track
-                </a>
-                <a
-                  href="#herd-chat"
-                  onClick={() => setOpen(false)}
-                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
-                >
-                  Chat
-                </a>
-                <a
-                  href="#buy"
-                  onClick={() => setOpen(false)}
-                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
-                >
-                  Buy
-                </a>
-              </>
-            ) : (
+            {!onHome ? (
               <Link
                 to="/"
                 onClick={() => setOpen(false)}
@@ -191,31 +119,37 @@ export default function SiteNav() {
               >
                 Home
               </Link>
-            )}
+            ) : null}
             <a
-              href="/astrobull-whitepaper.pdf"
-              download
+              href={onHome ? "#buy" : "/#buy"}
               onClick={() => setOpen(false)}
               className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
             >
-              Whitepaper
+              Buy
             </a>
-            <div className="py-2" onClick={() => setOpen(false)}>
-              <TgContentDrop variant="button" />
-            </div>
-            <Link
-              to="/shill"
+            <a
+              href={onHome ? "#story" : "/#story"}
               onClick={() => setOpen(false)}
-              className="py-3 text-center font-mono text-xs uppercase tracking-widest text-gold no-underline"
+              className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
             >
-              Shill tool
-            </Link>
+              Story
+            </a>
             <Link
               to="/studio"
               onClick={() => setOpen(false)}
-              className="mt-2 rounded-sm bg-red py-3 text-center font-mono text-xs uppercase tracking-widest text-white no-underline"
+              className="mt-1 rounded-sm bg-red py-3 text-center font-mono text-xs uppercase tracking-widest text-white no-underline"
             >
-              Creator Studio $$$
+              Creator Studio
+            </Link>
+            <Link
+              to="/shill"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center gap-2 py-3 font-mono text-xs uppercase tracking-widest text-gold no-underline"
+            >
+              <span className="rounded-sm bg-gold/25 px-1.5 py-0.5 text-[9px] font-bold text-gold">
+                NEW
+              </span>
+              Shill HQ
             </Link>
             <Link
               to="/signup"
