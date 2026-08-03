@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-/** Home top bar: Buy · Story · Creator Studio · NEW Shill HQ · Sign up only */
+/** Top bar: Buy · Story · Creator Studio · NEW Shill HQ · Socials · Sign up */
 export default function SiteNav() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -85,6 +85,16 @@ export default function SiteNav() {
             Shill HQ
           </Link>
 
+          {onHome ? (
+            <a href="#socials" className={linkMuted}>
+              Socials
+            </a>
+          ) : (
+            <Link to="/" hash="socials" className={linkMuted}>
+              Socials
+            </Link>
+          )}
+
           <Link
             to="/signup"
             className={cn(
@@ -151,6 +161,13 @@ export default function SiteNav() {
               </span>
               Shill HQ
             </Link>
+            <a
+              href={onHome ? "#socials" : "/#socials"}
+              onClick={() => setOpen(false)}
+              className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+            >
+              Socials
+            </a>
             <Link
               to="/signup"
               onClick={() => setOpen(false)}

@@ -10,7 +10,10 @@ const LINKS: [string, string][] = [
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-white/5 bg-bg px-4 py-16 sm:px-8 md:px-14">
+    <footer
+      id="socials"
+      className="relative scroll-mt-24 overflow-hidden border-t border-white/5 bg-bg px-4 py-16 sm:px-8 md:px-14"
+    >
       <div className="pointer-events-none absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 select-none text-center opacity-5">
         <p className="font-display text-[12vw] uppercase tracking-wide whitespace-nowrap">
           Slaughterhouse
@@ -53,7 +56,7 @@ export default function Footer() {
             to="/shill"
             className="border border-gold/50 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-gold no-underline hover:bg-gold/10"
           >
-            Shill tool
+            Shill HQ
           </Link>
           <a
             href="/#herd-chat"
