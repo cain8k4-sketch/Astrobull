@@ -1,8 +1,32 @@
-/** AstroBull shill engine — post packs + separate shill leaderboard (not creator board). */
+/**
+ * AstroBull shill engine
+ * Covers full product story from project brief:
+ * creator economy, amplify, $50 USDC/USDT, 10s forever, burns, Uniswap-only,
+ * DNA lock, platforms (TT/YT/Snap/TG/X follow), separate shill board.
+ */
 
 import { generateHashtags, formatHashtags } from "./hashtags";
 
-export type ShillPlatform = "x" | "tiktok" | "telegram" | "youtube" | "snapchat";
+export type ShillPlatform =
+  | "x"
+  | "tiktok"
+  | "telegram"
+  | "youtube"
+  | "snapchat"
+  | "instagram";
+
+/** Campaign packs — everything we locked in earlier */
+export type ShillCampaign =
+  | "all"
+  | "creator_economy"
+  | "amplify"
+  | "passive_10s"
+  | "payout_50"
+  | "token_burns"
+  | "how_to_buy"
+  | "platform_open"
+  | "feature_creator"
+  | "dna_brand";
 
 export type ShillEntry = {
   id: string;
@@ -19,50 +43,237 @@ export type ShillPack = {
   hashtags: string[];
   fullPost: string;
   platform: ShillPlatform;
+  campaign: ShillCampaign;
 };
 
 const STORAGE = "astrobull.shill.leaderboard.v1";
 
-/** Latest brand hooks — Aug 2026 messaging */
-const HOOKS = [
-  "GM GM ASTROBULLS",
-  "BREAK THE CHAINS.",
-  "We are all Astro.",
-  "Get paid to create.",
-  "Create free. Get featured. Get paid.",
-  "A 10-second video stays on our platform forever.",
-  "This is passive income.",
-  "Holding is optional. Creating is power.",
-  "Today's vision · Tomorrow's legacy · In the herd we trust.",
-  "Get paid to create · elevated across our socials.",
-  "Only on Robinhood Chain.",
-  "Platform open. Sign ups live.",
+export const CONTRACT = "0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
+export const SITE = "https://astrobull.xyz";
+export const PAYOUT_USD = 50;
+
+export const CAMPAIGN_META: {
+  id: ShillCampaign;
+  label: string;
+  blurb: string;
+}[] = [
+  { id: "all", label: "Full mix", blurb: "Random from every pillar" },
+  {
+    id: "creator_economy",
+    label: "Creator economy",
+    blurb: "Create free · get featured · get paid · holding optional",
+  },
+  {
+    id: "amplify",
+    label: "Herd amplify",
+    blurb: "Shared accounts = more spotlight than going alone",
+  },
+  {
+    id: "passive_10s",
+    label: "10s forever",
+    blurb: "Short clip on the platform · passive income story",
+  },
+  {
+    id: "payout_50",
+    label: "$50 payout",
+    blurb: "Verified views · USDC / USDT · solid threshold",
+  },
+  {
+    id: "token_burns",
+    label: "Burns + token",
+    blurb: "12M+ burnt · dev doesn't sell · Robinhood Chain",
+  },
+  {
+    id: "how_to_buy",
+    label: "How to buy",
+    blurb: "MetaMask · Uniswap / bow.fun only · no Phantom",
+  },
+  {
+    id: "platform_open",
+    label: "Sign ups open",
+    blurb: "Studio live · wallet + handles · join the herd",
+  },
+  {
+    id: "feature_creator",
+    label: "Feature a creator",
+    blurb: "Big-up someone dropping heat on herd socials",
+  },
+  {
+    id: "dna_brand",
+    label: "Astro DNA",
+    blurb: "Break the chains · red/bone · We are all Astro",
+  },
 ];
 
-const ANGLES = [
-  "Creator Studio is open — sign up free, get amplified across the herd socials.",
-  "Your clip doesn't die alone in the algorithm. The herd pushes it.",
-  "Views get verified. Payouts in USDC / USDT toward the $50 threshold.",
-  "One 10-second loop on the platform = forever passive potential.",
-  "Astro Bull DNA locked — same bull, same fire, every post.",
-  "Slaughterhouse Productions is stacking creators. Window is open.",
-  "Token burns + creator revenue flywheel. Build with us.",
-  "Shill smart. Post clean. Climb the shill board — separate from creator ranks.",
-  "Holding optional. Creating is how you get featured and paid.",
-  "Combined herd accounts = more spotlight than posting alone.",
-  "12M+ tokens burned. Dev doesn't sell. Chains keep breaking.",
-  "Battle-tested. Ready for the herd. Don't sleep on the open window.",
-];
+type LineBank = { hooks: string[]; angles: string[]; ctas: string[] };
 
-const CTAS = [
-  "Sign up free → astrobull.xyz/signup",
-  "Creator Studio → astrobull.xyz/studio",
-  "Shill tool → astrobull.xyz/shill",
-  "Join Telegram → t.me/Official_Astrobull_Robinhood",
-  "Buy on Uniswap / bow.fun · Robinhood Chain · MetaMask",
-  "Contract: 0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03",
-  "Whitepaper → astrobull.xyz",
-];
+const BANKS: Record<Exclude<ShillCampaign, "all">, LineBank> = {
+  creator_economy: {
+    hooks: [
+      "Get paid to create.",
+      "Create free. Get featured. Get paid.",
+      "Holding is optional. Creating is power.",
+      "Today's vision · Tomorrow's legacy · In the herd we trust.",
+    ],
+    angles: [
+      "AstroBull creator model: create free, get featured, get paid. Holding is optional. We are all Astro.",
+      "Creator Studio open — plug your craft (or AI with locked Astro DNA). Upload original homework too.",
+      "No gatekeeping on entry. Sign up free. Climb toward real payouts when views are verified.",
+      "Slaughterhouse Productions is stacking creators. Your work can live on the communal herd accounts.",
+    ],
+    ctas: [
+      `Sign up free → ${SITE}/signup`,
+      `Creator Studio → ${SITE}/studio`,
+      "Tag the herd. Get seen. Get paid.",
+    ],
+  },
+  amplify: {
+    hooks: [
+      "Elevated across our socials.",
+      "Get paid to create · amplified by the herd.",
+      "More spotlight than going alone.",
+    ],
+    angles: [
+      "MAJOR SELLING POINT: creators get amplified on shared AstroBull accounts — TikTok, YouTube, Snap, TG — more reach than posting solo.",
+      "Your views don't die alone in the algorithm. The herd pushes them across one stack of channels.",
+      "Communal upload to herd socials = compound spotlight. That's why joining early matters.",
+      "Featured creators ride the main channels. Amplify is the product, not a promise.",
+    ],
+    ctas: [
+      `Join amplify → ${SITE}/signup`,
+      "Follow the herd socials. Tag us. Get featured.",
+      `Telegram → t.me/Official_Astrobull_Robinhood`,
+    ],
+  },
+  passive_10s: {
+    hooks: [
+      "A 10-second video stays on our platform forever.",
+      "This is passive income.",
+      "One loop. Long tail.",
+    ],
+    angles: [
+      "Drop a 10-second clip once — it stays on the platform. That is the passive income story.",
+      "Short-form forever: one solid Astro loop can keep working while you sleep.",
+      "Less is more. Tight clips. Herd distribution. Long tail views.",
+      "Music + muted loops + Astro DNA = content that can keep earning attention.",
+    ],
+    ctas: [
+      `Upload path → ${SITE}/studio`,
+      "10 seconds. Forever. Break the chains.",
+      `Sign up → ${SITE}/signup`,
+    ],
+  },
+  payout_50: {
+    hooks: [
+      `$${PAYOUT_USD} threshold. No empty promises.`,
+      "Verified views. Real payouts.",
+      "USDC / USDT when you clear the bar.",
+    ],
+    angles: [
+      `Payouts start when verified views hit the solid $${PAYOUT_USD} threshold — USDC or USDT. No fairy-tale numbers.`,
+      "Views are verified before money moves. Platform + creator activity stack toward the threshold.",
+      "Wallet on signup so payouts can land when you clear the bar. Phantom is NOT for buying the token — MetaMask + Uniswap.",
+      "Threshold exists so promises stay real: when revenue path is live, payouts follow verified performance.",
+    ],
+    ctas: [
+      `Track progress on the creator board → ${SITE}/#leaderboard`,
+      `Connect wallet on signup → ${SITE}/signup`,
+      "Get paid when the threshold clears. Solid only.",
+    ],
+  },
+  token_burns: {
+    hooks: [
+      "12M+ tokens burnt.",
+      "Dev doesn't sell. Chains keep breaking.",
+      "Only on Robinhood Chain.",
+    ],
+    angles: [
+      "July burn narrative: ~12M tokens burnt. Burns + revenue flywheel as the model matures.",
+      "Dev wallet discipline: build, burn, don't dump on the herd.",
+      `Contract ${CONTRACT} — Robinhood Chain. Check burns. Stay sharp.`,
+      "Tokenomics story + creator economy inflow. Not just a meme — a machine.",
+    ],
+    ctas: [
+      `Chart / buy → ${SITE}/#buy`,
+      `Contract: ${CONTRACT}`,
+      "Read the whitepaper. Then decide.",
+    ],
+  },
+  how_to_buy: {
+    hooks: [
+      "How to buy $ASTROBULL",
+      "Uniswap / bow.fun only.",
+      "MetaMask · Robinhood Chain.",
+    ],
+    angles: [
+      "You cannot buy on Phantom for this token. Use MetaMask, add Robinhood Chain, swap on Uniswap or bow.fun.",
+      `Paste contract ${CONTRACT} carefully. Slippage sane. Double-check the chain.`,
+      "Buy links live on the site How to Buy section — industrial red path, no fake mirrors.",
+      "Support the herd: buy right, hold with conviction, or just create — holding is optional.",
+    ],
+    ctas: [
+      `How to Buy → ${SITE}/#buy`,
+      `Uniswap: app.uniswap.org (Robinhood Chain)`,
+      `bow.fun/?token=${CONTRACT}`,
+    ],
+  },
+  platform_open: {
+    hooks: [
+      "GM GM ASTROBULLS",
+      "Platform open. Sign ups live.",
+      "Battle-tested. Ready for the herd.",
+    ],
+    angles: [
+      "Website / platform was battle-tested. Sign ups are open — name, email, wallet, handles.",
+      "Creator Studio + sign up + leaderboard + shill tool are live for the herd.",
+      "Drop content via the herd TG upload path. Get reviewed. Get featured.",
+      "Don't wait for perfect. Join free. Holding optional. Creating is the move.",
+    ],
+    ctas: [
+      `Sign up → ${SITE}/signup`,
+      `Studio → ${SITE}/studio`,
+      `Shill tool → ${SITE}/shill`,
+    ],
+  },
+  feature_creator: {
+    hooks: [
+      "Featured on the herd socials.",
+      "This video is dope.",
+      "Slaughterhouse Productions just dropped heat.",
+    ],
+    angles: [
+      "Big-up this creator — content cleared the bar and rides AstroBull socials.",
+      "Cliffhanger energy. More from Slaughterhouse Productions loading.",
+      "Herd spotlight: when we post you, the whole stack can see you.",
+      "Create free. Get featured. Get paid. This is what featured looks like.",
+    ],
+    ctas: [
+      `Want the same shot? Sign up → ${SITE}/signup`,
+      "Follow TikTok · YouTube · Snap · TG for the full drop",
+      "We are all Astro.",
+    ],
+  },
+  dna_brand: {
+    hooks: [
+      "BREAK THE CHAINS.",
+      "We are all Astro.",
+      "Industrial red. Bone. Chains.",
+    ],
+    angles: [
+      "Astro Bull DNA locked: black eye-mask, curved horns, chains, green feather, cigar OR blue tears — never both.",
+      "Horror-meme industrial vibe. Not cute. Not corporate. Slaughterhouse Productions.",
+      "Same bull every frame so the brand compounds. AI or original — stay on DNA.",
+      "Chapter One: Breaking the Chains. The story keeps rolling.",
+    ],
+    ctas: [
+      `Story + whitepaper → ${SITE}`,
+      "Use the Studio DNA prompts. Stay consistent.",
+      "Break the chains with us.",
+    ],
+  },
+};
+
+const ALL_CAMPAIGNS = Object.keys(BANKS) as Exclude<ShillCampaign, "all">[];
 
 function pick<T>(arr: T[], seed: number): T {
   return arr[Math.abs(seed) % arr.length]!;
@@ -74,24 +285,39 @@ function hashSeed(s: string): number {
   return h;
 }
 
-/** Build a ready-to-post shill pack. */
+function resolveCampaign(c: ShillCampaign, seed: number): Exclude<ShillCampaign, "all"> {
+  if (c !== "all") return c;
+  return pick(ALL_CAMPAIGNS, seed);
+}
+
+/** Build a ready-to-post shill pack from full product narrative. */
 export function buildShillPack(opts: {
   platform: ShillPlatform;
+  campaign?: ShillCampaign;
   vibe?: string;
   mention?: string;
 }): ShillPack {
+  const campaignIn = opts.campaign ?? "all";
   const seed =
     hashSeed(
-      `${opts.platform}|${opts.vibe ?? ""}|${opts.mention ?? ""}|${Date.now() >> 11}`,
+      `${opts.platform}|${campaignIn}|${opts.vibe ?? ""}|${opts.mention ?? ""}|${Date.now() >> 11}`,
     ) ^
     (Math.floor(Math.random() * 1e6) | 0);
 
-  const hook = pick(HOOKS, seed);
-  const angle = pick(ANGLES, seed + 3);
-  const cta = pick(CTAS, seed + 7);
+  const campaign = resolveCampaign(campaignIn, seed);
+  const bank = BANKS[campaign];
+
+  const hook = pick(bank.hooks, seed);
+  const angle = pick(bank.angles, seed + 3);
+  const cta = pick(bank.ctas, seed + 7);
+
   const vibeLine = opts.vibe?.trim()
     ? opts.vibe.trim()
-    : "Industrial red. Bone. Chains breaking.";
+    : campaign === "how_to_buy"
+      ? "MetaMask · Robinhood Chain · Uniswap / bow.fun"
+      : campaign === "payout_50"
+        ? `Verified views → $${PAYOUT_USD} in USDC/USDT`
+        : "Industrial red. Bone. Chains breaking.";
 
   const mention = opts.mention?.trim()
     ? opts.mention.startsWith("@")
@@ -104,12 +330,27 @@ export function buildShillPack(opts: {
       ? `AstroBull | ${hook.replace(/\.$/, "")}`
       : hook;
 
+  const mentionLine =
+    mention &&
+    (campaign === "feature_creator"
+      ? `Big up ${mention} — this heat is riding the herd socials.`
+      : `Shout-out ${mention}`);
+
+  // Platform-specific guardrails from earlier chats
+  const platformNote =
+    opts.platform === "x"
+      ? "Follow the herd on X — main push is TikTok / YouTube / Snap / TG."
+      : opts.platform === "tiktok" || opts.platform === "youtube"
+        ? "Primary amplify channels for herd drops."
+        : null;
+
   const lines = [
     hook,
     "",
     angle,
     vibeLine,
-    mention ? `Big up ${mention} — this energy belongs on the herd socials.` : null,
+    mentionLine,
+    platformNote,
     "",
     cta,
   ].filter((x): x is string => Boolean(x));
@@ -117,28 +358,43 @@ export function buildShillPack(opts: {
   const body = lines.join("\n");
 
   const hashtags = generateHashtags({
-    topic: `${hook} ${angle} ${vibeLine} get paid to create passive income`,
+    topic: `${hook} ${angle} ${vibeLine} AstroBull get paid amplify ${campaign}`,
     kind: "caption",
-    platforms: [opts.platform === "telegram" ? "x" : opts.platform],
-    max: opts.platform === "x" ? 8 : 12,
+    platforms: [
+      opts.platform === "telegram" || opts.platform === "instagram"
+        ? "x"
+        : opts.platform,
+    ],
+    max: opts.platform === "x" ? 7 : 12,
     extra: [
       "AstroBull",
       "GetPaidToCreate",
       "BreakingTheChains",
       "WeAreAllAstro",
       "RobinhoodChain",
+      "SlaughterhouseProductions",
     ],
   });
 
-  const fullPost =
-    opts.platform === "x"
-      ? `${body}\n\n${formatHashtags(hashtags)}`.slice(0, 280)
-      : `${body}\n\n${formatHashtags(hashtags)}`;
+  let fullPost = `${body}\n\n${formatHashtags(hashtags)}`;
+  if (opts.platform === "x" && fullPost.length > 280) {
+    // Prefer hook + angle + one CTA + tags
+    const short = [hook, "", angle, "", cta, "", formatHashtags(hashtags.slice(0, 5))]
+      .join("\n")
+      .slice(0, 280);
+    fullPost = short;
+  }
 
-  return { title, body, hashtags, fullPost, platform: opts.platform };
+  return {
+    title,
+    body,
+    hashtags,
+    fullPost,
+    platform: opts.platform,
+    campaign,
+  };
 }
 
-/** Points for a successful shill copy / share action. */
 export function shillPointsFor(platform: ShillPlatform): number {
   switch (platform) {
     case "x":
@@ -150,6 +406,8 @@ export function shillPointsFor(platform: ShillPlatform): number {
     case "telegram":
       return 10;
     case "snapchat":
+      return 14;
+    case "instagram":
       return 14;
     default:
       return 10;
@@ -182,7 +440,6 @@ export function rankShillers(list: ShillEntry[]): ShillEntry[] {
     .map((e, i) => ({ ...e, id: e.id || `s-${i}` }));
 }
 
-/** Record a shill action for local leaderboard (separate from creator board). */
 export function recordShill(opts: {
   handle: string;
   displayName?: string;
@@ -275,7 +532,7 @@ export function xIntentUrl(text: string): string {
 export function PLATFORM_LABEL(p: ShillPlatform): string {
   switch (p) {
     case "x":
-      return "X / Twitter";
+      return "X (follow / light)";
     case "tiktok":
       return "TikTok";
     case "telegram":
@@ -284,5 +541,11 @@ export function PLATFORM_LABEL(p: ShillPlatform): string {
       return "YouTube";
     case "snapchat":
       return "Snapchat";
+    case "instagram":
+      return "Instagram";
   }
+}
+
+export function campaignLabel(c: ShillCampaign): string {
+  return CAMPAIGN_META.find((m) => m.id === c)?.label ?? c;
 }

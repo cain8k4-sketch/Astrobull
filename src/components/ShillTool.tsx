@@ -9,9 +9,14 @@ import {
 } from "lucide-react";
 import {
   buildShillPack,
+  CAMPAIGN_META,
+  campaignLabel,
+  CONTRACT,
   loadShillBoard,
+  PAYOUT_USD,
   PLATFORM_LABEL,
   recordShill,
+  type ShillCampaign,
   type ShillEntry,
   type ShillPack,
   type ShillPlatform,
@@ -20,15 +25,28 @@ import {
 import { cn } from "@/lib/utils";
 
 const PLATFORMS: ShillPlatform[] = [
-  "x",
   "tiktok",
-  "telegram",
   "youtube",
   "snapchat",
+  "telegram",
+  "instagram",
+  "x",
+];
+
+const PILLARS = [
+  "Create free · get featured · get paid · holding optional",
+  `$${PAYOUT_USD} verified-view threshold · USDC / USDT`,
+  "Herd amplify on shared TT / YT / Snap / TG accounts",
+  "10-second clip can stay on the platform forever",
+  "Buy only Uniswap / bow.fun · MetaMask · Robinhood Chain",
+  "12M+ burnt · contract locked on site",
+  "Astro DNA locked for AI · original uploads welcome",
+  "Shill board ≠ creator leaderboard",
 ];
 
 export default function ShillTool() {
-  const [platform, setPlatform] = useState<ShillPlatform>("x");
+  const [platform, setPlatform] = useState<ShillPlatform>("tiktok");
+  const [campaign, setCampaign] = useState<ShillCampaign>("all");
   const [handle, setHandle] = useState("");
   const [vibe, setVibe] = useState("");
   const [mention, setMention] = useState("");
@@ -42,7 +60,7 @@ export default function ShillTool() {
   }, []);
 
   function generate() {
-    const next = buildShillPack({ platform, vibe, mention });
+    const next = buildShillPack({ platform, campaign, vibe, mention });
     setPack(next);
     setCopied(false);
     setStatus(null);
@@ -60,7 +78,7 @@ export default function ShillTool() {
       });
       setBoard(next);
       setStatus(
-        `Copied · +points on shill board as @${(handle || "anon").replace(/^@/, "")}`,
+        `Copied · +points as @${(handle || "anon").replace(/^@/, "")} · campaign: ${campaignLabel(pack.campaign)}`,
       );
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -73,7 +91,7 @@ export default function ShillTool() {
       <div className="mb-3 flex items-center gap-3">
         <Megaphone size={14} className="text-red" />
         <span className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-red">
-          Shill engine · latest update
+          Shill engine · full brief
         </span>
       </div>
 
@@ -85,16 +103,56 @@ export default function ShillTool() {
         <span className="animate-flicker"> herd</span>
       </h1>
       <p className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-muted sm:text-sm">
-        Latest pack lines:{" "}
-        <span className="text-fg">get paid to create</span> · 10s forever · $50
-        threshold · Uniswap only · herd amplify. Copy scores on the{" "}
-        <span className="text-gold">shill board</span> — not the creator board.
+        Every pillar we locked in: creator economy, amplify, $
+        {PAYOUT_USD} payouts, 10s forever, burns, Uniswap-only buy, DNA brand,
+        sign-ups. Pick a campaign → generate → copy → score the{" "}
+        <span className="text-gold">shill board</span>.
       </p>
+
+      {/* Quick memory of the full story */}
+      <ul className="mt-6 grid gap-2 sm:grid-cols-2">
+        {PILLARS.map((p) => (
+          <li
+            key={p}
+            className="rounded-sm border border-white/10 bg-surface px-3 py-2 font-mono text-[10px] leading-snug text-muted"
+          >
+            <span className="mr-1.5 text-red">▸</span>
+            {p}
+          </li>
+        ))}
+      </ul>
 
       <div className="mt-10 space-y-5 rounded-md border border-white/10 bg-surface p-4 sm:p-6">
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Your handle (for shill board)
+            Campaign (what we talked about)
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {CAMPAIGN_META.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                title={c.blurb}
+                onClick={() => setCampaign(c.id)}
+                className={cn(
+                  "rounded-sm border px-2.5 py-2 font-mono text-[9px] uppercase tracking-wider transition-colors sm:text-[10px]",
+                  campaign === c.id
+                    ? "border-gold bg-gold/15 text-gold"
+                    : "border-white/15 text-muted hover:border-white/40 hover:text-fg",
+                )}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 font-mono text-[10px] text-dim">
+            {CAMPAIGN_META.find((c) => c.id === campaign)?.blurb}
+          </p>
+        </div>
+
+        <div>
+          <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
+            Your handle (shill board only)
           </label>
           <input
             value={handle}
@@ -106,7 +164,7 @@ export default function ShillTool() {
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Platform
+            Platform (primary amplify = TT / YT / Snap / TG)
           </label>
           <div className="flex flex-wrap gap-2">
             {PLATFORMS.map((p) => (
@@ -129,19 +187,19 @@ export default function ShillTool() {
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Vibe / angle (optional)
+            Extra vibe / news (optional)
           </label>
           <input
             value={vibe}
             onChange={(e) => setVibe(e.target.value)}
-            placeholder="e.g. burn update, creator open, 10s passive, chapter 1"
+            placeholder="e.g. new burn, featured creator, studio open, chapter 1"
             className="w-full rounded-sm border border-white/15 bg-bg px-3 py-3 font-mono text-sm text-fg outline-none placeholder:text-dim focus:border-red"
           />
         </div>
 
         <div>
           <label className="mb-2 block font-mono text-[10px] uppercase tracking-widest text-dim">
-            Big-up a creator (optional)
+            Big-up a creator (optional — use Feature campaign)
           </label>
           <input
             value={mention}
@@ -165,7 +223,7 @@ export default function ShillTool() {
         <div className="mt-6 rounded-md border border-red/30 bg-bg p-4 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="font-mono text-[10px] uppercase tracking-widest text-red">
-              {PLATFORM_LABEL(pack.platform)} pack
+              {PLATFORM_LABEL(pack.platform)} · {campaignLabel(pack.campaign)}
             </p>
             <span className="font-mono text-[10px] text-dim">
               {pack.fullPost.length} chars
@@ -214,6 +272,17 @@ export default function ShillTool() {
         </div>
       ) : null}
 
+      <div className="mt-8 rounded-md border border-white/10 bg-surface px-4 py-3 font-mono text-[10px] leading-relaxed text-dim">
+        <p className="text-muted">
+          Contract{" "}
+          <span className="break-all text-fg/80">{CONTRACT}</span>
+        </p>
+        <p className="mt-1">
+          Buy: Uniswap / bow.fun · MetaMask · Robinhood Chain only. Payouts: USDC
+          / USDT after verified views hit ${PAYOUT_USD}.
+        </p>
+      </div>
+
       <div id="shill-board" className="mt-14 scroll-mt-24">
         <div className="mb-4 flex items-center gap-2">
           <Trophy size={16} className="text-gold" />
@@ -222,8 +291,8 @@ export default function ShillTool() {
           </h2>
         </div>
         <p className="mb-4 font-mono text-[11px] text-dim">
-          Separate from creator leaderboard. Points = packs you copy/share here
-          (local until cloud sync is wired).
+          Separate from the creator activity leaderboard. Points = packs you
+          copy/share here.
         </p>
         <div className="overflow-hidden rounded-md border border-white/10 bg-surface">
           <div className="grid grid-cols-[2.5rem_1fr_4rem_5rem] gap-2 border-b border-white/10 px-3 py-2 font-mono text-[9px] uppercase tracking-widest text-dim sm:px-4">
