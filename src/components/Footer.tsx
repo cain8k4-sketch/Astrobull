@@ -49,6 +49,12 @@ export default function Footer() {
           >
             Creator Studio
           </Link>
+          <Link
+            to="/shill"
+            className="border border-gold/50 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-gold no-underline hover:bg-gold/10"
+          >
+            Shill tool
+          </Link>
           <a
             href="/astrobull-whitepaper.pdf"
             download

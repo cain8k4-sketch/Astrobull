@@ -43,6 +43,12 @@ export default function SiteNav() {
                 Board
               </a>
               <a
+                href="#shill"
+                className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
+              >
+                Shill
+              </a>
+              <a
                 href="#buy"
                 className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted no-underline transition-colors hover:text-green"
               >
@@ -65,6 +71,17 @@ export default function SiteNav() {
             Whitepaper
           </a>
           <TgContentDrop variant="nav" />
+          <Link
+            to="/shill"
+            className={cn(
+              "font-mono text-[10px] uppercase tracking-[0.15em] no-underline transition-colors",
+              pathname.startsWith("/shill")
+                ? "text-gold"
+                : "text-muted hover:text-gold",
+            )}
+          >
+            Shill tool
+          </Link>
           <Link
             to="/studio"
             className={cn(
@@ -126,6 +143,13 @@ export default function SiteNav() {
                   Board
                 </a>
                 <a
+                  href="#shill"
+                  onClick={() => setOpen(false)}
+                  className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
+                >
+                  Shill
+                </a>
+                <a
                   href="#quick"
                   onClick={() => setOpen(false)}
                   className="py-3 font-mono text-xs uppercase tracking-widest text-muted"
@@ -153,6 +177,13 @@ export default function SiteNav() {
             <div className="py-2" onClick={() => setOpen(false)}>
               <TgContentDrop variant="button" />
             </div>
+            <Link
+              to="/shill"
+              onClick={() => setOpen(false)}
+              className="py-3 text-center font-mono text-xs uppercase tracking-widest text-gold no-underline"
+            >
+              Shill tool
+            </Link>
             <Link
               to="/studio"
               onClick={() => setOpen(false)}
