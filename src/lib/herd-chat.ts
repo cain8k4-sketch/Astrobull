@@ -1,15 +1,14 @@
 /**
  * Herd chat — local multi-tab (BroadcastChannel) + optional Supabase table `herd_chat`.
  * SQL for Supabase:
- *   create table if not exists herd_chat (
- *     id uuid primary key default gen_random_uuid(),
- *     handle text not null,
- *     text text not null,
- *     created_at timestamptz default now()
- *   );
- *   -- public read + insert (anon)
+ * create table if not exists herd_chat (
+ *   id uuid primary key default gen_random_uuid(),
+ *   handle text not null,
+ *   text text not null,
+ *   created_at timestamptz default now()
+ * );
+ * -- public read + insert (anon)
  */
-
 import { getSupabaseConfig, supabaseHeaders } from "./supabase";
 
 export type ChatMessage = {
@@ -132,7 +131,8 @@ export async function fetchCloudChat(): Promise<{
     const rows: ChatMessage[] = data.map((r) => ({
       id: String(r.id),
       handle: String(r.handle ?? "anon"),
-      text: String(r.body ?? ""),
+      // column is `text` (not body)
+      text: String(r.text ?? ""),
       createdAt: String(r.created_at ?? new Date().toISOString()),
     }));
     return { rows, source: "live" };
@@ -150,16 +150,17 @@ export async function postChat(opts: {
   text: string;
 }): Promise<{ ok: boolean; msg?: ChatMessage; error?: string }> {
   const handle = (opts.handle || "anon").trim().slice(0, 32);
-  const body = opts.body.trim().slice(0, 400);
-  if (!body) return { ok: false, error: "Empty message" };
+  const text = opts.text.trim().slice(0, 400); // was opts.body — fixed
+  if (!text) return { ok: false, error: "Empty message" };
 
   const local: ChatMessage = {
     id: uid(),
     handle: handle.startsWith("@") ? handle : `@${handle}`,
-    text,
+    text, // plain text message
     createdAt: new Date().toISOString(),
     local: true,
   };
+
   appendLocal(local);
   broadcastChat(local);
 
@@ -170,11 +171,13 @@ export async function postChat(opts: {
         method: "POST",
         headers: {
           ...supabaseHeaders(cfg.key),
+          "Content-Type": "application/json",
           Prefer: "return=representation",
         },
-        text: JSON.stringify({
+        // HTTP body (RequestInit) — not the chat field name
+        body: JSON.stringify({
           handle: local.handle,
-          text: local.body,
+          text: local.text,
         }),
       });
       if (res.ok) {
@@ -186,7 +189,7 @@ export async function postChat(opts: {
             msg: {
               id: String(r.id),
               handle: String(r.handle),
-              text: String(r.body),
+              text: String(r.text ?? local.text),
               createdAt: String(r.created_at ?? local.createdAt),
             },
           };
