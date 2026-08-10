@@ -37,7 +37,7 @@ export default function HerdChat() {
     setBusy(true);
     const res = await postChat({
       handle: handle || "anon",
-      text: text.trim(), // was body — must be text
+      text: text.trim(),
     });
     setBusy(false);
     if (res.ok && res.msg) {
