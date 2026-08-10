@@ -35,7 +35,10 @@ export default function HerdChat() {
     e.preventDefault();
     if (!text.trim() || busy) return;
     setBusy(true);
-    const res = await postChat({ handle: handle || "anon", body: text });
+    const res = await postChat({
+      handle: handle || "anon",
+      text: text.trim(), // was body — must be text
+    });
     setBusy(false);
     if (res.ok && res.msg) {
       setMessages((prev) => {
@@ -86,7 +89,7 @@ export default function HerdChat() {
                   </span>
                 </div>
                 <p className="mt-1 font-mono text-xs leading-relaxed text-fg/90">
-                  {m.body}
+                  {m.text}
                 </p>
               </div>
             ))}
