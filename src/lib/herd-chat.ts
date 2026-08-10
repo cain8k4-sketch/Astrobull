@@ -4,7 +4,7 @@
  *   create table if not exists herd_chat (
  *     id uuid primary key default gen_random_uuid(),
  *     handle text not null,
- *     body text not null,
+ *     text text not null,
  *     created_at timestamptz default now()
  *   );
  *   -- public read + insert (anon)
@@ -15,7 +15,7 @@ import { getSupabaseConfig, supabaseHeaders } from "./supabase";
 export type ChatMessage = {
   id: string;
   handle: string;
-  body: string;
+  text: string;
   createdAt: string;
   local?: boolean;
 };
@@ -46,13 +46,13 @@ function seedMessages(): ChatMessage[] {
     {
       id: "seed-1",
       handle: "@herd",
-      body: "Welcome to herd chat. GM GM ASTROBULLS. Break the chains.",
+      text: "Welcome to herd chat. GM GM ASTROBULLS. Break the chains.",
       createdAt: new Date(t - 60_000).toISOString(),
     },
     {
       id: "seed-2",
       handle: "@chainbreaker",
-      body: "Create free. Get featured. Get paid. Holding optional.",
+      text: "Create free. Get featured. Get paid. Holding optional.",
       createdAt: new Date(t - 30_000).toISOString(),
     },
   ];
@@ -132,7 +132,7 @@ export async function fetchCloudChat(): Promise<{
     const rows: ChatMessage[] = data.map((r) => ({
       id: String(r.id),
       handle: String(r.handle ?? "anon"),
-      body: String(r.body ?? ""),
+      text: String(r.body ?? ""),
       createdAt: String(r.created_at ?? new Date().toISOString()),
     }));
     return { rows, source: "live" };
@@ -147,7 +147,7 @@ export async function fetchCloudChat(): Promise<{
 
 export async function postChat(opts: {
   handle: string;
-  body: string;
+  text: string;
 }): Promise<{ ok: boolean; msg?: ChatMessage; error?: string }> {
   const handle = (opts.handle || "anon").trim().slice(0, 32);
   const body = opts.body.trim().slice(0, 400);
@@ -156,7 +156,7 @@ export async function postChat(opts: {
   const local: ChatMessage = {
     id: uid(),
     handle: handle.startsWith("@") ? handle : `@${handle}`,
-    body,
+    text,
     createdAt: new Date().toISOString(),
     local: true,
   };
@@ -172,9 +172,9 @@ export async function postChat(opts: {
           ...supabaseHeaders(cfg.key),
           Prefer: "return=representation",
         },
-        body: JSON.stringify({
+        text: JSON.stringify({
           handle: local.handle,
-          body: local.body,
+          text: local.body,
         }),
       });
       if (res.ok) {
@@ -186,7 +186,7 @@ export async function postChat(opts: {
             msg: {
               id: String(r.id),
               handle: String(r.handle),
-              body: String(r.body),
+              text: String(r.body),
               createdAt: String(r.created_at ?? local.createdAt),
             },
           };
