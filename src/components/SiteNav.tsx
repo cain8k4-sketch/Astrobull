@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { UNISWAP_SWAP } from "@/lib/wallet";
 
 type Dest = {
   key: string;
@@ -137,7 +138,6 @@ const QUICK_BAR: { key: string; label: string; hash?: string; to?: Dest["to"] }[
     { key: "story", label: "Story", hash: "story" },
     { key: "board", label: "Board", hash: "leaderboard" },
     { key: "fame", label: "Fame", hash: "wall-of-fame" },
-    { key: "buy", label: "Buy", hash: "buy" },
   ];
 
 const accentRing: Record<Dest["accent"], string> = {
@@ -243,7 +243,6 @@ export default function SiteNav() {
   useEffect(() => {
     if (!menuOpen) return;
     const prev = document.body.style.overflow;
-    // only lock on small screens where panel is full height
     const mq = window.matchMedia("(max-width: 1023px)");
     if (mq.matches) document.body.style.overflow = "hidden";
 
@@ -277,7 +276,6 @@ export default function SiteNav() {
       />
 
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-3 sm:h-16 sm:gap-3 sm:px-6 md:px-8">
-        {/* Brand */}
         <Link
           to="/"
           onClick={close}
@@ -293,7 +291,6 @@ export default function SiteNav() {
           </span>
         </Link>
 
-        {/* Quick hops — desktop */}
         <nav
           className="hidden items-center gap-0.5 md:flex"
           aria-label="Quick links"
@@ -315,7 +312,6 @@ export default function SiteNav() {
           ))}
         </nav>
 
-        {/* Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <Link
             to="/shill"
@@ -330,6 +326,18 @@ export default function SiteNav() {
             <Sparkles size={12} aria-hidden />
             Shill
           </Link>
+
+          {/* Buy — always top bar, next to Studio */}
+          <a
+            href={UNISWAP_SWAP}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={close}
+            className="inline-flex min-h-9 items-center gap-1 rounded-sm border border-green/50 bg-green/15 px-2.5 font-mono text-[9px] font-bold uppercase tracking-widest text-green no-underline transition-all hover:border-green hover:bg-green/25 hover:shadow-[0_0_14px_rgba(0,255,102,0.25)] sm:px-3.5 sm:text-[10px]"
+          >
+            <ShoppingBag size={12} aria-hidden />
+            Buy
+          </a>
 
           <Link
             to="/studio"
@@ -352,13 +360,12 @@ export default function SiteNav() {
               "hidden min-h-9 items-center rounded-sm border px-3 font-mono text-[10px] font-bold uppercase tracking-widest no-underline transition-colors sm:inline-flex",
               onSignup
                 ? "border-green bg-green/15 text-green"
-                : "border-green/45 text-green hover:border-green hover:bg-green/10",
+                : "border-white/25 text-muted hover:border-white/50 hover:text-fg",
             )}
           >
             Sign up
           </Link>
 
-          {/* Explore toggle — the tasty menu */}
           <button
             type="button"
             className={cn(
@@ -392,7 +399,6 @@ export default function SiteNav() {
         </div>
       </div>
 
-      {/* Explore panel */}
       {menuOpen ? (
         <div
           id={panelId}
@@ -415,6 +421,32 @@ export default function SiteNav() {
                 Jump to story, studio, fame, buy, chat — or open shill tools.
               </p>
             </div>
+
+            {/* Direct Uniswap buy at top of explore */}
+            <a
+              href={UNISWAP_SWAP}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={close}
+              className="mb-3 flex items-center justify-between gap-3 rounded-md border border-green/40 bg-green/10 px-4 py-3.5 no-underline transition-colors hover:border-green hover:bg-green/20"
+            >
+              <span className="flex items-center gap-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-green/40 bg-green/15 text-green">
+                  <ShoppingBag size={18} aria-hidden />
+                </span>
+                <span>
+                  <span className="block font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-green">
+                    Buy on Uniswap
+                  </span>
+                  <span className="mt-0.5 block font-mono text-[10px] text-muted">
+                    Opens swap · token pre-filled
+                  </span>
+                </span>
+              </span>
+              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-green">
+                →
+              </span>
+            </a>
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {DESTINATIONS.map((d) => (
