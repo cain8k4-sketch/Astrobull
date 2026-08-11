@@ -12,7 +12,7 @@ import {
 import { TG_CONTENT_UPLOAD, TG_MAIN } from "@/lib/community";
 
 const CONTRACT = "0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
-const BOW = `https://bow.fun/?token=${CONTRACT}`;
+const UNISWAP = `https://app.uniswap.org/swap?outputCurrency=${CONTRACT}`;
 const CHART =
   "https://dexscreener.com/robinhood/0x403503850D80C4E50A6227be3C293C9e7810818e";
 const YOUTUBE = "https://www.youtube.com/@ASTROBULL.ROBINHOOD";
@@ -135,12 +135,12 @@ export default function Hero() {
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             <a
-              href={BOW}
+              href={UNISWAP}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-1.5 border border-red/50 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-red no-underline hover:bg-red/15"
             >
-              <Rocket size={12} /> Buy bow.fun
+              <Rocket size={12} /> Buy Uniswap
             </a>
             <a
               href={CHART}

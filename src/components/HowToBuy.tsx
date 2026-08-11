@@ -10,7 +10,6 @@ import {
 import { useState } from "react";
 
 const CONTRACT = "0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
-const BOW = `https://bow.fun/?token=${CONTRACT}`;
 const UNISWAP = `https://app.uniswap.org/swap?outputCurrency=${CONTRACT}`;
 const CHART =
   "https://dexscreener.com/robinhood/0x403503850D80C4E50A6227be3C293C9e7810818e";
@@ -38,7 +37,7 @@ const STEPS = [
   },
   {
     n: "04",
-    title: "Swap on Uniswap or bow.fun",
+    title: "Swap on Uniswap",
     body: "Connect wallet → Robinhood Chain → paste the contract address as the token you receive → Swap. Start small.",
     Icon: ArrowLeftRight,
   },
@@ -81,7 +80,7 @@ export default function HowToBuy() {
           Get $ASTROBULL
         </h2>
         <p className="mt-3 max-w-xl font-mono text-xs leading-relaxed text-muted sm:text-sm">
-          Official contract on Robinhood Chain. Buy on Uniswap or bow.fun with MetaMask —
+          Official contract on Robinhood Chain. Buy on Uniswap with MetaMask —
           not Phantom.
         </p>
 
@@ -193,14 +192,6 @@ export default function HowToBuy() {
             className="inline-flex flex-1 items-center justify-center gap-2 bg-red px-5 py-4 font-mono text-xs font-bold uppercase tracking-widest text-white no-underline shadow-[0_0_20px_rgba(255,0,51,0.35)] hover:bg-red-hot"
           >
             Buy on Uniswap <ExternalLink size={14} />
-          </a>
-          <a
-            href={BOW}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex flex-1 items-center justify-center gap-2 border border-red/50 px-5 py-4 font-mono text-xs font-bold uppercase tracking-widest text-red no-underline hover:bg-red/15"
-          >
-            Buy on bow.fun <ExternalLink size={14} />
           </a>
           <a
             href={CHART}

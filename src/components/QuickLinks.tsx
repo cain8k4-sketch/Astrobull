@@ -1,7 +1,6 @@
 import {
   BarChart2,
   ExternalLink,
-  Rocket,
   Send,
   Youtube,
   Instagram,
@@ -19,18 +18,11 @@ const STATUS = [
 
 const BUYS = [
   {
-    label: "Buy on bow.fun",
-    sub: "Robinhood Chain",
-    href: `https://bow.fun/?token=${CONTRACT}`,
-    Icon: Rocket,
-    className: "border-red/50 bg-red/15 text-red hover:bg-red/25 hover:border-red",
-  },
-  {
     label: "Buy on Uniswap",
     sub: "Robinhood Chain · MetaMask",
     href: `https://app.uniswap.org/swap?outputCurrency=${CONTRACT}`,
     emoji: "🦄",
-    className: "border-pink/50 bg-pink/10 text-pink hover:bg-pink/20 hover:border-pink",
+    className: "border-red/50 bg-red/15 text-red hover:bg-red/25 hover:border-red",
   },
 ] as const;
 
@@ -129,8 +121,6 @@ export default function QuickLinks() {
                 <span className="text-xl" aria-hidden>
                   {b.emoji}
                 </span>
-              ) : "Icon" in b && b.Icon ? (
-                <b.Icon size={20} className="shrink-0" />
               ) : null}
               <div>
                 <p className="font-mono text-sm font-bold uppercase tracking-widest">{b.label}</p>

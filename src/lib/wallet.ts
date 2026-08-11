@@ -2,8 +2,6 @@ const STORAGE = "astrobull.wallet.v1";
 
 export const METAMASK_DOWNLOAD = "https://metamask.io/download/";
 export const UNISWAP_SWAP = `https://app.uniswap.org/swap?outputCurrency=0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03`;
-export const BOW_BUY =
-  "https://bow.fun/?token=0x5987dbf316dcefb6d0d35ee8f6884a0a1f12cb03";
 
 /** Robinhood Chain — for add-network prompts */
 export const RH_CHAIN = {

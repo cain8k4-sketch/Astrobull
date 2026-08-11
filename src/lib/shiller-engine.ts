@@ -116,7 +116,7 @@ export const CAMPAIGN_META: {
   {
     id: "how_to_buy",
     label: "How to buy",
-    blurb: "MetaMask · Uniswap / bow.fun · not Phantom",
+    blurb: "MetaMask · Uniswap · not Phantom",
   },
   {
     id: "platform_open",
@@ -282,7 +282,7 @@ const BANKS: Record<Exclude<ShillCampaign, "all">, LineBank> = {
       `Payouts start when verified views hit $${PAYOUT_USD} — USDC or USDT. No fairy-tale screenshots.`,
       "Views get verified before money moves. That's how trust stays intact.",
       "Wallet on signup so payouts can land when you clear the bar.",
-      "Phantom is NOT for buying the token — MetaMask + Uniswap / bow.fun. Payout wallet is separate EVM.",
+      "Phantom is NOT for buying the token — MetaMask + Uniswap. Payout wallet is separate EVM.",
       "Threshold exists so promises stay real when the revenue path is live.",
     ],
     proofs: [
@@ -313,7 +313,7 @@ const BANKS: Record<Exclude<ShillCampaign, "all">, LineBank> = {
     ],
     proofs: [
       "Public burn story + on-chain contract.",
-      "Buy path locked to Uniswap / bow.fun (no Phantom).",
+      "Buy path locked to Uniswap (no Phantom).",
       "Creator product ships alongside the token narrative.",
     ],
     ctas: [
@@ -326,13 +326,13 @@ const BANKS: Record<Exclude<ShillCampaign, "all">, LineBank> = {
   how_to_buy: {
     hooks: [
       "How to buy $ASTROBULL (do it right).",
-      "Uniswap / bow.fun only.",
+      "Uniswap only.",
       "MetaMask · Robinhood Chain.",
       "Not on Phantom. Read that again.",
       "One chain. Correct wallet. Correct swap.",
     ],
     angles: [
-      "You cannot buy this token on Phantom. Use MetaMask, add Robinhood Chain, swap on Uniswap or bow.fun.",
+      "You cannot buy this token on Phantom. Use MetaMask, add Robinhood Chain, swap on Uniswap.",
       `Paste contract ${CONTRACT} carefully. Check chain. Keep slippage sane.`,
       "How-to-Buy lives on the site — industrial red path, no fake mirrors.",
       "Support the herd: buy right, hold with conviction — or just create. Holding is optional.",
@@ -341,12 +341,12 @@ const BANKS: Record<Exclude<ShillCampaign, "all">, LineBank> = {
     proofs: [
       `Contract ${CONTRACT}`,
       "Robinhood Chain only.",
-      `bow.fun/?token=${CONTRACT}`,
+      `app.uniswap.org/swap?outputCurrency=${CONTRACT}`,
     ],
     ctas: [
       `How to Buy → ${SITE}/#buy`,
-      "Open MetaMask → Robinhood Chain → Uniswap / bow.fun",
-      `Direct bow.fun → bow.fun/?token=${CONTRACT}`,
+      "Open MetaMask → Robinhood Chain → Uniswap",
+      `Direct Uniswap → app.uniswap.org/swap?outputCurrency=${CONTRACT}`,
     ],
   },
   platform_open: {

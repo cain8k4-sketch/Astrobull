@@ -5,7 +5,7 @@ import LiveBurnCounter from "@/components/LiveBurnCounter";
 import { TOKEN } from "@/lib/burn";
 
 const CONTRACT = TOKEN;
-const BOW = `https://bow.fun/?token=${CONTRACT}`;
+const UNISWAP = `https://app.uniswap.org/swap?outputCurrency=${CONTRACT}`;
 const CHART =
   "https://dexscreener.com/robinhood/0x403503850D80C4E50A6227be3C293C9e7810818e";
 const EXPLORER = `https://robinscan.io/token/${CONTRACT}`;
@@ -96,13 +96,13 @@ export default function ChapterTokenomics() {
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <a
-            href={BOW}
+            href={UNISWAP}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between border border-red/50 bg-red/15 px-5 py-4 font-mono text-xs font-bold uppercase tracking-widest text-red no-underline transition-colors hover:bg-red/25"
           >
             <span className="flex items-center gap-2">
-              <Rocket size={16} /> Buy on bow.fun
+              <Rocket size={16} /> Buy on Uniswap
             </span>
             <ExternalLink size={14} className="opacity-50" />
           </a>
