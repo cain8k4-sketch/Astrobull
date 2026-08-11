@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Share2,
   Check,
@@ -6,6 +6,8 @@ import {
   BarChart2,
   Send,
   Youtube,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { TG_CONTENT_UPLOAD, TG_MAIN } from "@/lib/community";
 
@@ -15,10 +17,27 @@ const CHART =
   "https://dexscreener.com/robinhood/0x403503850D80C4E50A6227be3C293C9e7810818e";
 const YOUTUBE = "https://www.youtube.com/@ASTROBULL.ROBINHOOD";
 const YOUTUBE_FEATURED = "https://youtu.be/v-s0HZgFKu8";
-const YOUTUBE_FEATURED_EMBED = "https://www.youtube.com/embed/v-s0HZgFKu8";
+const HERO_VIDEO = "/astro-bull-hero.mp4";
 
 export default function Hero() {
   const [shared, setShared] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    el.muted = !soundOn;
+    if (soundOn) {
+      void el.play().catch(() => {
+        /* autoplay with sound may be blocked until user gesture — button click counts */
+      });
+    }
+  }, [soundOn]);
+
+  function toggleSound() {
+    setSoundOn((v) => !v);
+  }
 
   async function onShare() {
     const url =
@@ -49,7 +68,7 @@ export default function Hero() {
 
   return (
     <section className="bg-black">
-      {/* Top banner — above title video */}
+      {/* Top banner */}
       <div
         className="border-b border-white/20 bg-red px-3 py-3 text-center sm:py-3.5"
         role="banner"
@@ -62,58 +81,52 @@ export default function Hero() {
         </p>
       </div>
 
-      {/* Title video + featured YouTube side by side */}
+      {/* Single hero video — sound toggle + YouTube link */}
       <div className="w-full bg-black px-2 py-3 sm:px-4 sm:py-4">
-        <div className="mx-auto grid w-full max-w-5xl gap-3 sm:grid-cols-2 sm:gap-4">
-          <a
-            href={YOUTUBE}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative block overflow-hidden border border-white/10 no-underline outline-none focus-visible:ring-2 focus-visible:ring-red"
-            aria-label="Watch Astro Bull on YouTube — open channel"
-          >
-            <video
-              className="block aspect-video h-auto w-full object-cover"
-              src="/title-robinhood.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-            <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-3 pb-4 pt-10 opacity-90 transition-opacity group-hover:opacity-100">
-              <Youtube size={16} className="text-red" />
-              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-white sm:text-[11px]">
-                Tap · YouTube channel
-              </span>
-            </span>
-          </a>
+        <div className="relative mx-auto w-full max-w-4xl overflow-hidden border border-white/10 bg-black">
+          <video
+            ref={videoRef}
+            className="block aspect-video h-auto w-full object-cover"
+            src={HERO_VIDEO}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster=""
+            aria-label="Astro Bull — Chapter 1 Breaking the Chains"
+          />
 
-          <div className="relative overflow-hidden border border-white/10 bg-black">
-            <div className="aspect-video w-full">
-              <iframe
-                className="h-full w-full"
-                src={YOUTUBE_FEATURED_EMBED}
-                title="Astro Bull featured video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="strict-origin-when-cross-origin"
-              />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/90 via-black/40 to-transparent px-3 pb-3 pt-12 sm:px-4 sm:pb-4">
+            <div className="pointer-events-auto flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={toggleSound}
+                className="inline-flex min-h-11 items-center gap-2 border border-white/25 bg-black/70 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm hover:border-green hover:text-green"
+                aria-pressed={soundOn}
+                aria-label={soundOn ? "Mute video" : "Turn sound on"}
+              >
+                {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
+                {soundOn ? "Sound on" : "Sound off"}
+              </button>
+              <a
+                href={YOUTUBE_FEATURED}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center gap-2 border border-red/50 bg-red/90 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white no-underline hover:bg-red-hot"
+              >
+                <Youtube size={14} />
+                Watch on YouTube
+              </a>
             </div>
-            <a
-              href={YOUTUBE_FEATURED}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-sm bg-black/70 px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-white no-underline backdrop-blur-sm hover:bg-red"
-            >
-              <Youtube size={12} className="text-red" />
-              Open
-            </a>
+            <p className="hidden font-mono text-[9px] uppercase tracking-[0.2em] text-white/50 sm:block">
+              Chapter 1 · Breaking the Chains
+            </p>
           </div>
         </div>
       </div>
 
-      {/* ASTRO BULL + Chapter 1 only — no sign-up clutter */}
+      {/* ASTRO BULL + Chapter 1 */}
       <div className="border-t border-white/10 bg-black px-5 pt-12 pb-10 sm:px-10 sm:pt-14 md:px-16 md:pb-12">
         <div className="mx-auto max-w-3xl">
           <div className="mb-5 flex items-center gap-3">
@@ -157,7 +170,6 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Light CTAs — Story first; no extra YouTube box (graphic is the YT link) */}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a
               href="#story"
@@ -188,7 +200,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Compact buy / social — not competing with Chapter 1 */}
       <div className="border-t border-white/10 bg-surface px-5 py-5 sm:px-10 md:px-16">
         <div className="mx-auto max-w-3xl">
           <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted">
