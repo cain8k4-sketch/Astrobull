@@ -30,7 +30,7 @@ export default function Hero() {
     el.muted = !soundOn;
     if (soundOn) {
       void el.play().catch(() => {
-        /* autoplay with sound may be blocked until user gesture — button click counts */
+        /* autoplay with sound may be blocked until user gesture */
       });
     }
   }, [soundOn]);
@@ -81,47 +81,49 @@ export default function Hero() {
         </p>
       </div>
 
-      {/* Single hero video — sound toggle + YouTube link */}
+      {/* Hero video — controls sit under the frame, not on the picture */}
       <div className="w-full bg-black px-2 py-3 sm:px-4 sm:py-4">
-        <div className="relative mx-auto w-full max-w-4xl overflow-hidden border border-white/10 bg-black">
-          <video
-            ref={videoRef}
-            className="block aspect-video h-auto w-full object-cover"
-            src={HERO_VIDEO}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster=""
-            aria-label="Astro Bull — Chapter 1 Breaking the Chains"
-          />
+        <div className="mx-auto w-full max-w-4xl">
+          <div className="overflow-hidden border border-white/10 bg-black">
+            <video
+              ref={videoRef}
+              className="block aspect-video h-auto w-full object-cover"
+              src={HERO_VIDEO}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label="Astro Bull — Chapter 1 Breaking the Chains"
+            />
+          </div>
 
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/90 via-black/40 to-transparent px-3 pb-3 pt-12 sm:px-4 sm:pb-4">
-            <div className="pointer-events-auto flex flex-wrap items-center gap-2">
+          {/* Compact controls row — clear of the visual, still attached */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border border-t-0 border-white/10 bg-surface/90 px-2.5 py-2 sm:px-3">
+            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted sm:text-[10px]">
+              Chapter 1 · Breaking the Chains
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={toggleSound}
-                className="inline-flex min-h-11 items-center gap-2 border border-white/25 bg-black/70 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm hover:border-green hover:text-green"
+                className="inline-flex min-h-9 items-center gap-1.5 border border-white/15 bg-bg px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-fg hover:border-green hover:text-green sm:text-[10px]"
                 aria-pressed={soundOn}
                 aria-label={soundOn ? "Mute video" : "Turn sound on"}
               >
-                {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
+                {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
                 {soundOn ? "Sound on" : "Sound off"}
               </button>
               <a
                 href={YOUTUBE_FEATURED}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center gap-2 border border-red/50 bg-red/90 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white no-underline hover:bg-red-hot"
+                className="inline-flex min-h-9 items-center gap-1.5 border border-red/40 bg-red/90 px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white no-underline hover:bg-red-hot sm:text-[10px]"
               >
-                <Youtube size={14} />
-                Watch on YouTube
+                <Youtube size={13} />
+                YouTube
               </a>
             </div>
-            <p className="hidden font-mono text-[9px] uppercase tracking-[0.2em] text-white/50 sm:block">
-              Chapter 1 · Breaking the Chains
-            </p>
           </div>
         </div>
       </div>
