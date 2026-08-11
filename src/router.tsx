@@ -4,7 +4,8 @@ import { routeTree } from "./routeTree.gen";
 export function getRouter() {
   return createRouter({
     routeTree,
-    scrollRestoration: true,
+    // Always start at top unless the URL has an intentional #hash
+    scrollRestoration: false,
   });
 }
 

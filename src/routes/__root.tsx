@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import SiteNav from "@/components/SiteNav";
 import ScrollDownButton from "@/components/ScrollDownButton";
+import ScrollToTop from "@/components/ScrollToTop";
 import appCss from "@/styles.css?url";
 
 export const Route = createRootRoute({
@@ -46,6 +47,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
+      <ScrollToTop />
       <div className="grain min-h-dvh bg-bg text-fg">
         <SiteNav />
         <Outlet />
