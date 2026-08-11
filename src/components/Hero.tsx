@@ -127,7 +127,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Buy · Social · Share — sits above title block */}
+      {/* Buy · Social · Share */}
       <div className="border-t border-white/10 bg-surface px-5 py-5 sm:px-10 md:px-16">
         <div className="mx-auto max-w-3xl">
           <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted">
@@ -244,40 +244,6 @@ export default function Hero() {
                 Breaking the Chains
               </p>
             </div>
-          </div>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <a
-              href="#story"
-              className="inline-flex items-center justify-center bg-red px-6 py-4 text-center font-mono text-xs font-bold uppercase tracking-widest text-white no-underline shadow-[0_0_20px_rgba(255,0,51,0.35)] hover:bg-red-hot"
-            >
-              The Story
-            </a>
-            <a
-              href="#studio"
-              className="inline-flex items-center justify-center border border-white/25 px-6 py-4 text-center font-mono text-xs font-bold uppercase tracking-widest text-white no-underline hover:border-red hover:text-red"
-            >
-              Creator Studio $$$
-            </a>
-            <a
-              href="#leaderboard"
-              className="inline-flex items-center justify-center border border-gold/50 px-6 py-4 text-center font-mono text-xs font-bold uppercase tracking-widest text-gold no-underline hover:bg-gold/10"
-            >
-              Leaderboard
-            </a>
-            <a
-              href="/astrobull-whitepaper.pdf"
-              download
-              className="inline-flex items-center justify-center border border-green/50 px-6 py-4 text-center font-mono text-xs font-bold uppercase tracking-widest text-green no-underline hover:border-green"
-            >
-              Whitepaper
-            </a>
-            <a
-              href="#wall-of-fame"
-              className="inline-flex items-center justify-center border border-gold/50 bg-gold/10 px-6 py-4 text-center font-mono text-xs font-bold uppercase tracking-widest text-gold no-underline hover:bg-gold/20"
-            >
-              Hall of Fame
-            </a>
           </div>
         </div>
       </div>
