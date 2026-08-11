@@ -63,6 +63,16 @@ export default function SiteNav() {
             Creator Studio
           </Link>
 
+          {onHome ? (
+            <a href="#wall-of-fame" className={cn(linkMuted, "text-gold hover:text-gold")}>
+              Fame
+            </a>
+          ) : (
+            <Link to="/" hash="wall-of-fame" className={cn(linkMuted, "text-gold hover:text-gold")}>
+              Fame
+            </Link>
+          )}
+
           <Link
             to="/shill"
             className={cn(
@@ -161,6 +171,13 @@ export default function SiteNav() {
             >
               Creator Studio
             </Link>
+            <a
+              href={onHome ? "#wall-of-fame" : "/#wall-of-fame"}
+              onClick={() => setOpen(false)}
+              className="py-3 font-mono text-xs uppercase tracking-widest text-gold"
+            >
+              Wall of Fame
+            </a>
             <Link
               to="/shill"
               onClick={() => setOpen(false)}

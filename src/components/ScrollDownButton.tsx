@@ -36,6 +36,7 @@ export default function ScrollDownButton() {
       "#story",
       "#studio",
       "#leaderboard",
+      "#wall-of-fame",
       "#links",
       "#quick",
       "#tokenomics",

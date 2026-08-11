@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import ChapterStory from "@/components/ChapterStory";
 import CreatorStudio from "@/components/CreatorStudio";
 import CreatorLeaderboard from "@/components/CreatorLeaderboard";
+import WallOfFame from "@/components/WallOfFame";
 import ShillPromo from "@/components/ShillPromo";
 import XAccountTracker from "@/components/XAccountTracker";
 import HerdChat from "@/components/HerdChat";
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-/** title → story → studio → creator board → shill → X track → herd chat → buy → links → roadmap → tokenomics */
+/** title → story → studio → board → wall of fame → shill → X → chat → buy → links → roadmap → tokenomics */
 function HomePage() {
   return (
     <main>
@@ -26,6 +27,7 @@ function HomePage() {
         <CreatorStudio />
       </section>
       <CreatorLeaderboard />
+      <WallOfFame />
       <ShillPromo />
       <XAccountTracker />
       <HerdChat />
