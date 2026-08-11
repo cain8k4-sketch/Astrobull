@@ -14,6 +14,8 @@ const BOW = `https://bow.fun/?token=${CONTRACT}`;
 const CHART =
   "https://dexscreener.com/robinhood/0x403503850D80C4E50A6227be3C293C9e7810818e";
 const YOUTUBE = "https://www.youtube.com/@ASTROBULL.ROBINHOOD";
+const YOUTUBE_FEATURED = "https://youtu.be/v-s0HZgFKu8";
+const YOUTUBE_FEATURED_EMBED = "https://www.youtube.com/embed/v-s0HZgFKu8";
 
 export default function Hero() {
   const [shared, setShared] = useState(false);
@@ -60,18 +62,18 @@ export default function Hero() {
         </p>
       </div>
 
-      {/* Title image → YouTube */}
-      <div className="w-full bg-black">
-        <div className="mx-auto w-full max-w-lg">
+      {/* Title video + featured YouTube side by side */}
+      <div className="w-full bg-black px-2 py-3 sm:px-4 sm:py-4">
+        <div className="mx-auto grid w-full max-w-5xl gap-3 sm:grid-cols-2 sm:gap-4">
           <a
             href={YOUTUBE}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative block no-underline outline-none focus-visible:ring-2 focus-visible:ring-red"
+            className="group relative block overflow-hidden border border-white/10 no-underline outline-none focus-visible:ring-2 focus-visible:ring-red"
             aria-label="Watch Astro Bull on YouTube — open channel"
           >
             <video
-              className="block h-auto w-full"
+              className="block aspect-video h-auto w-full object-cover"
               src="/title-robinhood.mp4"
               autoPlay
               muted
@@ -81,10 +83,33 @@ export default function Hero() {
             <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-3 pb-4 pt-10 opacity-90 transition-opacity group-hover:opacity-100">
               <Youtube size={16} className="text-red" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-white sm:text-[11px]">
-                Tap · YouTube @ASTROBULL.ROBINHOOD
+                Tap · YouTube channel
               </span>
             </span>
           </a>
+
+          <div className="relative overflow-hidden border border-white/10 bg-black">
+            <div className="aspect-video w-full">
+              <iframe
+                className="h-full w-full"
+                src={YOUTUBE_FEATURED_EMBED}
+                title="Astro Bull featured video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+            </div>
+            <a
+              href={YOUTUBE_FEATURED}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-sm bg-black/70 px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-white no-underline backdrop-blur-sm hover:bg-red"
+            >
+              <Youtube size={12} className="text-red" />
+              Open
+            </a>
+          </div>
         </div>
       </div>
 
