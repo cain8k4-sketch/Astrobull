@@ -1,61 +1,235 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  BookOpen,
+  ChartNoAxesCombined,
+  ChevronDown,
   Flame,
+  Map,
   Menu,
   MessageCircle,
+  Rocket,
   Share2,
   ShoppingBag,
+  Sparkles,
   Star,
+  Trophy,
+  UserPlus,
   X,
+  Zap,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type NavItem = {
+type Dest = {
   key: string;
   label: string;
+  blurb: string;
   hash?: string;
-  to?: string;
-  icon?: ReactNode;
-  tone?: "default" | "gold" | "green";
+  to?: "/studio" | "/shill" | "/signup" | "/";
+  icon: ReactNode;
+  accent: "red" | "gold" | "green" | "blue" | "purple";
+  badge?: string;
 };
 
-const SECTION_LINKS: NavItem[] = [
+const DESTINATIONS: Dest[] = [
   {
-    key: "buy",
-    label: "Buy",
-    hash: "buy",
-    icon: <ShoppingBag size={12} aria-hidden />,
+    key: "story",
+    label: "The Story",
+    blurb: "Chapter 1 · Breaking the Chains",
+    hash: "story",
+    icon: <BookOpen size={18} aria-hidden />,
+    accent: "red",
   },
-  { key: "story", label: "Story", hash: "story" },
+  {
+    key: "studio",
+    label: "Creator Studio",
+    blurb: "Sign up · get featured · get paid",
+    to: "/studio",
+    icon: <Flame size={18} aria-hidden />,
+    accent: "red",
+    badge: "$$$",
+  },
+  {
+    key: "leaderboard",
+    label: "Leaderboard",
+    blurb: "Who’s grinding the herd",
+    hash: "leaderboard",
+    icon: <Trophy size={18} aria-hidden />,
+    accent: "gold",
+  },
   {
     key: "fame",
     label: "Hall of Fame",
+    blurb: "Creators + their work links",
     hash: "wall-of-fame",
-    icon: <Star size={12} aria-hidden />,
-    tone: "gold",
+    icon: <Star size={18} aria-hidden />,
+    accent: "gold",
+  },
+  {
+    key: "shill",
+    label: "Shill HQ",
+    blurb: "Pack generator for every platform",
+    to: "/shill",
+    icon: <Zap size={18} aria-hidden />,
+    accent: "gold",
+    badge: "NEW",
+  },
+  {
+    key: "buy",
+    label: "How to Buy",
+    blurb: "Robinhood Chain · MetaMask path",
+    hash: "buy",
+    icon: <ShoppingBag size={18} aria-hidden />,
+    accent: "green",
+  },
+  {
+    key: "tokenomics",
+    label: "Tokenomics",
+    blurb: "Supply · burns · chart links",
+    hash: "tokenomics",
+    icon: <ChartNoAxesCombined size={18} aria-hidden />,
+    accent: "green",
+  },
+  {
+    key: "roadmap",
+    label: "Roadmap",
+    blurb: "Where the herd is headed",
+    hash: "roadmap",
+    icon: <Map size={18} aria-hidden />,
+    accent: "purple",
   },
   {
     key: "chat",
-    label: "Chat",
+    label: "Herd Chat",
+    blurb: "Talk shop with the herd",
     hash: "herd-chat",
-    icon: <MessageCircle size={12} aria-hidden />,
+    icon: <MessageCircle size={18} aria-hidden />,
+    accent: "blue",
   },
   {
     key: "socials",
     label: "Socials",
+    blurb: "X · TikTok · YouTube · TG",
     hash: "socials",
-    icon: <Share2 size={12} aria-hidden />,
+    icon: <Share2 size={18} aria-hidden />,
+    accent: "blue",
+  },
+  {
+    key: "signup",
+    label: "Sign up free",
+    blurb: "Join as a creator in one form",
+    to: "/signup",
+    icon: <UserPlus size={18} aria-hidden />,
+    accent: "green",
+  },
+  {
+    key: "home",
+    label: "Top of site",
+    blurb: "Hero video · start over",
+    to: "/",
+    icon: <Rocket size={18} aria-hidden />,
+    accent: "purple",
   },
 ];
 
-function sectionHref(onHome: boolean, hash: string) {
-  return onHome ? `#${hash}` : `/#${hash}`;
+const QUICK_BAR: { key: string; label: string; hash?: string; to?: Dest["to"] }[] =
+  [
+    { key: "story", label: "Story", hash: "story" },
+    { key: "board", label: "Board", hash: "leaderboard" },
+    { key: "fame", label: "Fame", hash: "wall-of-fame" },
+    { key: "buy", label: "Buy", hash: "buy" },
+  ];
+
+const accentRing: Record<Dest["accent"], string> = {
+  red: "border-red/35 bg-red/10 text-red group-hover:border-red/60 group-hover:bg-red/15",
+  gold: "border-gold/35 bg-gold/10 text-gold group-hover:border-gold/60 group-hover:bg-gold/15",
+  green:
+    "border-green/35 bg-green/10 text-green group-hover:border-green/60 group-hover:bg-green/15",
+  blue: "border-blue/35 bg-blue/10 text-blue group-hover:border-blue/60 group-hover:bg-blue/15",
+  purple:
+    "border-purple/35 bg-purple/10 text-purple group-hover:border-purple/60 group-hover:bg-purple/15",
+};
+
+const accentCard: Record<Dest["accent"], string> = {
+  red: "hover:border-red/40 hover:shadow-[0_0_24px_rgba(255,0,51,0.12)]",
+  gold: "hover:border-gold/40 hover:shadow-[0_0_24px_rgba(255,204,0,0.12)]",
+  green: "hover:border-green/40 hover:shadow-[0_0_24px_rgba(0,255,102,0.1)]",
+  blue: "hover:border-blue/40 hover:shadow-[0_0_24px_rgba(38,165,228,0.12)]",
+  purple: "hover:border-purple/40 hover:shadow-[0_0_24px_rgba(155,123,255,0.12)]",
+};
+
+function destHref(onHome: boolean, d: Dest): string {
+  if (d.to) return d.to;
+  if (d.hash) return onHome ? `#${d.hash}` : `/#${d.hash}`;
+  return "/";
 }
 
-/** Sticky top bar — logo · sections · CTAs · mobile drawer */
+function DestCard({
+  d,
+  onHome,
+  onNavigate,
+}: {
+  d: Dest;
+  onHome: boolean;
+  onNavigate: () => void;
+}) {
+  const href = destHref(onHome, d);
+  const isRoute = Boolean(d.to);
+
+  const className = cn(
+    "group flex items-start gap-3 rounded-md border border-white/10 bg-surface/90 p-3 text-left no-underline transition-all",
+    "active:scale-[0.99]",
+    accentCard[d.accent],
+  );
+
+  const body = (
+    <>
+      <span
+        className={cn(
+          "mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
+          accentRing[d.accent],
+        )}
+      >
+        {d.icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-fg">
+            {d.label}
+          </span>
+          {d.badge ? (
+            <span className="rounded-[2px] bg-gold px-1.5 py-0.5 font-mono text-[8px] font-bold tracking-widest text-bg">
+              {d.badge}
+            </span>
+          ) : null}
+        </span>
+        <span className="mt-1 block font-mono text-[10px] leading-snug text-muted">
+          {d.blurb}
+        </span>
+      </span>
+    </>
+  );
+
+  if (isRoute && d.to) {
+    return (
+      <Link to={d.to} onClick={onNavigate} className={className}>
+        {body}
+      </Link>
+    );
+  }
+
+  return (
+    <a href={href} onClick={onNavigate} className={className}>
+      {body}
+    </a>
+  );
+}
+
+/** Sticky top bar with explore menu of real destinations */
 export default function SiteNav() {
-  const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const panelId = useId();
+  const wrapRef = useRef<HTMLDivElement>(null);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const onHome = pathname === "/" || pathname === "";
   const onStudio = pathname.startsWith("/studio");
@@ -63,123 +237,119 @@ export default function SiteNav() {
   const onSignup = pathname.startsWith("/signup");
 
   useEffect(() => {
-    setOpen(false);
+    setMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!menuOpen) return;
     const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    // only lock on small screens where panel is full height
+    const mq = window.matchMedia("(max-width: 1023px)");
+    if (mq.matches) document.body.style.overflow = "hidden";
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    function onDoc(e: MouseEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDoc);
     return () => {
       document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onDoc);
     };
-  }, [open]);
+  }, [menuOpen]);
 
-  const linkBase =
-    "group relative inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.16em] no-underline transition-colors";
-
-  function sectionClass(tone?: NavItem["tone"]) {
-    if (tone === "gold") {
-      return cn(linkBase, "text-gold/90 hover:text-gold");
-    }
-    return cn(linkBase, "text-muted hover:text-fg");
+  function close() {
+    setMenuOpen(false);
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-bg/90 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+    <header
+      ref={wrapRef}
+      className="sticky top-0 z-40 border-b border-white/10 bg-bg/92 shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+    >
       <div
         className="h-0.5 w-full bg-gradient-to-r from-red via-gold to-green"
         aria-hidden
       />
 
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-3 sm:h-16 sm:px-6 md:px-8">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-3 sm:h-16 sm:gap-3 sm:px-6 md:px-8">
+        {/* Brand */}
         <Link
           to="/"
-          onClick={() => setOpen(false)}
-          className="group flex shrink-0 items-center gap-2.5 no-underline"
+          onClick={close}
+          className="group flex shrink-0 items-center gap-2 no-underline sm:gap-2.5"
         >
           <span
             className="h-2 w-2 rotate-45 bg-green shadow-[0_0_10px_#00ff66] transition-transform group-hover:scale-110"
             aria-hidden
           />
-          <span className="font-display text-[1.65rem] uppercase leading-none tracking-wide text-fg sm:text-[1.85rem]">
+          <span className="font-display text-[1.55rem] uppercase leading-none tracking-wide text-fg sm:text-[1.85rem]">
             Astro
             <span className="animate-flicker text-red">Bull</span>
           </span>
         </Link>
 
+        {/* Quick hops — desktop */}
         <nav
-          className="hidden items-center gap-1 lg:flex"
-          aria-label="Primary"
+          className="hidden items-center gap-0.5 md:flex"
+          aria-label="Quick links"
         >
-          {!onHome ? (
-            <Link
-              to="/"
-              className={cn(linkBase, "px-2.5 py-2 text-muted hover:text-fg")}
+          {QUICK_BAR.map((q) => (
+            <a
+              key={q.key}
+              href={
+                q.hash
+                  ? onHome
+                    ? `#${q.hash}`
+                    : `/#${q.hash}`
+                  : q.to ?? "/"
+              }
+              className="rounded-sm px-2.5 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted no-underline transition-colors hover:bg-white/5 hover:text-fg"
             >
-              Home
-            </Link>
-          ) : null}
+              {q.label}
+            </a>
+          ))}
+        </nav>
 
-          {SECTION_LINKS.map((item) =>
-            item.hash ? (
-              <a
-                key={item.key}
-                href={sectionHref(onHome, item.hash)}
-                className={cn(sectionClass(item.tone), "px-2.5 py-2")}
-              >
-                <span className="hidden xl:inline-flex opacity-70">
-                  {item.icon}
-                </span>
-                {item.label}
-                <span
-                  className="absolute inset-x-2.5 -bottom-0.5 h-px origin-left scale-x-0 bg-green transition-transform group-hover:scale-x-100"
-                  aria-hidden
-                />
-              </a>
-            ) : null,
-          )}
-
-          <span className="mx-1 h-4 w-px bg-white/10" aria-hidden />
-
+        {/* Actions */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <Link
             to="/shill"
+            onClick={close}
             className={cn(
-              linkBase,
-              "gap-1.5 px-2.5 py-2",
-              onShill ? "text-gold" : "text-muted hover:text-gold",
+              "hidden items-center gap-1.5 rounded-sm border px-2.5 py-2 font-mono text-[9px] font-bold uppercase tracking-widest no-underline transition-colors sm:inline-flex sm:text-[10px]",
+              onShill
+                ? "border-gold bg-gold text-bg"
+                : "border-gold/40 bg-gold/10 text-gold hover:border-gold hover:bg-gold/20",
             )}
           >
-            <span
-              className={cn(
-                "rounded-[2px] px-1 py-0.5 text-[8px] font-bold tracking-[0.14em]",
-                onShill
-                  ? "bg-gold text-bg"
-                  : "border border-gold/40 bg-gold/10 text-gold",
-              )}
-            >
-              NEW
-            </span>
-            Shill HQ
+            <Sparkles size={12} aria-hidden />
+            Shill
           </Link>
 
           <Link
             to="/studio"
+            onClick={close}
             className={cn(
-              "ml-1 inline-flex min-h-9 items-center justify-center rounded-sm px-3.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-white no-underline transition-all",
+              "inline-flex min-h-9 items-center gap-1 rounded-sm bg-red px-2.5 font-mono text-[9px] font-bold uppercase tracking-widest text-white no-underline transition-all sm:px-3.5 sm:text-[10px]",
               onStudio
-                ? "bg-red shadow-[0_0_18px_rgba(255,0,51,0.55)] ring-1 ring-white/20"
-                : "bg-red hover:bg-red-hot hover:shadow-[0_0_16px_rgba(255,0,51,0.4)]",
+                ? "shadow-[0_0_18px_rgba(255,0,51,0.55)] ring-1 ring-white/25"
+                : "hover:bg-red-hot hover:shadow-[0_0_16px_rgba(255,0,51,0.4)]",
             )}
           >
-            <Flame size={12} className="mr-1.5 opacity-90" aria-hidden />
+            <Flame size={12} aria-hidden />
             Studio
           </Link>
 
           <Link
             to="/signup"
+            onClick={close}
             className={cn(
-              "inline-flex min-h-9 items-center justify-center rounded-sm border px-3.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] no-underline transition-colors",
+              "hidden min-h-9 items-center rounded-sm border px-3 font-mono text-[10px] font-bold uppercase tracking-widest no-underline transition-colors sm:inline-flex",
               onSignup
                 ? "border-green bg-green/15 text-green"
                 : "border-green/45 text-green hover:border-green hover:bg-green/10",
@@ -187,110 +357,89 @@ export default function SiteNav() {
           >
             Sign up
           </Link>
-        </nav>
 
-        <div className="flex items-center gap-2 lg:hidden">
-          <Link
-            to="/studio"
-            className="inline-flex min-h-9 items-center rounded-sm bg-red px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-white no-underline"
-          >
-            Studio
-          </Link>
+          {/* Explore toggle — the tasty menu */}
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-white/15 text-fg transition-colors hover:border-white/30"
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
+            className={cn(
+              "inline-flex min-h-9 items-center gap-1.5 rounded-sm border px-2.5 font-mono text-[9px] font-bold uppercase tracking-widest transition-all sm:px-3 sm:text-[10px]",
+              menuOpen
+                ? "border-fg bg-fg text-bg"
+                : "border-white/20 bg-elevated text-fg hover:border-white/40 hover:bg-white/5",
+            )}
+            aria-expanded={menuOpen}
+            aria-controls={panelId}
+            onClick={() => setMenuOpen((v) => !v)}
           >
-            {open ? <X size={20} /> : <Menu size={20} />}
+            {menuOpen ? (
+              <X size={14} aria-hidden />
+            ) : (
+              <Menu size={14} className="sm:hidden" aria-hidden />
+            )}
+            <span className="hidden sm:inline">
+              {menuOpen ? "Close" : "Explore"}
+            </span>
+            <ChevronDown
+              size={14}
+              className={cn(
+                "hidden transition-transform sm:inline",
+                menuOpen && "rotate-180",
+              )}
+              aria-hidden
+            />
+            <span className="sm:hidden">{menuOpen ? "Close" : "Menu"}</span>
           </button>
         </div>
       </div>
 
-      {open ? (
+      {/* Explore panel */}
+      {menuOpen ? (
         <div
-          className="fixed inset-x-0 bottom-0 top-14 z-40 border-t border-white/10 bg-bg/98 backdrop-blur-xl sm:top-16 lg:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Site menu"
+          id={panelId}
+          role="navigation"
+          aria-label="Explore Astro Bull"
+          className="border-t border-white/10 bg-bg/98 backdrop-blur-xl"
         >
-          <div className="mx-auto flex h-full max-w-lg flex-col overflow-y-auto px-4 py-5 sm:px-6">
-            <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-dim">
-              Navigate
-            </p>
-
-            <div className="flex flex-col gap-1">
-              {!onHome ? (
-                <Link
-                  to="/"
-                  onClick={() => setOpen(false)}
-                  className="rounded-sm border border-white/10 bg-surface px-4 py-3.5 font-mono text-xs font-bold uppercase tracking-widest text-fg no-underline"
-                >
-                  Home
-                </Link>
-              ) : null}
-
-              {SECTION_LINKS.map((item) =>
-                item.hash ? (
-                  <a
-                    key={item.key}
-                    href={sectionHref(onHome, item.hash)}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-sm border border-white/10 bg-surface px-4 py-3.5 font-mono text-xs font-bold uppercase tracking-widest no-underline transition-colors active:bg-elevated",
-                      item.tone === "gold" ? "text-gold" : "text-fg",
-                    )}
-                  >
-                    <span className="text-muted">{item.icon}</span>
-                    {item.label}
-                  </a>
-                ) : null,
-              )}
+          <div className="mx-auto max-h-[min(78dvh,720px)] max-w-6xl overflow-y-auto px-3 py-4 sm:px-6 sm:py-5 md:px-8">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-dim">
+                  Where to go
+                </p>
+                <p className="mt-1 font-display text-2xl uppercase tracking-wide text-fg sm:text-3xl">
+                  Explore the{" "}
+                  <span className="animate-flicker text-red">herd</span>
+                </p>
+              </div>
+              <p className="max-w-xs font-mono text-[10px] leading-relaxed text-muted">
+                Jump to story, studio, fame, buy, chat — or open shill tools.
+              </p>
             </div>
 
-            <p className="mb-3 mt-6 font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-dim">
-              Create · shill · join
-            </p>
-
-            <div className="flex flex-col gap-2">
-              <Link
-                to="/shill"
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "flex items-center justify-between rounded-sm border px-4 py-3.5 font-mono text-xs font-bold uppercase tracking-widest no-underline",
-                  onShill
-                    ? "border-gold bg-gold/15 text-gold"
-                    : "border-gold/35 bg-gold/5 text-gold",
-                )}
-              >
-                <span>Shill HQ</span>
-                <span className="rounded-[2px] bg-gold px-1.5 py-0.5 text-[9px] font-bold text-bg">
-                  NEW
-                </span>
-              </Link>
-
-              <Link
-                to="/studio"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-sm bg-red py-4 font-mono text-xs font-bold uppercase tracking-widest text-white no-underline shadow-[0_0_20px_rgba(255,0,51,0.35)]"
-              >
-                <Flame size={14} aria-hidden />
-                Creator Studio
-              </Link>
-
-              <Link
-                to="/signup"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-center rounded-sm border border-green/50 py-4 font-mono text-xs font-bold uppercase tracking-widest text-green no-underline hover:bg-green/10"
-              >
-                Sign up free
-              </Link>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {DESTINATIONS.map((d) => (
+                <DestCard
+                  key={d.key}
+                  d={d}
+                  onHome={onHome}
+                  onNavigate={close}
+                />
+              ))}
             </div>
 
-            <p className="mt-auto pt-8 text-center font-mono text-[9px] uppercase tracking-[0.2em] text-dim">
-              We are all Astro
-            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-dim">
+                We are all Astro · holding optional
+              </p>
+              <a
+                href="/astrobull-whitepaper.pdf"
+                download
+                onClick={close}
+                className="font-mono text-[10px] font-bold uppercase tracking-widest text-green no-underline hover:underline"
+              >
+                Whitepaper ↓
+              </a>
+            </div>
           </div>
         </div>
       ) : null}
