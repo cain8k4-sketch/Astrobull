@@ -81,7 +81,7 @@ export default function Hero() {
         </p>
       </div>
 
-      {/* Hero video — controls sit under the frame, not on the picture */}
+      {/* Hero video — controls under the frame */}
       <div className="w-full bg-black px-2 py-3 sm:px-4 sm:py-4">
         <div className="mx-auto w-full max-w-4xl">
           <div className="overflow-hidden border border-white/10 bg-black">
@@ -98,7 +98,6 @@ export default function Hero() {
             />
           </div>
 
-          {/* Compact controls row — clear of the visual, still attached */}
           <div className="flex flex-wrap items-center justify-between gap-2 border border-t-0 border-white/10 bg-surface/90 px-2.5 py-2 sm:px-3">
             <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted sm:text-[10px]">
               Chapter 1 · Breaking the Chains
@@ -128,7 +127,82 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ASTRO BULL + Chapter 1 */}
+      {/* Buy · Social · Share — sits above title block */}
+      <div className="border-t border-white/10 bg-surface px-5 py-5 sm:px-10 md:px-16">
+        <div className="mx-auto max-w-3xl">
+          <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted">
+            Buy · Social · Share
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            <a
+              href={BOW}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 border border-red/50 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-red no-underline hover:bg-red/15"
+            >
+              <Rocket size={12} /> Buy bow.fun
+            </a>
+            <a
+              href={CHART}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 border border-green/40 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-green no-underline hover:bg-green/10"
+            >
+              <BarChart2 size={12} /> Chart
+            </a>
+            <a
+              href="https://x.com/AstroBull_RH"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
+            >
+              X
+            </a>
+            <a
+              href="https://www.tiktok.com/@astrobull.robinho"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
+            >
+              TikTok
+            </a>
+            <a
+              href={YOUTUBE}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
+            >
+              <Youtube size={12} /> YouTube
+            </a>
+            <a
+              href={TG_MAIN}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
+            >
+              <Send size={12} /> Telegram
+            </a>
+            <a
+              href={TG_CONTENT_UPLOAD}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 border border-[#2AABEE]/50 bg-[#2AABEE]/15 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-[#2AABEE] no-underline hover:bg-[#2AABEE]/25"
+            >
+              <Send size={12} /> TG content
+            </a>
+            <button
+              type="button"
+              onClick={() => void onShare()}
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 border border-gold/40 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-gold hover:bg-gold/10 sm:col-span-1"
+            >
+              {shared ? <Check size={12} /> : <Share2 size={12} />}
+              {shared ? "Copied" : "Share"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Title / chapter — under Share */}
       <div className="border-t border-white/10 bg-black px-5 pt-12 pb-10 sm:px-10 sm:pt-14 md:px-16 md:pb-12">
         <div className="mx-auto max-w-3xl">
           <div className="mb-5 flex items-center gap-3">
@@ -204,80 +278,6 @@ export default function Hero() {
             >
               Hall of Fame
             </a>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-white/10 bg-surface px-5 py-5 sm:px-10 md:px-16">
-        <div className="mx-auto max-w-3xl">
-          <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted">
-            Buy · Social · Share
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-            <a
-              href={BOW}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 border border-red/50 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-red no-underline hover:bg-red/15"
-            >
-              <Rocket size={12} /> Buy bow.fun
-            </a>
-            <a
-              href={CHART}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 border border-green/40 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-green no-underline hover:bg-green/10"
-            >
-              <BarChart2 size={12} /> Chart
-            </a>
-            <a
-              href="https://x.com/AstroBull_RH"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
-            >
-              X
-            </a>
-            <a
-              href="https://www.tiktok.com/@astrobull.robinho"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
-            >
-              TikTok
-            </a>
-            <a
-              href={YOUTUBE}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
-            >
-              <Youtube size={12} /> YouTube
-            </a>
-            <a
-              href={TG_MAIN}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 border border-white/20 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white no-underline hover:border-white/50"
-            >
-              <Send size={12} /> Telegram
-            </a>
-            <a
-              href={TG_CONTENT_UPLOAD}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 border border-[#2AABEE]/50 bg-[#2AABEE]/15 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-[#2AABEE] no-underline hover:bg-[#2AABEE]/25"
-            >
-              <Send size={12} /> TG content
-            </a>
-            <button
-              type="button"
-              onClick={() => void onShare()}
-              className="col-span-2 inline-flex items-center justify-center gap-1.5 border border-gold/40 px-3 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-gold hover:bg-gold/10 sm:col-span-1"
-            >
-              {shared ? <Check size={12} /> : <Share2 size={12} />}
-              {shared ? "Copied" : "Share"}
-            </button>
           </div>
         </div>
       </div>
