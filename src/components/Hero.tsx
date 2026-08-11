@@ -198,6 +198,12 @@ export default function Hero() {
             >
               Whitepaper
             </a>
+            <a
+              href="#wall-of-fame"
+              className="inline-flex items-center justify-center border border-gold/50 bg-gold/10 px-6 py-4 text-center font-mono text-xs font-bold uppercase tracking-widest text-gold no-underline hover:bg-gold/20"
+            >
+              Hall of Fame
+            </a>
           </div>
         </div>
       </div>
