@@ -1,42 +1,50 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 
 /**
- * On every route change / visit, land at the top of the page.
- * If the URL has a #section hash (e.g. #wall-of-fame), scroll to that section instead.
+ * Always open at the top of the page unless the URL has an intentional #hash.
+ * Also re-asserts top shortly after load so late effects cannot yank the view down.
  */
 export default function ScrollToTop() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const hash = useRouterState({ select: (s) => s.location.hash });
-  const href = useRouterState({ select: (s) => s.location.href });
 
-  useLayoutEffect(() => {
+  const pinTop = () => {
     if (typeof window === "undefined") return;
-
-    // Stop the browser restoring the last scroll position on refresh / back-forward
     try {
       window.history.scrollRestoration = "manual";
     } catch {
       /* ignore */
     }
-
     const raw = (hash || "").replace(/^#/, "").trim();
     if (raw) {
-      // Let the target section paint, then scroll to it
-      const go = () => {
-        const el = document.getElementById(raw);
-        if (el) {
-          el.scrollIntoView({ behavior: "auto", block: "start" });
-        } else {
-          window.scrollTo(0, 0);
-        }
-      };
-      requestAnimationFrame(go);
-      return;
+      const el = document.getElementById(raw);
+      if (el) {
+        el.scrollIntoView({ behavior: "auto", block: "start" });
+        return;
+      }
     }
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
 
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [pathname, hash, href]);
+  useLayoutEffect(() => {
+    pinTop();
+  }, [pathname, hash]);
+
+  useEffect(() => {
+    // Beat any late scrollIntoView from child components on first paint
+    pinTop();
+    const t1 = window.setTimeout(pinTop, 50);
+    const t2 = window.setTimeout(pinTop, 200);
+    const t3 = window.setTimeout(pinTop, 500);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+    };
+  }, [pathname, hash]);
 
   return null;
 }

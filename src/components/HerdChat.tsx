@@ -11,7 +11,7 @@ import { useReveal } from "@/hooks/use-reveal";
 /** Frontend-only herd chat (local + multi-tab). Cloud later. */
 export default function HerdChat() {
   const ref = useReveal<HTMLDivElement>();
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [handle, setHandle] = useState("");
   const [text, setText] = useState("");
@@ -27,8 +27,11 @@ export default function HerdChat() {
     });
   }, []);
 
+  // Scroll only inside the chat panel — never the whole page
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const box = listRef.current;
+    if (!box) return;
+    box.scrollTop = box.scrollHeight;
   }, [messages.length]);
 
   async function onSend(e: React.FormEvent) {
@@ -74,7 +77,10 @@ export default function HerdChat() {
         </p>
 
         <div className="mt-6 overflow-hidden rounded-md border border-white/10 bg-bg">
-          <div className="max-h-[340px] space-y-3 overflow-y-auto px-3 py-4 sm:px-4">
+          <div
+            ref={listRef}
+            className="max-h-[340px] space-y-3 overflow-y-auto px-3 py-4 sm:px-4"
+          >
             {messages.map((m) => (
               <div
                 key={m.id}
@@ -93,7 +99,6 @@ export default function HerdChat() {
                 </p>
               </div>
             ))}
-            <div ref={bottomRef} />
           </div>
 
           <form
