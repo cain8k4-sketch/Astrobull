@@ -1,15 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bot,
+  Check,
   ChevronDown,
   Copy,
+  DollarSign,
   FileUp,
   Lock,
+  Send,
+  Star,
   Trash2,
   Upload,
   Wand2,
   Download,
   UserPlus,
+  ExternalLink,
 } from "lucide-react";
 
 import {
@@ -47,6 +52,11 @@ import PlatformPush, {
 import TgContentDrop from "@/components/TgContentDrop";
 import { Link } from "@tanstack/react-router";
 import { TG_CONTENT_UPLOAD } from "@/lib/community";
+import {
+  loadLastSignup,
+  type CreatorSignup,
+} from "@/lib/signup";
+
 type Path = "ai" | "prompt" | null;
 
 const TONES = [
@@ -62,28 +72,53 @@ const STYLES = [
   "poster comic",
 ];
 
-const PAY_STEPS = [
+/** Always-visible pipeline: Sign up -> Drop in TG -> Get featured -> Get paid */
+const PIPELINE = [
   {
-    n: "01",
-    title: "Create free",
-    body: "Drop content in the Telegram upload chat (videos / images / clips). Or use AI / external prompts here. No token buy required.",
+    n: "1",
+    title: "Sign up",
+    short: "Join the herd",
+    body: "30-second form. Handle, wallet, contact. Status starts pending. Holding is optional.",
+    Icon: UserPlus,
   },
   {
-    n: "02",
-    title: "Push & post",
-    body: "Send to TikTok, YouTube, Snapchat (X optional). Auto hashtags included. Tag the project so we can find and amplify you.",
+    n: "2",
+    title: "Drop in TG",
+    short: "Private content chat",
+    body: "Open the Telegram content chat. Post video / image / clip. No site upload.",
+    Icon: Send,
   },
   {
-    n: "03",
-    title: "Get featured · amplified",
-    body: "Best work hits official Astro Bull channels. One post can reach the combined herd — not just your own followers. That spotlight is the product.",
+    n: "3",
+    title: "Get featured",
+    short: "We amplify winners",
+    body: "Best work hits official Astro Bull channels + Wall of Fame.",
+    Icon: Star,
   },
   {
-    n: "04",
+    n: "4",
     title: "Get paid",
-    body: "Verified views & engagement → paid in USDC / USDT (and Robinhood-chain assets). Payouts release when your balance hits the $50 threshold. Connect MetaMask (or any EVM 0x wallet). Holding $ASTROBULL is optional.",
+    short: "$50 USDC threshold",
+    body: "Verified views. Paid in USDC / USDT. MetaMask or any 0x wallet. Holding optional.",
+    Icon: DollarSign,
   },
 ] as const;
+
+function statusLabel(s: CreatorSignup["status"]) {
+  if (s === "approved") return "Featured";
+  if (s === "rejected") return "Needs rework";
+  return "Pending";
+}
+
+function activeStepIndex(signup: CreatorSignup | null): number {
+  if (!signup) return 0;
+  if (signup.status === "approved") {
+    if (signup.total_earned >= 50) return 3;
+    return 2;
+  }
+  if (signup.status === "rejected") return 1;
+  return 1;
+}
 
 const SELLING_POINTS = [
   "Holding is optional — earn from performance, not a bag requirement",
@@ -144,9 +179,16 @@ export default function CreatorStudio() {
   const [promptExtras, setPromptExtras] = useState("");
   const [promptEmotion, setPromptEmotion] = useState<EmotionState>("auto");
   const [promptCopied, setPromptCopied] = useState(false);
-  const [payInfoOpen, setPayInfoOpen] = useState(false);
+  const [whyOpen, setWhyOpen] = useState(false);
   const [pathFlash, setPathFlash] = useState(false);
   const [pathHint, setPathHint] = useState(false);
+  const [signup, setSignup] = useState<CreatorSignup | null>(null);
+
+  useEffect(() => {
+    setSignup(loadLastSignup());
+  }, []);
+
+  const stepActive = activeStepIndex(signup);
 
   function pickPath(next: Path) {
     setPath(next);
@@ -453,11 +495,263 @@ export default function CreatorStudio() {
         </span>
       </header>
 
-      {/* Attention art — 100 AstroBULLS note */}
-      <div className="mb-3 overflow-hidden rounded-md border border-green/40 bg-black shadow-[0_0_40px_rgba(0,255,102,0.12)]">
+      {/* === 4-STEP PIPELINE - always visible === */}
+      <section
+        aria-label="Creator pipeline"
+        className="mb-5 rounded-md border border-white/12 bg-surface p-4 sm:p-5"
+      >
+        <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-dim">
+          Your path
+        </p>
+        <ol className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-2.5">
+          {PIPELINE.map((step, i) => {
+            const done = i < stepActive;
+            const active = i === stepActive;
+            const Icon = step.Icon;
+            return (
+              <li
+                key={step.n}
+                className={cn(
+                  "relative flex flex-col rounded-md border px-3 py-3 transition-colors",
+                  active &&
+                    "border-red/55 bg-red/10 shadow-[0_0_20px_rgba(255,0,51,0.15)]",
+                  done && !active && "border-green/35 bg-green/5",
+                  !done && !active && "border-white/10 bg-bg/60",
+                )}
+              >
+                <div className="mb-2 flex items-center justify-between gap-1">
+                  <span
+                    className={cn(
+                      "inline-flex h-7 w-7 items-center justify-center rounded-sm font-mono text-[11px] font-bold",
+                      active && "bg-red text-white",
+                      done && !active && "bg-green/20 text-green",
+                      !done && !active && "bg-white/5 text-muted",
+                    )}
+                  >
+                    {done && !active ? <Check size={14} /> : step.n}
+                  </span>
+                  <Icon
+                    size={14}
+                    className={cn(
+                      active && "text-red",
+                      done && !active && "text-green",
+                      !done && !active && "text-muted",
+                    )}
+                    aria-hidden
+                  />
+                </div>
+                <p
+                  className={cn(
+                    "font-mono text-[10px] font-bold uppercase tracking-[0.12em]",
+                    active ? "text-fg" : done ? "text-green" : "text-muted",
+                  )}
+                >
+                  {step.title}
+                </p>
+                <p className="mt-1 font-mono text-[9px] leading-snug text-dim sm:text-[10px]">
+                  {step.short}
+                </p>
+              </li>
+            );
+          })}
+        </ol>
+        <p className="mt-3 hidden font-mono text-[10px] text-muted sm:block">
+          {PIPELINE[stepActive]?.body}
+        </p>
+      </section>
+
+      {/* === STATUS CARD === */}
+      <section
+        className={cn(
+          "mb-5 rounded-md border p-4 sm:p-5",
+          signup ? "border-green/35 bg-green/5" : "border-red/40 bg-red/5",
+        )}
+      >
+        {signup ? (
+          <>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-green">
+                  You're in the herd
+                </p>
+                <p className="mt-1 font-display text-xl uppercase text-fg sm:text-2xl">
+                  {signup.name || "Creator"}
+                </p>
+                <p className="mt-1 font-mono text-xs text-muted">
+                  Status:{" "}
+                  <span
+                    className={cn(
+                      "font-bold uppercase",
+                      signup.status === "approved" && "text-green",
+                      signup.status === "pending" && "text-gold",
+                      signup.status === "rejected" && "text-red",
+                    )}
+                  >
+                    {statusLabel(signup.status)}
+                  </span>
+                  {signup.total_earned > 0 ? (
+                    <span className="text-muted">
+                      {" "}
+                      · earned ${signup.total_earned.toFixed(0)}
+                    </span>
+                  ) : null}
+                </p>
+              </div>
+              <span className="rounded-sm border border-white/15 bg-bg px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest text-muted">
+                Saved on this device
+              </span>
+            </div>
+            <p className="mt-3 font-mono text-xs leading-relaxed text-fg/85">
+              {signup.status === "approved"
+                ? "You are featured. Keep dropping content and climbing toward the $50 USDC payout."
+                : signup.status === "rejected"
+                  ? "Needs a rework - drop a stronger clip in TG and we will re-review."
+                  : "Next: open the Telegram content chat and drop your first clip. We will move you to Featured when content lands."}
+            </p>
+            {signup.wallet ? (
+              <p className="mt-2 break-all font-mono text-[10px] text-dim">
+                Wallet: {signup.wallet}
+              </p>
+            ) : (
+              <p className="mt-2 font-mono text-[10px] text-gold">
+                Add a MetaMask / 0x wallet on sign up so payouts can route to you.
+              </p>
+            )}
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <a
+                href={TG_CONTENT_UPLOAD}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-[#2AABEE] px-5 py-3 font-mono text-[11px] font-bold uppercase tracking-wider text-white no-underline shadow-[0_0_18px_rgba(42,171,238,0.35)] hover:brightness-110"
+              >
+                <Send size={14} />
+                Open TG content chat
+                <ExternalLink size={12} className="opacity-80" />
+              </a>
+              <Link
+                to="/signup"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-white/20 px-5 py-3 font-mono text-[11px] font-bold uppercase tracking-wider text-fg no-underline hover:border-white/40"
+              >
+                Update profile
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-red">
+              Step 1 · not signed up yet
+            </p>
+            <h2 className="mt-1 font-display text-xl uppercase text-fg sm:text-2xl">
+              Sign up free · 30 seconds
+            </h2>
+            <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
+              Join the herd, then drop content in Telegram. Status starts as{" "}
+              <span className="text-gold">pending</span>. Holding is optional.
+            </p>
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <Link
+                to="/signup"
+                id="creator-signup"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-red px-5 py-3 font-mono text-[11px] font-bold uppercase tracking-wider text-white no-underline shadow-[0_0_16px_rgba(255,0,51,0.35)] hover:bg-red-hot"
+              >
+                <UserPlus size={14} />
+                Sign up free
+              </Link>
+              <a
+                href={TG_CONTENT_UPLOAD}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-[#2AABEE]/50 bg-[#2AABEE]/10 px-5 py-3 font-mono text-[11px] font-bold uppercase tracking-wider text-[#2AABEE] no-underline hover:bg-[#2AABEE]/20"
+              >
+                <Send size={14} />
+                Already posting? Open TG
+              </a>
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* === PAYOUT RULES - always open === */}
+      <section className="mb-5 rounded-md border border-green/30 bg-green/5 p-4 sm:p-5">
+        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-green">
+          How you get paid
+        </p>
+        <ul className="mt-3 space-y-2 font-mono text-xs leading-relaxed text-fg/85">
+          <li className="flex gap-2">
+            <span className="shrink-0 text-green">▸</span>
+            Free to create · holding optional
+          </li>
+          <li className="flex gap-2">
+            <span className="shrink-0 text-green">▸</span>
+            Drop content in the private TG chat (step 2)
+          </li>
+          <li className="flex gap-2">
+            <span className="shrink-0 text-green">▸</span>
+            We feature winners on official socials + Wall of Fame
+          </li>
+          <li className="flex gap-2">
+            <span className="shrink-0 text-green">▸</span>
+            Verified views → climb the board
+          </li>
+          <li className="flex gap-2">
+            <span className="shrink-0 text-green">▸</span>
+            <span>
+              <strong className="text-green">$50 USDC threshold</strong> → payout
+              (MetaMask / any 0x wallet)
+            </span>
+          </li>
+          <li className="flex gap-2">
+            <span className="shrink-0 text-green">▸</span>
+            Weekly top creators also share the prize pot
+          </li>
+        </ul>
+        <button
+          type="button"
+          onClick={() => setWhyOpen((v) => !v)}
+          className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-muted hover:text-fg"
+          aria-expanded={whyOpen}
+        >
+          <ChevronDown
+            size={14}
+            className={cn("transition-transform", whyOpen && "rotate-180")}
+          />
+          {whyOpen ? "Hide details" : "Why creators join"}
+        </button>
+        {whyOpen ? (
+          <ul className="mt-3 space-y-2 border-t border-green/20 pt-3">
+            {SELLING_POINTS.map((point) => (
+              <li
+                key={point}
+                className="flex gap-2 font-mono text-[11px] leading-relaxed text-fg/75"
+              >
+                <span className="mt-0.5 shrink-0 text-green">▸</span>
+                <span>{point}</span>
+              </li>
+            ))}
+            <li className="pt-1 font-mono text-[10px] text-dim">
+              Full detail:{" "}
+              <a
+                href="/astrobull-whitepaper.pdf"
+                download
+                className="text-green underline-offset-2 hover:underline"
+              >
+                whitepaper PDF
+              </a>
+            </li>
+          </ul>
+        ) : null}
+      </section>
+
+      {/* === PRIMARY CTA - TG === */}
+      <div className="mb-6">
+        <TgContentDrop variant="banner" />
+      </div>
+
+      {/* Brand note */}
+      <div className="mb-8 overflow-hidden rounded-md border border-green/40 bg-black shadow-[0_0_40px_rgba(0,255,102,0.12)]">
         <img
           src="/astrobull-note.jpg"
-          alt="The United States of AstroBull — One Hundred AstroBULLS · Robinhood Chain community token"
+          alt="The United States of AstroBull - One Hundred AstroBULLS - Robinhood Chain community token"
           className="block h-auto w-full"
           loading="eager"
         />
@@ -471,133 +765,18 @@ export default function CreatorStudio() {
         </div>
       </div>
 
-      {/* Fast path: Telegram content-only drop — no site upload mess */}
-      <div className="mb-6">
-        <TgContentDrop variant="banner" />
-      </div>
-
-      {/* Quick pay explainer — no whitepaper required */}
-      <div className="mb-8 overflow-hidden rounded-md border border-red/35 bg-red/5">
-        <button
-          type="button"
-          onClick={() => setPayInfoOpen((v) => !v)}
-          className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left"
-          aria-expanded={payInfoOpen}
-        >
-          <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-red">
-              Click here · How creators get paid
-            </p>
-            <p className="mt-0.5 font-mono text-[11px] text-muted">
-              60-second summary — no whitepaper needed
-            </p>
-          </div>
-          <ChevronDown
-            size={18}
-            className={cn(
-              "shrink-0 text-red transition-transform",
-              payInfoOpen && "rotate-180",
-            )}
-          />
-        </button>
-
-        {payInfoOpen ? (
-          <div className="border-t border-red/25 px-4 pb-5 pt-3">
-            <p className="mb-3 font-display text-lg uppercase leading-snug text-fg">
-              Create free. Get featured. Get paid.
-            </p>
-            <p className="mb-4 font-mono text-xs leading-relaxed text-fg/85">
-              You make Astro Bull content. We put the best on official channels so
-              your views get <span className="text-green">amplified by the whole herd</span> —
-              not just your own following. When performance is verified and revenue is real,
-              you get paid in stable value.{" "}
-              <span className="text-green">Holding the token is optional.</span>
-            </p>
-
-            <ol className="space-y-3">
-              {PAY_STEPS.map((s) => (
-                <li key={s.n} className="flex gap-3">
-                  <span className="font-mono text-xs font-bold text-red">{s.n}</span>
-                  <div>
-                    <p className="font-display text-base uppercase text-fg">
-                      {s.title}
-                    </p>
-                    <p className="mt-0.5 font-mono text-[11px] leading-relaxed text-muted">
-                      {s.body}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-
-            <div className="mt-5 border border-green/30 bg-green/5 px-3 py-3">
-              <p className="mb-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-green">
-                Why creators join
-              </p>
-              <ul className="space-y-2">
-                {SELLING_POINTS.map((point) => (
-                  <li
-                    key={point}
-                    className="flex gap-2 font-mono text-[11px] leading-relaxed text-fg/80"
-                  >
-                    <span className="mt-0.5 shrink-0 text-green">▸</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-4 space-y-2 rounded-sm border border-white/10 bg-bg/60 px-3 py-3 font-mono text-[11px] leading-relaxed text-muted">
-              <p>
-                <span className="text-fg">Paid in:</span> USDC / USDT (+ Robinhood-chain
-                assets when the pool is live)
-              </p>
-              <p>
-                <span className="text-fg">Threshold:</span>{" "}
-                <span className="text-green">$50 minimum</span> balance before a payout is
-                released — keeps the pool clean and creators serious
-              </p>
-              <p>
-                <span className="text-fg">Wallet:</span> Connect MetaMask (or create one) so
-                payouts can route to you automatically
-              </p>
-              <p>
-                <span className="text-fg">Proof:</span> Verified views & engagement only —
-                not empty claims. No pay for 10 views. Real platform economics.
-              </p>
-              <p>
-                <span className="text-fg">Pool funded by:</span> ads, sponsorships, merch,
-                and recycled platform / trading revenue — buybacks support the ecosystem over
-                time
-              </p>
-            </div>
-
-            <p className="mt-3 font-mono text-[10px] uppercase tracking-wide text-dim">
-              Full detail lives in the whitepaper if you want the deep dive.{" "}
-              <a
-                href="/astrobull-whitepaper.pdf"
-                download
-                className="text-green underline-offset-2 hover:underline"
-              >
-                Download PDF
-              </a>
-            </p>
-          </div>
-        ) : null}
-      </div>
-
-      {/* Path choice — sign up lives lower, after create */}
+      {/* Optional create tools - pipeline CTAs live above */}
       <section className="mb-4 rounded-md border border-line bg-surface p-5 md:p-6">
-        <span className="mb-3 inline-block rounded-sm bg-red px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest text-white">
-          Start here
+        <span className="mb-3 inline-block rounded-sm border border-white/15 bg-bg px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest text-muted">
+          Optional tools
         </span>
         <h2 className="font-display text-2xl uppercase text-fg md:text-[1.65rem]">
-          How do you want to create?
+          Need help creating?
         </h2>
         <p className="mt-2 font-body text-sm text-muted">
-          Use AI or external prompts here.{" "}
-          <strong className="text-green">Finished files go to Telegram only</strong> —
-          no website upload.
+          Finished files still go to{" "}
+          <strong className="text-[#2AABEE]">Telegram only</strong>. AI and
+          prompts are optional - original uploads welcome.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <button
@@ -1201,34 +1380,10 @@ export default function CreatorStudio() {
         </section>
       ) : null}
 
-      {/* Sign up near bottom of studio — after create paths */}
-      <section
-        id="creator-signup"
-        className="mt-8 mb-6 scroll-mt-24 rounded-md border-2 border-red/50 bg-red/10 p-5 md:p-6"
-      >
-        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-red">
-          New creators
-        </p>
-        <h2 className="mt-1 font-display text-xl uppercase text-fg sm:text-2xl">
-          Sign up here
-        </h2>
-        <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
-          Name, email, Robinhood Chain wallet, and your social handles. Status starts as{" "}
-          <span className="text-green">pending</span>. Holding is optional.{" "}
-          <span className="text-green">$50 payout threshold</span> when the pool is live.
-        </p>
-        <Link
-          to="/signup"
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-red px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-white no-underline shadow-[0_0_16px_rgba(255,0,51,0.35)] sm:w-auto"
-        >
-          <UserPlus size={14} />
-          Go to sign up →
-        </Link>
-      </section>
 
       <p className="mt-10 text-center font-mono text-[11px] text-muted">
-        Create free · Get featured · Get paid · Holding is optional · We are all
-        Astro
+        1 Sign up · 2 Drop in TG · 3 Get featured · 4 Get paid · Holding optional
+        · We are all Astro
       </p>
     </div>
   );
