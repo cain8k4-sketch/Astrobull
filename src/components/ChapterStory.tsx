@@ -33,7 +33,8 @@ export default function ChapterStory() {
 
   return (
     <section id="story" className="bg-bg">
-      <div className="relative h-[42vw] min-h-[220px] max-h-[480px] w-full overflow-hidden">
+      {/* Story film — no second "Chapter 1" stamp on top of hero branding */}
+      <div className="relative h-[38vw] min-h-[200px] max-h-[420px] w-full overflow-hidden">
         <video
           src="/chapter1-story.mp4"
           autoPlay
@@ -42,34 +43,28 @@ export default function ChapterStory() {
           playsInline
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-bg/30 via-transparent to-bg" />
-        <div className="absolute bottom-0 left-0 p-5 md:p-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-bg/40 via-transparent to-bg" />
+        <div className="absolute bottom-0 left-0 right-0 p-5 md:p-10">
           <span className="flex items-center gap-3 font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-green sm:text-xs">
             <span className="h-2 w-2 rotate-45 bg-green shadow-[0_0_10px_#00ff66]" />
-            The story of AstroBull
+            Origin
           </span>
+          <p className="mt-2 max-w-lg font-display text-2xl uppercase leading-none text-fg sm:text-3xl md:text-4xl">
+            How the bull broke free
+          </p>
         </div>
       </div>
 
-      <div ref={ref} className="reveal px-4 py-14 sm:px-8 md:px-14 md:py-20">
+      <div ref={ref} className="reveal px-4 py-12 sm:px-8 md:px-14 md:py-16">
         <div className="mx-auto max-w-3xl">
-          <h2 className="font-display uppercase leading-none text-fg" style={{ fontSize: "clamp(3rem, 12vw, 6rem)" }}>
-            Chapter
-            <br />
-            <span className="animate-flicker">01</span>
-          </h2>
-
-          <p className="mt-6 max-w-2xl border-l-2 border-red/40 pl-5 font-mono text-[11px] uppercase leading-relaxed tracking-wide text-muted sm:text-xs">
-            Breaking the chains — rising from nearly becoming a beef patty at the slaughterhouse
-            to a rising star on a mission to the{" "}
+          {/* Continue story — not another giant Chapter 01 title */}
+          <p className="max-w-2xl font-mono text-[11px] uppercase leading-relaxed tracking-wide text-muted sm:text-xs">
+            Rising from nearly becoming a beef patty at the slaughterhouse to a
+            rising star on a mission to the{" "}
             <span className="font-bold text-red">Moooon</span>
           </p>
 
-          <p className="mt-10 font-display text-2xl uppercase tracking-wide text-fg sm:text-3xl">
-            Breaking the chains.
-          </p>
-
-          <div className="mt-6 max-w-xl space-y-5 border-l-2 border-red/30 pl-5 font-mono text-sm leading-relaxed text-muted">
+          <div className="mt-8 max-w-xl space-y-5 border-l-2 border-red/30 pl-5 font-mono text-sm leading-relaxed text-muted">
             <p>
               One breath from the slaughterhouse floor — inches from getting ground into a 99¢
               McDonald's beef patty —{" "}
@@ -126,20 +121,27 @@ export default function ChapterStory() {
             </Link>
           </div>
 
-          <div className="mt-12 space-y-5">
-            {BEATS.map((b) => (
-              <div key={b.num} className={`border-l-2 pl-4 ${b.accent.split(" ")[1]}`}>
-                <div className="mb-1 flex items-center gap-3">
-                  <span className={`font-mono text-xs font-bold tracking-widest ${b.accent.split(" ")[0]}`}>
-                    {b.num}
-                  </span>
-                  <span className="font-display text-base uppercase tracking-wide text-fg">
-                    {b.title}
-                  </span>
+          <div className="mt-12">
+            <p className="mb-5 font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-dim">
+              Four beats
+            </p>
+            <div className="space-y-5">
+              {BEATS.map((b) => (
+                <div key={b.num} className={`border-l-2 pl-4 ${b.accent.split(" ")[1]}`}>
+                  <div className="mb-1 flex items-center gap-3">
+                    <span
+                      className={`font-mono text-xs font-bold tracking-widest ${b.accent.split(" ")[0]}`}
+                    >
+                      {b.num}
+                    </span>
+                    <span className="font-display text-base uppercase tracking-wide text-fg">
+                      {b.title}
+                    </span>
+                  </div>
+                  <p className="font-mono text-xs leading-relaxed text-muted">{b.desc}</p>
                 </div>
-                <p className="font-mono text-xs leading-relaxed text-muted">{b.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

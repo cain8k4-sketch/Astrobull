@@ -81,7 +81,7 @@ export default function Hero() {
         </p>
       </div>
 
-      {/* Hero video — controls under the frame */}
+      {/* Hero video — chapter lives ON the film; bar is controls only */}
       <div className="w-full bg-black px-2 py-3 sm:px-4 sm:py-4">
         <div className="mx-auto w-full max-w-4xl">
           <div className="overflow-hidden border border-white/10 bg-black">
@@ -98,31 +98,26 @@ export default function Hero() {
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 border border-t-0 border-white/10 bg-surface/90 px-2.5 py-2 sm:px-3">
-            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted sm:text-[10px]">
-              Chapter 1 · Breaking the Chains
-            </p>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <button
-                type="button"
-                onClick={toggleSound}
-                className="inline-flex min-h-9 items-center gap-1.5 border border-white/15 bg-bg px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-fg hover:border-green hover:text-green sm:text-[10px]"
-                aria-pressed={soundOn}
-                aria-label={soundOn ? "Mute video" : "Turn sound on"}
-              >
-                {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
-                {soundOn ? "Sound on" : "Sound off"}
-              </button>
-              <a
-                href={YOUTUBE_FEATURED}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-9 items-center gap-1.5 border border-red/40 bg-red/90 px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white no-underline hover:bg-red-hot sm:text-[10px]"
-              >
-                <Youtube size={13} />
-                YouTube
-              </a>
-            </div>
+          <div className="flex flex-wrap items-center justify-end gap-1.5 border border-t-0 border-white/10 bg-surface/90 px-2.5 py-2 sm:px-3">
+            <button
+              type="button"
+              onClick={toggleSound}
+              className="inline-flex min-h-9 items-center gap-1.5 border border-white/15 bg-bg px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-fg hover:border-green hover:text-green sm:text-[10px]"
+              aria-pressed={soundOn}
+              aria-label={soundOn ? "Mute video" : "Turn sound on"}
+            >
+              {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
+              {soundOn ? "Sound on" : "Sound off"}
+            </button>
+            <a
+              href={YOUTUBE_FEATURED}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-9 items-center gap-1.5 border border-red/40 bg-red/90 px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white no-underline hover:bg-red-hot sm:text-[10px]"
+            >
+              <Youtube size={13} />
+              YouTube
+            </a>
           </div>
         </div>
       </div>
@@ -202,22 +197,24 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Title / chapter — under Share */}
-      <div className="border-t border-white/10 bg-black px-5 pt-12 pb-10 sm:px-10 sm:pt-14 md:px-16 md:pb-12">
+      {/* Single brand mark — chapter said once, not restacked */}
+      <div className="border-t border-white/10 bg-black px-5 pt-10 pb-8 sm:px-10 sm:pt-12 md:px-16 md:pb-10">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-5 flex items-center gap-3">
+          <div className="mb-4 flex items-center gap-3">
             <div className="h-2.5 w-2.5 rotate-45 bg-green shadow-[0_0_12px_#00ff66]" />
             <span className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-green sm:text-xs">
               Slaughterhouse Productions · Robinhood Chain
             </span>
           </div>
 
-          <h1 className="sr-only">AstroBull — Chapter 1 Breaking the Chains</h1>
+          <h1 className="sr-only">
+            AstroBull — Chapter 1 Breaking the Chains
+          </h1>
           <div aria-hidden className="select-none">
             <p
               className="font-display uppercase leading-[0.88] text-white"
               style={{
-                fontSize: "clamp(3.5rem, 15vw, 6.5rem)",
+                fontSize: "clamp(3.25rem, 14vw, 6rem)",
                 letterSpacing: "0.04em",
               }}
             >
@@ -226,7 +223,7 @@ export default function Hero() {
             <p
               className="animate-flicker font-display uppercase leading-[0.88]"
               style={{
-                fontSize: "clamp(3.5rem, 15vw, 6.5rem)",
+                fontSize: "clamp(3.25rem, 14vw, 6rem)",
                 letterSpacing: "0.04em",
               }}
             >
@@ -234,17 +231,11 @@ export default function Hero() {
             </p>
           </div>
 
-          <div className="mt-7 flex items-start gap-4">
-            <div className="mt-1 h-12 w-1 shrink-0 bg-red" />
-            <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-[0.35em] text-red sm:text-sm">
-                Chapter 1
-              </p>
-              <p className="mt-2 font-mono text-base uppercase tracking-[0.18em] text-white/75 sm:text-lg">
-                Breaking the Chains
-              </p>
-            </div>
-          </div>
+          <p className="mt-6 border-l-2 border-red pl-4 font-mono text-xs uppercase tracking-[0.22em] text-white/70 sm:text-sm">
+            <span className="font-bold text-red">Ch. 1</span>
+            <span className="mx-2 text-white/25">·</span>
+            Breaking the Chains
+          </p>
         </div>
       </div>
 
