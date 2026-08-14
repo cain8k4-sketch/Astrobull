@@ -1,10 +1,10 @@
 /**
- * Wall of Fame — featured creators who posted Astro Bull content
- * on socials. Edit this list anytime, then redeploy.
+ * Creators showcase / Wall of Fame data.
+ * Edit this list anytime, then redeploy.
  *
- * workUrl  = direct link to their video / post
- * handle   = @username (with or without @)
- * platform = where the work lives
+ * workUrl     = direct link to their video / post
+ * handle      = @username (shown large on the card)
+ * thumbnailUrl = optional 16:9 image; YouTube workUrls auto-derive a thumb
  */
 
 export type FamePlatform =
@@ -19,14 +19,19 @@ export type FameCreator = {
   id: string;
   /** Display name */
   name: string;
+  /** Primary handle — shown full size on the card */
   handle: string;
   platform: FamePlatform;
   /** Link to their content (video / post) */
   workUrl: string;
   /** Optional profile URL (defaults derived for major platforms) */
   profileUrl?: string;
-  /** Short note e.g. "1.8k views" or "Featured reel" */
+  /** 16:9 thumbnail of their work — YouTube auto-fills from workUrl if omitted */
+  thumbnailUrl?: string;
+  /** Short note e.g. "1.8k views" or video title */
   blurb?: string;
+  /** Optional content title under the thumbnail */
+  title?: string;
   /** Highlight on the wall */
   featured?: boolean;
 };
@@ -40,7 +45,8 @@ export const WALL_OF_FAME: FameCreator[] = [
     platform: "youtube",
     workUrl: "https://youtu.be/v-s0HZgFKu8",
     profileUrl: "https://www.youtube.com/@ASTROBULL.ROBINHOOD",
-    blurb: "Featured channel cut",
+    title: "Chapter 1 — Breaking the Chains",
+    blurb: "Official channel cut",
     featured: true,
   },
   {
@@ -50,7 +56,9 @@ export const WALL_OF_FAME: FameCreator[] = [
     platform: "tiktok",
     workUrl: "https://vm.tiktok.com/ZN8d2Uqjb/",
     profileUrl: "https://www.tiktok.com/@astrobull.robinho",
-    blurb: "1.8k+ views · herd energy",
+    title: "Herd energy drop",
+    blurb: "1.8k+ views",
+    thumbnailUrl: "/astrobull-note.jpg",
     featured: true,
   },
 ];
@@ -90,4 +98,39 @@ export function profileFromHandle(c: FameCreator): string | undefined {
     default:
       return undefined;
   }
+}
+
+/** Extract YouTube video id from common URL shapes */
+export function youtubeIdFromUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtu.be")) {
+      const id = u.pathname.replace(/^\//, "").split("/")[0];
+      return id || null;
+    }
+    if (u.hostname.includes("youtube.com")) {
+      const v = u.searchParams.get("v");
+      if (v) return v;
+      const parts = u.pathname.split("/").filter(Boolean);
+      const embed = parts.indexOf("embed");
+      if (embed >= 0 && parts[embed + 1]) return parts[embed + 1]!;
+      const shorts = parts.indexOf("shorts");
+      if (shorts >= 0 && parts[shorts + 1]) return parts[shorts + 1]!;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+/** Best available thumbnail for a creator card */
+export function thumbnailFor(c: FameCreator): string | null {
+  if (c.thumbnailUrl) return c.thumbnailUrl;
+  const yt = youtubeIdFromUrl(c.workUrl);
+  if (yt) return `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`;
+  return null;
+}
+
+export function displayHandle(c: FameCreator): string {
+  return c.handle.startsWith("@") ? c.handle : `@${c.handle}`;
 }
