@@ -1,50 +1,23 @@
 import { useEffect, useState } from "react";
-import { Check, Copy, ExternalLink, Unplug, Wallet } from "lucide-react";
+import { Check, Copy, Unplug, Wallet } from "lucide-react";
 import {
-  METAMASK_DOWNLOAD,
-  connectWallet,
-  hasInjectedWallet,
   isValidEthAddress,
   loadWallet,
   saveWallet,
   shortAddr,
 } from "@/lib/wallet";
-import { cn } from "@/lib/utils";
+import { ConnectWalletButtons } from "@/components/ConnectWalletButtons";
 
 export default function WalletConnect() {
   const [address, setAddress] = useState("");
   const [manual, setManual] = useState("");
-  const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [hasInjected, setHasInjected] = useState(false);
 
   useEffect(() => {
     setAddress(loadWallet());
-    setHasInjected(hasInjectedWallet());
   }, []);
-
-  async function onConnect() {
-    setErr(null);
-    setMsg(null);
-    setBusy(true);
-    try {
-      const addr = await connectWallet();
-      setAddress(addr);
-      setMsg("Wallet connected. Payouts can route here when the pool is live.");
-      setHasInjected(true);
-    } catch (e) {
-      const m = e instanceof Error ? e.message : "Connect failed";
-      if (m === "NO_WALLET") {
-        setErr("No wallet found in this browser. Install MetaMask below.");
-      } else {
-        setErr(m);
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
 
   function onSaveManual() {
     setErr(null);
@@ -131,40 +104,17 @@ export default function WalletConnect() {
         </div>
       ) : (
         <div className="mt-4 space-y-3">
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void onConnect()}
-              className={cn(
-                "inline-flex flex-1 items-center justify-center gap-2 rounded-sm bg-red px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_0_16px_rgba(255,0,51,0.3)] disabled:opacity-55",
-              )}
-            >
-              <Wallet size={14} />
-              {busy ? "Connecting…" : "Connect wallet"}
-            </button>
-            <a
-              href={METAMASK_DOWNLOAD}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-sm border border-green/50 px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-green no-underline hover:bg-green/10"
-            >
-              <ExternalLink size={14} />
-              {hasInjected ? "Get MetaMask" : "Create wallet (MetaMask)"}
-            </a>
-          </div>
-
-          {!hasInjected ? (
-            <p className="font-mono text-[11px] leading-relaxed text-muted">
-              No wallet detected. Tap{" "}
-              <strong className="text-green">Create wallet (MetaMask)</strong> —
-              free, takes about a minute. Come back here and hit Connect. Then buy on Uniswap.
-            </p>
-          ) : (
-            <p className="font-mono text-[11px] text-muted">
-              Wallet extension detected. Connect to save your payout address.
-            </p>
-          )}
+          <ConnectWalletButtons
+            tone="red"
+            connectLabel="Connect wallet"
+            fullWidth
+            showMobileHelpers
+            onConnected={(addr) => {
+              setAddress(addr);
+              setErr(null);
+              setMsg("Wallet connected. Payouts can route here when the pool is live.");
+            }}
+          />
 
           <div className="border-t border-white/10 pt-3">
             <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted">

@@ -11,6 +11,7 @@ import {
 } from "@/lib/signup";
 import { shortAddr } from "@/lib/wallet";
 import { cn } from "@/lib/utils";
+import { InlineStatusText, idleStatus, type InlineStatus } from "@/components/InlineStatus";
 
 const ADMIN_PASS_KEY = "astrobull.admin.ok";
 /** Set VITE_ADMIN_PASSWORD in Vercel — do not leave the default in production */
@@ -37,13 +38,15 @@ function AdminPage() {
   const [source, setSource] = useState<"live" | "local">("local");
   const [cloudMsg, setCloudMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [actionMsg, setActionMsg] = useState<string | null>(null);
+  const [actionMsg, setActionMsg] = useState<InlineStatus>(idleStatus);
+  const [rowStatus, setRowStatus] = useState<Record<string, InlineStatus>>({});
+  const [rowBusy, setRowBusy] = useState<string | null>(null);
   const cloudOn = isSupabaseConfigured();
   const notify = getNotifyConfigStatus();
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    setActionMsg(null);
+    setActionMsg(idleStatus);
     try {
       const res = await fetchCreatorsFromSupabase();
       setList(res.rows);
@@ -97,15 +100,28 @@ function AdminPage() {
   }
 
   async function setStatus(id: string, status: CreatorStatus) {
-    setActionMsg(null);
+    const pending: InlineStatus = { kind: "pending", text: `Saving ${status}…` };
+    setActionMsg(pending);
+    setRowStatus((prev) => ({ ...prev, [id]: pending }));
+    setRowBusy(`${id}:${status}`);
     const res = await updateSignupStatusCloud(id, status);
     setList(res.rows);
+    setRowBusy(null);
     if (res.cloudOk) {
-      setActionMsg(`Saved ${status} to cloud.`);
+      const ok: InlineStatus = { kind: "ok", text: `Saved ${status} to cloud.` };
+      setActionMsg(ok);
+      setRowStatus((prev) => ({ ...prev, [id]: ok }));
       setSource("live");
-    } else if (res.message) {
-      setActionMsg(res.message);
+      return;
     }
+    const next: InlineStatus = res.message
+      ? {
+          kind: /fail|error/i.test(res.message) ? "err" : "info",
+          text: res.message,
+        }
+      : { kind: "err", text: `Could not save ${status}.` };
+    setActionMsg(next);
+    setRowStatus((prev) => ({ ...prev, [id]: next }));
   }
 
   if (!authed) {
@@ -195,9 +211,7 @@ function AdminPage() {
           {cloudMsg}
         </p>
       ) : null}
-      {actionMsg ? (
-        <p className="mt-2 font-mono text-[11px] text-green">{actionMsg}</p>
-      ) : null}
+      <InlineStatusText status={actionMsg} className="mt-2" />
 
       <div className="mt-6 flex flex-wrap gap-2">
         {(["pending", "approved", "rejected", "all"] as const).map((f) => (
@@ -266,26 +280,32 @@ function AdminPage() {
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
+                  disabled={!!rowBusy}
                   onClick={() => void setStatus(c.id, "approved")}
-                  className="inline-flex items-center gap-1 border border-green/40 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-green hover:bg-green/10"
+                  className="inline-flex items-center gap-1 border border-green/40 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-green hover:bg-green/10 disabled:opacity-40"
                 >
-                  <Check size={12} /> Approve
+                  <Check size={12} />
+                  {rowBusy === `${c.id}:approved` ? "Saving…" : "Approve"}
                 </button>
                 <button
                   type="button"
+                  disabled={!!rowBusy}
                   onClick={() => void setStatus(c.id, "rejected")}
-                  className="inline-flex items-center gap-1 border border-red/40 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-red hover:bg-red/10"
+                  className="inline-flex items-center gap-1 border border-red/40 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-red hover:bg-red/10 disabled:opacity-40"
                 >
-                  <X size={12} /> Reject
+                  <X size={12} />
+                  {rowBusy === `${c.id}:rejected` ? "Saving…" : "Reject"}
                 </button>
                 <button
                   type="button"
+                  disabled={!!rowBusy}
                   onClick={() => void setStatus(c.id, "pending")}
-                  className="border border-white/15 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-muted"
+                  className="border border-white/15 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-muted disabled:opacity-40"
                 >
-                  Reset pending
+                  {rowBusy === `${c.id}:pending` ? "Saving…" : "Reset pending"}
                 </button>
               </div>
+              <InlineStatusText status={rowStatus[c.id]} className="mt-2" />
             </article>
           ))
         )}

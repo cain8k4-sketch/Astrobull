@@ -32,6 +32,12 @@
   --font-sans: "Space Mono", ui-monospace, monospace;
 }
 
+/* RainbowKit modal — keep system fonts so Bangers/Space Mono do not leak */
+[data-rk] {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+}
+
 @layer base {
   * {
     box-sizing: border-box;

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CreatorsRouteImport } from './routes/creators'
 import { Route as ShillRouteImport } from './routes/shill'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StudioRouteImport } from './routes/studio'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreatorsRoute = CreatorsRouteImport.update({
+  id: '/creators',
+  path: '/creators',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShillRoute = ShillRouteImport.update({
@@ -44,6 +50,7 @@ const StudioRoute = StudioRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/creators': typeof CreatorsRoute
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/creators': typeof CreatorsRoute
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
@@ -59,21 +67,24 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/creators': typeof CreatorsRoute
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/shill' | '/signup' | '/studio'
+  fullPaths: '/' | '/admin' | '/creators' | '/shill' | '/signup' | '/studio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/shill' | '/signup' | '/studio'
-  id: '__root__' | '/' | '/admin' | '/shill' | '/signup' | '/studio'
+  to: '/' | '/admin' | '/creators' | '/shill' | '/signup' | '/studio'
+  id:
+    '__root__' | '/' | '/admin' | '/creators' | '/shill' | '/signup' | '/studio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  CreatorsRoute: typeof CreatorsRoute
   ShillRoute: typeof ShillRoute
   SignupRoute: typeof SignupRoute
   StudioRoute: typeof StudioRoute
@@ -93,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creators': {
+      id: '/creators'
+      path: '/creators'
+      fullPath: '/creators'
+      preLoaderRoute: typeof CreatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shill': {
@@ -122,6 +140,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  CreatorsRoute: CreatorsRoute,
   ShillRoute: ShillRoute,
   SignupRoute: SignupRoute,
   StudioRoute: StudioRoute,

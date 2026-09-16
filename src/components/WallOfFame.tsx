@@ -119,16 +119,23 @@ function FameCard({ creator, index }: { creator: FameCreator; index: number }) {
   );
 }
 
-export default function WallOfFame() {
+export default function WallOfFame({ showHeader = true }: { showHeader?: boolean }) {
   const ref = useReveal<HTMLDivElement>();
   const list = WALL_OF_FAME;
 
   return (
     <section
       id="wall-of-fame"
-      className="border-t border-white/5 bg-black px-4 py-16 sm:px-8 md:px-14 md:py-24"
+      className={cn(
+        "bg-black",
+        showHeader
+          ? "border-t border-white/5 px-4 py-16 sm:px-8 md:px-14 md:py-24"
+          : "px-0 py-0",
+      )}
     >
       <div ref={ref} className="reveal mx-auto max-w-3xl">
+        {showHeader ? (
+          <>
         <div className="mb-3 flex items-center gap-3">
           <div className="h-2 w-2 rotate-45 bg-gold shadow-[0_0_10px_rgba(255,200,50,0.7)]" />
           <span className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-gold sm:text-xs">
@@ -159,6 +166,8 @@ export default function WallOfFame() {
             Join creators
           </Link>
         </div>
+          </>
+        ) : null}
 
         {list.length === 0 ? (
           <div className="mt-10 border border-dashed border-white/15 bg-surface px-5 py-10 text-center">
@@ -178,16 +187,18 @@ export default function WallOfFame() {
             </Link>
           </div>
         ) : (
-          <div className="mt-10 grid gap-3 sm:grid-cols-2">
+          <div className={cn("grid gap-3 sm:grid-cols-2", showHeader && "mt-10")}>
             {list.map((c, i) => (
               <FameCard key={c.id} creator={c} index={i} />
             ))}
           </div>
         )}
 
-        <p className="mt-8 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-dim">
-          Want on the wall? Sign up · post · tag us · drop files in TG
-        </p>
+        {showHeader ? (
+          <p className="mt-8 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-dim">
+            Want on the wall? Sign up · post · tag us · drop files in TG
+          </p>
+        ) : null}
       </div>
     </section>
   );

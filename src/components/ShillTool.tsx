@@ -43,14 +43,12 @@ import {
   xIntentUrl,
 } from "@/lib/shiller-engine";
 import {
-  METAMASK_DOWNLOAD,
-  connectWallet,
-  hasInjectedWallet,
   isValidEthAddress,
   loadWallet,
   saveWallet,
   shortAddr,
 } from "@/lib/wallet";
+import { ConnectWalletButtons } from "@/components/ConnectWalletButtons";
 import { cn } from "@/lib/utils";
 
 const PLATFORMS: ShillPlatform[] = [
@@ -74,10 +72,8 @@ export default function ShillTool() {
   const [copied, setCopied] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [wallet, setWallet] = useState("");
-  const [walletBusy, setWalletBusy] = useState(false);
   const [walletErr, setWalletErr] = useState<string | null>(null);
   const [manualWallet, setManualWallet] = useState("");
-  const [hasInjected, setHasInjected] = useState(false);
   const [xBlueTick, setXBlueTick] = useState(false);
   const [showPrizes, setShowPrizes] = useState(false);
   const [showBoard, setShowBoard] = useState(false);
@@ -86,7 +82,6 @@ export default function ShillTool() {
   useEffect(() => {
     setBoard(loadShillBoard());
     setWallet(loadWallet());
-    setHasInjected(hasInjectedWallet());
     setPack(
       buildShillPack({
         platform: "tiktok",
@@ -159,27 +154,6 @@ export default function ShillTool() {
     if (!pack) return;
     setPack(applyAltHook(pack, h));
     setCopied(false);
-  }
-
-  async function onConnectWallet() {
-    setWalletErr(null);
-    setWalletBusy(true);
-    try {
-      const addr = await connectWallet();
-      setWallet(addr);
-      setHasInjected(true);
-      if (handle.trim()) setBoard(attachWalletToShiller(handle, addr));
-      setStatus(`Wallet linked: ${shortAddr(addr)}`);
-    } catch (e) {
-      const m = e instanceof Error ? e.message : "Connect failed";
-      setWalletErr(
-        m === "NO_WALLET"
-          ? "No wallet in this browser. Install MetaMask for Robinhood Chain."
-          : m,
-      );
-    } finally {
-      setWalletBusy(false);
-    }
   }
 
   function onSaveManualWallet() {
@@ -656,26 +630,17 @@ export default function ShillTool() {
                   </button>
                 </div>
               ) : (
-                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                  <button
-                    type="button"
-                    disabled={walletBusy}
-                    onClick={onConnectWallet}
-                    className="rounded-sm bg-green px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-bg disabled:opacity-50"
-                  >
-                    {walletBusy ? "Connecting…" : "Connect MetaMask"}
-                  </button>
-                  {!hasInjected ? (
-                    <a
-                      href={METAMASK_DOWNLOAD}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-sm border border-white/20 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-fg no-underline"
-                    >
-                      Get MetaMask
-                    </a>
-                  ) : null}
-                </div>
+                <ConnectWalletButtons
+                  tone="green"
+                  connectLabel="Connect wallet"
+                  showMobileHelpers
+                  onConnected={(addr) => {
+                    setWallet(addr);
+                    setWalletErr(null);
+                    if (handle.trim()) setBoard(attachWalletToShiller(handle, addr));
+                    setStatus(`Wallet linked: ${shortAddr(addr)}`);
+                  }}
+                />
               )}
               <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                 <input
