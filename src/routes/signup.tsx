@@ -1,15 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Check, ExternalLink, UserPlus, Wallet } from "lucide-react";
+import { Check, UserPlus } from "lucide-react";
 import {
-  METAMASK_DOWNLOAD,
-  connectWallet,
-  hasInjectedWallet,
   isValidEthAddress,
   loadWallet,
   saveWallet,
   shortAddr,
 } from "@/lib/wallet";
+import { ConnectWalletButtons } from "@/components/ConnectWalletButtons";
 import {
   isValidEmail,
   loadLastSignup,
@@ -43,16 +41,13 @@ function SignupPage() {
   const [snap, setSnap] = useState("");
   const [x, setX] = useState("");
   const [ig, setIg] = useState("");
-  const [busy, setBusy] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
-  const [hasInjected, setHasInjected] = useState(false);
   const [already, setAlready] = useState<string | null>(null);
 
   useEffect(() => {
     setWallet(loadWallet());
-    setHasInjected(hasInjectedWallet());
     const last = loadLastSignup();
     if (last) {
       setAlready(last.name);
@@ -66,26 +61,6 @@ function SignupPage() {
       if (last.wallet) setWallet(last.wallet);
     }
   }, []);
-
-  async function onConnect() {
-    setErr(null);
-    setOk(null);
-    setBusy(true);
-    try {
-      const addr = await connectWallet();
-      setWallet(addr);
-      setHasInjected(true);
-    } catch (e) {
-      const m = e instanceof Error ? e.message : "Connect failed";
-      if (m === "NO_WALLET") {
-        setErr("No wallet found. Install MetaMask below, then come back.");
-      } else {
-        setErr(m);
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function onSubmit(ev: FormEvent) {
     ev.preventDefault();
@@ -267,31 +242,16 @@ function SignupPage() {
             Robinhood Chain 0x address for USDC / USDT payouts ($50 threshold). Last step
             before sign-up.
           </p>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void onConnect()}
-            className="flex w-full items-center justify-center gap-2 rounded-sm bg-red px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_0_16px_rgba(255,0,51,0.3)] disabled:opacity-55"
-          >
-            <Wallet size={14} />
-            {busy ? "Connecting…" : "Connect wallet"}
-          </button>
-          <a
-            href={METAMASK_DOWNLOAD}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex w-full items-center justify-center gap-2 rounded-sm border border-green/50 px-4 py-3.5 font-mono text-[11px] font-bold uppercase tracking-wider text-green no-underline hover:bg-green/10"
-          >
-            <ExternalLink size={14} />
-            Create wallet (MetaMask)
-          </a>
-          {!hasInjected ? (
-            <p className="font-mono text-[11px] leading-relaxed text-muted">
-              No wallet detected. Tap{" "}
-              <strong className="text-green">Create wallet (MetaMask)</strong> — free. Come
-              back and hit Connect, or paste below.
-            </p>
-          ) : null}
+          <ConnectWalletButtons
+            tone="red"
+            connectLabel="Connect wallet"
+            fullWidth
+            showMobileHelpers
+            onConnected={(addr) => {
+              setWallet(addr);
+              setErr(null);
+            }}
+          />
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted">
             Or paste an address
           </p>

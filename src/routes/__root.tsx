@@ -8,6 +8,7 @@ import {
 import SiteNav from "@/components/SiteNav";
 import ScrollDownButton from "@/components/ScrollDownButton";
 import ScrollToTop from "@/components/ScrollToTop";
+import { Web3Provider } from "@/components/Web3Provider";
 import appCss from "@/styles.css?url";
 
 export const Route = createRootRoute({
@@ -64,7 +65,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body className="bg-bg text-fg">
-        {children}
+        <Web3Provider>{children}</Web3Provider>
         <Scripts />
       </body>
     </html>

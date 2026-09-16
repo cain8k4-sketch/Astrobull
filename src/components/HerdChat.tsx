@@ -7,6 +7,7 @@ import {
   type ChatMessage,
 } from "@/lib/herd-chat";
 import { useReveal } from "@/hooks/use-reveal";
+import { InlineStatusText, idleStatus, type InlineStatus } from "@/components/InlineStatus";
 
 /** Frontend-only herd chat (local + multi-tab). Cloud later. */
 export default function HerdChat() {
@@ -16,6 +17,7 @@ export default function HerdChat() {
   const [handle, setHandle] = useState("");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [sendStatus, setSendStatus] = useState<InlineStatus>(idleStatus);
 
   useEffect(() => {
     setMessages(loadLocalChat());
@@ -36,7 +38,15 @@ export default function HerdChat() {
 
   async function onSend(e: React.FormEvent) {
     e.preventDefault();
-    if (!text.trim() || busy) return;
+    if (busy) {
+      setSendStatus({ kind: "err", text: "Already sending…" });
+      return;
+    }
+    if (!text.trim()) {
+      setSendStatus({ kind: "err", text: "Type a message first." });
+      return;
+    }
+    setSendStatus({ kind: "pending", text: "Sending…" });
     setBusy(true);
     const res = await postChat({
       handle: handle || "anon",
@@ -49,7 +59,13 @@ export default function HerdChat() {
         return [...prev, res.msg!].slice(-80);
       });
       setText("");
+      setSendStatus({ kind: "ok", text: "Sent." });
+      return;
     }
+    setSendStatus({
+      kind: "err",
+      text: res.error || "Could not send.",
+    });
   }
 
   return (
@@ -120,13 +136,16 @@ export default function HerdChat() {
             />
             <button
               type="submit"
-              disabled={busy || !text.trim()}
+              disabled={busy}
               className="inline-flex items-center justify-center gap-2 rounded-sm bg-green px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-bg disabled:opacity-40"
             >
               <Send size={12} />
-              Send
+              {busy ? "Sending…" : "Send"}
             </button>
           </form>
+          <div className="px-3 pb-3">
+            <InlineStatusText status={sendStatus} />
+          </div>
         </div>
       </div>
     </section>

@@ -142,7 +142,9 @@ export default function PlatformPush({
   const selected = controlled ?? internal;
   const setSelected = onSelectedChange ?? setInternal;
   const [pushed, setPushed] = useState(false);
+  const [sending, setSending] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [msgKind, setMsgKind] = useState<"ok" | "err">("ok");
 
   const text = useMemo(() => shareText(result, selected), [result, selected]);
 
@@ -151,9 +153,14 @@ export default function PlatformPush({
       (id) => !PLATFORMS.find((p) => p.id === id)?.comingSoon,
     );
     if (live.length === 0) {
+      setMsgKind("err");
       setMsg("Tick at least one live platform.");
       return;
     }
+
+    setSending(true);
+    setMsgKind("ok");
+    setMsg("Copying pack…");
 
     try {
       await navigator.clipboard.writeText(text);
@@ -183,6 +190,8 @@ export default function PlatformPush({
     }
 
     setPushed(true);
+    setSending(false);
+    setMsgKind("ok");
     setMsg(
       `Title + caption + hashtags copied. Opening ${live
         .map((id) => PLATFORMS.find((p) => p.id === id)?.label)
@@ -208,11 +217,12 @@ export default function PlatformPush({
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
+          disabled={sending}
           onClick={() => void onPush()}
-          className="inline-flex items-center gap-2 rounded-sm bg-red px-4 py-3 font-mono text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_0_16px_rgba(255,0,51,0.35)]"
+          className="inline-flex items-center gap-2 rounded-sm bg-red px-4 py-3 font-mono text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_0_16px_rgba(255,0,51,0.35)] disabled:opacity-50"
         >
           <Send size={14} />
-          {pushed ? "Pushed — open tabs" : "Push selected"}
+          {sending ? "Sending…" : pushed ? "Pushed — open tabs" : "Push selected"}
         </button>
         <a
           href="https://www.tiktok.com/@astrobull.robinho"
@@ -226,7 +236,14 @@ export default function PlatformPush({
       </div>
 
       {msg ? (
-        <p className="mt-3 font-mono text-xs leading-relaxed text-green">{msg}</p>
+        <p
+          className={cn(
+            "mt-3 font-mono text-xs leading-relaxed",
+            msgKind === "err" ? "text-red-hot" : "text-green",
+          )}
+        >
+          {msg}
+        </p>
       ) : null}
       <p className="mt-3 font-mono text-[10px] uppercase tracking-wide text-dim">
         Official focus: TikTok · YouTube · Snapchat · X optional

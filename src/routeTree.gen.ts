@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ShillRouteImport } from './routes/shill'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StudioRouteImport } from './routes/studio'
+import { Route as CreatorsRouteImport } from './routes/creators'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const StudioRoute = StudioRouteImport.update({
   path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreatorsRoute = CreatorsRouteImport.update({
+  id: '/creators',
+  path: '/creators',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
+  '/creators': typeof CreatorsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
+  '/creators': typeof CreatorsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,14 @@ export interface FileRoutesById {
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
+  '/creators': typeof CreatorsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/shill' | '/signup' | '/studio'
+  fullPaths: '/' | '/admin' | '/shill' | '/signup' | '/studio' | '/creators'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/shill' | '/signup' | '/studio'
-  id: '__root__' | '/' | '/admin' | '/shill' | '/signup' | '/studio'
+  to: '/' | '/admin' | '/shill' | '/signup' | '/studio' | '/creators'
+  id: '__root__' | '/' | '/admin' | '/shill' | '/signup' | '/studio' | '/creators'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +86,7 @@ export interface RootRouteChildren {
   ShillRoute: typeof ShillRoute
   SignupRoute: typeof SignupRoute
   StudioRoute: typeof StudioRoute
+  CreatorsRoute: typeof CreatorsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +126,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/creators': {
+      id: '/creators'
+      path: '/creators'
+      fullPath: '/creators'
+      preLoaderRoute: typeof CreatorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +142,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShillRoute: ShillRoute,
   SignupRoute: SignupRoute,
   StudioRoute: StudioRoute,
+  CreatorsRoute: CreatorsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

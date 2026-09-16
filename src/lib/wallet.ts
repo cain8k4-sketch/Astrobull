@@ -50,7 +50,7 @@ function getProvider(): EthProvider | null {
     ethereum?: EthProvider & { providers?: EthProvider[] };
   };
   if (w.ethereum?.providers?.length) {
-    const mm = w.ethereum.providers.find((x) => x.isMetaMask);
+    const mm = w.ethereum.providers.find((x: EthProvider) => x.isMetaMask);
     if (mm) return mm;
     return w.ethereum.providers[0] ?? null;
   }
@@ -60,6 +60,18 @@ function getProvider(): EthProvider | null {
 
 export function hasInjectedWallet() {
   return !!getProvider();
+}
+
+let connectModalOpener: (() => void) | null = null;
+
+export function registerConnectModal(fn: (() => void) | null) {
+  connectModalOpener = fn;
+}
+
+export function openWalletModal() {
+  if (!connectModalOpener) return false;
+  connectModalOpener();
+  return true;
 }
 
 export async function connectWallet(): Promise<string> {
