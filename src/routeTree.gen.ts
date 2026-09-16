@@ -11,10 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CreatorsRouteImport } from './routes/creators'
 import { Route as ShillRouteImport } from './routes/shill'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StudioRouteImport } from './routes/studio'
-import { Route as CreatorsRouteImport } from './routes/creators'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -24,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreatorsRoute = CreatorsRouteImport.update({
+  id: '/creators',
+  path: '/creators',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShillRoute = ShillRouteImport.update({
@@ -41,52 +46,48 @@ const StudioRoute = StudioRouteImport.update({
   path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CreatorsRoute = CreatorsRouteImport.update({
-  id: '/creators',
-  path: '/creators',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/creators': typeof CreatorsRoute
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
-  '/creators': typeof CreatorsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/creators': typeof CreatorsRoute
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
-  '/creators': typeof CreatorsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/creators': typeof CreatorsRoute
   '/shill': typeof ShillRoute
   '/signup': typeof SignupRoute
   '/studio': typeof StudioRoute
-  '/creators': typeof CreatorsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/shill' | '/signup' | '/studio' | '/creators'
+  fullPaths: '/' | '/admin' | '/creators' | '/shill' | '/signup' | '/studio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/shill' | '/signup' | '/studio' | '/creators'
-  id: '__root__' | '/' | '/admin' | '/shill' | '/signup' | '/studio' | '/creators'
+  to: '/' | '/admin' | '/creators' | '/shill' | '/signup' | '/studio'
+  id:
+    '__root__' | '/' | '/admin' | '/creators' | '/shill' | '/signup' | '/studio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  CreatorsRoute: typeof CreatorsRoute
   ShillRoute: typeof ShillRoute
   SignupRoute: typeof SignupRoute
   StudioRoute: typeof StudioRoute
-  CreatorsRoute: typeof CreatorsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -103,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creators': {
+      id: '/creators'
+      path: '/creators'
+      fullPath: '/creators'
+      preLoaderRoute: typeof CreatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shill': {
@@ -126,23 +134,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/creators': {
-      id: '/creators'
-      path: '/creators'
-      fullPath: '/creators'
-      preLoaderRoute: typeof CreatorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  CreatorsRoute: CreatorsRoute,
   ShillRoute: ShillRoute,
   SignupRoute: SignupRoute,
   StudioRoute: StudioRoute,
-  CreatorsRoute: CreatorsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
